@@ -116,6 +116,7 @@ view (w, h) model =
                 Connecting id node pos ->
                     [GraphMap.edgeForm node.pos pos]
                 otherwise -> []
+                
         graph =
             [ GraphMap.view (w, h) model.graphMap ]
 

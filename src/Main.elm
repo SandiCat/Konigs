@@ -20,7 +20,7 @@ main =
                 (\(w, h) (t, (state, (x, y))) -> state (x, y) t)
                 Window.dimensions
         )
-        ( Signal.sampleOn (Time.fps 30) Mouse.position
+        ( Mouse.position
             |> Signal.map Move
         )
     |> Signal.foldp MouseManipulator.update MouseManipulator.testModel
