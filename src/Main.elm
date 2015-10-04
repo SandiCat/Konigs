@@ -17,9 +17,7 @@ main =
                 (\state pos -> (if state then Hold else Release, pos))
                 Mouse.isDown
             |> Time.timestamp
-            |> Signal.map2
-                (\(w, h) (t, (state, (x, y))) -> state (x, y) t)
-                Window.dimensions
+            |> Signal.map (\(t, (state, (x, y))) -> state (x, y) t)
         , Mouse.position
             |> Signal.map Move
         , Time.fps 30
