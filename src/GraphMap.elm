@@ -7,6 +7,8 @@ import Debug
 import Svg
 import Svg.Attributes as Att
 import List.Extra
+import Layout
+import Time
 
 
 -- MODEL
@@ -30,12 +32,17 @@ testModel =
         Graph.fromNodesAndEdges nodes [(Graph.Edge 1 2 (Edge))]
         |> Model
 
+empty: Model
+empty =
+    Model Graph.empty
+
 
 -- UPDATE
 
 type Action
     = AddNode Node.Model
     | AddEdge Graph.NodeId Graph.NodeId Edge
+    | StepLayout Time.Time
 
 update: Action -> Model -> Model
 update action model =
@@ -44,6 +51,8 @@ update action model =
             {model | graph <- addUnconnectedNode node model.graph}
         AddEdge a b edge ->
             {model | graph <- addEdge a b edge model.graph}
+        StepLayout dt ->
+            {model | graph <- Layout.stepLayout model.graph dt}
 
 addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
 addEdge a b edge graph =
@@ -65,7 +74,8 @@ addUnconnectedNode node graph =
                 Just (a, b) -> b + 1
                 Nothing -> 1
 
-        newNode = {node = Graph.Node id node, incoming = IntDict.empty, outgoing = IntDict.empty}
+        newNode = 
+            {node = Graph.Node id node, incoming = IntDict.empty, outgoing = IntDict.empty}
     in
         Graph.insert newNode graph
 

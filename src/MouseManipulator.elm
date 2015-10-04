@@ -45,6 +45,7 @@ type Action
     = Hold (Int, Int) Time.Time
     | Release (Int, Int) Time.Time
     | Move (Int, Int)
+    | Tick Time.Time
 
 update: Action -> Model -> Model
 update action model =
@@ -66,6 +67,8 @@ update action model =
                 Connecting id node pos' ->
                     {model | state <- Connecting id node pos}
                 otherwise -> model
+        Tick dt ->
+            {model | graphMap <- GraphMap.update (StepLayout dt) model.graphMap}
 
 startConnecting: (Int, Int) -> Model -> Model
 startConnecting pos model =
@@ -116,7 +119,7 @@ view (w, h) model =
                 Connecting id node pos ->
                     [GraphMap.edgeForm node.pos pos]
                 otherwise -> []
-                
+
         graph =
             [ GraphMap.view (w, h) model.graphMap ]
 
