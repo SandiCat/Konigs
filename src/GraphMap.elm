@@ -82,12 +82,12 @@ addUnconnectedNode node graph =
 
 -- VIEW
 
-view: (Int, Int) -> Model -> Svg.Svg
-view (w, h) model =
-    showGraph model.graph (w, h)
+view: Model -> Svg.Svg
+view model =
+    showGraph model.graph
 
-showGraph: Graph -> (Int, Int) -> Svg.Svg
-showGraph graph (w, h) =
+showGraph: Graph -> Svg.Svg
+showGraph graph =
     let
         toPositions list =
             List.filterMap (\id -> Graph.get id graph) list

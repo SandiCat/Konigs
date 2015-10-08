@@ -9,6 +9,7 @@ import Html.Attributes
 import Html
 import Svg
 import Svg.Attributes as Att
+import FpsClock
 
 
 -- MODEL
@@ -17,6 +18,7 @@ type alias Model =
     { graphMap: GraphMap.Model
     , state: State
     , click: Click
+    , fpsClock: FpsClock.Model
     }
 
 type Click
@@ -29,7 +31,7 @@ type State
 
 testModel: Model
 testModel =
-    Model GraphMap.testModel NoOp (SingleClick 0)
+    Model GraphMap.testModel NoOp (SingleClick 0) FpsClock.init
 
 getPointedNode: (Int, Int) -> GraphMap.Graph -> Maybe (Graph.NodeId, Node.Model)
 getPointedNode pos graph =
@@ -68,7 +70,10 @@ update action model =
                     {model | state <- Connecting id node pos}
                 otherwise -> model
         Tick dt ->
-            {model | graphMap <- GraphMap.update (StepLayout dt) model.graphMap}
+            {model
+                | graphMap <- GraphMap.update (StepLayout dt) model.graphMap
+                , fpsClock <- FpsClock.update dt
+            }
 
 startConnecting: (Int, Int) -> Model -> Model
 startConnecting pos model =
@@ -121,14 +126,17 @@ view (w, h) model =
                 otherwise -> []
 
         graph =
-            [ GraphMap.view (w, h) model.graphMap ]
+            [ GraphMap.view model.graphMap ]
+
+        fps =
+            [ FpsClock.view model.fpsClock ]
 
         svg =
             Svg.svg
                 [ toString w |> Att.width
                 , toString h |> Att.height
                 ]
-                (connection ++ graph)
+                (fps ++ connection ++ graph)
     in
         Html.div [unselectableStyle] [svg]
 
