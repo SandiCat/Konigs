@@ -70,7 +70,7 @@ update action model =
                     {model | state <- Connecting id node pos}
                 otherwise -> model
         Tick dt ->
-            {model
+            { model
                 | graphMap <- GraphMap.update (StepLayout dt) model.graphMap
                 , fpsClock <- FpsClock.update dt
             }
@@ -90,9 +90,10 @@ endConnecting id pos model =
             if id == id' then
                 {model | state <- NoOp}
             else
-                {model
+                { model
                     | graphMap <- GraphMap.update (AddEdge id id' {}) model.graphMap
-                    , state <- NoOp }
+                    , state <- NoOp
+                }
 
 handleDoubleClick: (Int, Int) -> Time.Time -> Model -> Model
 handleDoubleClick pos t model =
