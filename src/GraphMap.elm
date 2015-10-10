@@ -103,8 +103,7 @@ showGraph graph =
 
         nodes =
             Graph.nodes graph
-            |> List.map .label
-            |> List.map (Node.view {})
+            |> List.map (.label >> Node.view {})
     in
         Svg.g [] (edges ++ nodes)
 

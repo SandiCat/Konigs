@@ -48,9 +48,7 @@ nodeAttract ctx graph =
         IntDict.union ctx.incoming ctx.outgoing
         |> IntDict.keys
         |> List.filterMap (\id -> Graph.get id graph)
-        |> List.map (\ctx -> ctx.node.label.pos)
-        |> List.map posToVec
-        |> List.map calculateForce
+        |> List.map ((\ctx -> ctx.node.label.pos) >> posToVec >> calculateForce)
         |> List.foldr Vec.add nil
 
 nodeRepulse: Context e -> Graph' e -> Vec.Vec2
