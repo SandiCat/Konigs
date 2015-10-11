@@ -13,7 +13,7 @@ c1 = 50
 c2: Float
 c2 = 200
 c3: Float
-c3 = 400
+c3 = 1000000
 c4: Float
 c4 = 10
 
@@ -62,10 +62,19 @@ nodeRepulse ctx graph =
 
         calculateForce vec =
             Vec.direction thisVec vec
-            |> Vec.scale (c3 / (Vec.distance thisVec vec)^2) 
+            |> Vec.scale (c3 / (Vec.distance thisVec vec)^2)
+
+        isKeep {id, label} =
+            case Graph.get id graph of
+                Nothing -> False
+                Just {node, incoming, outgoing} ->
+                    (id /= ctx.node.id)
+                    && (IntDict.member id neighbours |> not)
+                    && (IntDict.isEmpty incoming |> not)
+                    && (IntDict.isEmpty outgoing |> not)
     in
         Graph.nodes graph
-        |> List.filter (\{id, label} -> IntDict.member id neighbours |> not |> (&&) (id /= ctx.node.id))
+        |> List.filter isKeep
         |> List.map (\node -> node.label.pos)
         |> List.map posToVec
         |> List.map calculateForce
@@ -89,6 +98,9 @@ stepLayout graph dt =
             Focus.create .pos (\f rec  -> {rec | pos <- f rec.pos})
 
         update ctx =
-            Focus.update (node => label => pos)  (stepPos ctx) ctx
+            if IntDict.isEmpty ctx.incoming && IntDict.isEmpty ctx.outgoing then
+                ctx
+            else
+                Focus.update (node => label => pos)  (stepPos ctx) ctx
     in
         Graph.mapContexts update graph
