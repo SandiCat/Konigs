@@ -64,20 +64,17 @@ nodeRepulse ctx graph =
             Vec.direction thisVec vec
             |> Vec.scale (c3 / (Vec.distance thisVec vec)^2)
 
-        isKeep {id, label} =
+        keep {id, label} =
             case Graph.get id graph of
                 Nothing -> False
                 Just {node, incoming, outgoing} ->
                     (id /= ctx.node.id)
                     && (IntDict.member id neighbours |> not)
-                    && (IntDict.isEmpty incoming |> not)
-                    && (IntDict.isEmpty outgoing |> not)
+                    && ((IntDict.isEmpty incoming |> not) || (IntDict.isEmpty outgoing |> not))
     in
         Graph.nodes graph
-        |> List.filter isKeep
-        |> List.map (\node -> node.label.pos)
-        |> List.map posToVec
-        |> List.map calculateForce
+        |> List.filter keep
+        |> List.map ((\node -> node.label.pos) >> posToVec >> calculateForce)
         |> List.foldr Vec.add nil
 
 stepLayout: Graph' e -> Float -> Graph' e
