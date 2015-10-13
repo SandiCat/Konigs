@@ -125,7 +125,7 @@ view (w, h) model =
                 [ toString w |> Att.width
                 , toString h |> Att.height
                 ]
-                (fps ++ connection ++ graph)
+                (connection ++ graph ++ fps)
     in
         Html.div [unselectableStyle] [svg]
 
