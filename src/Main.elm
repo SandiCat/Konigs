@@ -11,13 +11,10 @@ import Mouse
 main: Signal.Signal Html.Html
 main =
     Signal.mergeMany
-        [ Signal.sampleOn Mouse.isDown Mouse.position
-            -- this could have been prettier if sampleOn kept values from both signals
-            |> Signal.map2
-                (\state pos -> (if state then Hold else Release, pos))
-                Mouse.isDown
-            |> Time.timestamp
-            |> Signal.map (\(t, (state, (x, y))) -> state (x, y) t)
+        [ Signal.map2
+            (\s (x, y) -> (if s then Hold else Release) (x, y))
+            Mouse.isDown Mouse.position
+            |> Signal.sampleOn Mouse.isDown
         , Mouse.position
             |> Signal.map Move
         , Time.fps 30

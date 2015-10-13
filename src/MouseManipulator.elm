@@ -17,13 +17,9 @@ import FpsClock
 type alias Model =
     { graphMap: GraphMap.Model
     , state: State
-    , click: Click
+    , dtLastClick: Time.Time
     , fpsClock: FpsClock.Model
     }
-
-type Click
-    = DoubleClick
-    | SingleClick Time.Time
 
 type State
     = NoOp
@@ -31,7 +27,7 @@ type State
 
 testModel: Model
 testModel =
-    Model GraphMap.testModel NoOp (SingleClick 0) FpsClock.init
+    Model GraphMap.testModel NoOp 10000000 FpsClock.init
 
 getPointedNode: (Int, Int) -> GraphMap.Graph -> Maybe (Graph.NodeId, Node.Model)
 getPointedNode pos graph =
@@ -44,26 +40,26 @@ getPointedNode pos graph =
 -- UPDATE
 
 type Action
-    = Hold (Int, Int) Time.Time
-    | Release (Int, Int) Time.Time
+    = Hold (Int, Int)
+    | Release (Int, Int)
     | Move (Int, Int)
     | Tick Time.Time
 
 update: Action -> Model -> Model
 update action model =
     case action of
-        Hold pos t ->
+        Hold pos ->
             case model.state of
                 NoOp ->
                     startConnecting pos model
                 otherwise ->
                     Debug.log "otherwise in Hold/NoOp branch of MouseManipulator" model
-        Release pos t ->
+        Release pos ->
             case model.state of
                 Connecting id node pos' ->
                     endConnecting id pos model
                 otherwise ->
-                    handleDoubleClick pos t model
+                    handleDoubleClick pos model
         Move pos ->
             case model.state of
                 Connecting id node pos' ->
@@ -73,6 +69,7 @@ update action model =
             { model
                 | graphMap <- GraphMap.update (StepLayout dt) model.graphMap
                 , fpsClock <- FpsClock.update dt
+                , dtLastClick <- model.dtLastClick + dt
             }
 
 startConnecting: (Int, Int) -> Model -> Model
@@ -95,24 +92,15 @@ endConnecting id pos model =
                     , state <- NoOp
                 }
 
-handleDoubleClick: (Int, Int) -> Time.Time -> Model -> Model
-handleDoubleClick pos t model =
-    let
-        afterClickUpdate =
-            { model | click <-
-                case model.click of
-                    DoubleClick -> SingleClick t
-                    SingleClick t'  -> if t-t' < 500 then DoubleClick else SingleClick t
-            }
-
-        node =
-            Node.plainNode pos
-    in
-        case afterClickUpdate.click of
-            SingleClick _ -> afterClickUpdate
-            DoubleClick ->
-                {afterClickUpdate | graphMap <-
-                    GraphMap.update (AddNode node) afterClickUpdate.graphMap}
+handleDoubleClick: (Int, Int) -> Model -> Model
+handleDoubleClick pos model =
+    if model.dtLastClick <= 500 then
+        { model
+            | graphMap <- GraphMap.update (Node.plainNode pos |> AddNode) model.graphMap
+            , dtLastClick <- 0
+        }
+    else
+        { model | dtLastClick <- 0 }
 
 
 -- VIEW
