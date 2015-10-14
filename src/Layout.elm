@@ -80,10 +80,13 @@ nodeRepulse ctx graph =
 stepLayout: Graph' e -> Float -> Graph' e
 stepLayout graph dt =
     let
+        dt' =
+            if dt > 0.6 * Time.second then 0 else dt
+
         stepPos ctx pos =
             Vec.add (nodeRepulse ctx graph) (nodeAttract ctx graph)
             |> Vec.scale c4
-            |> Vec.scale (Time.inSeconds dt)
+            |> Vec.scale (Time.inSeconds dt')
             |> Vec.add (posToVec pos)
             |> vecToPos
 
