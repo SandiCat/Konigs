@@ -13,7 +13,7 @@ c1 = 50
 c2: Float
 c2 = 200
 c3: Float
-c3 = 1000000
+c3 = 500000
 c4: Float
 c4 = 10
 
