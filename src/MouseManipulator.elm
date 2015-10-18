@@ -127,7 +127,7 @@ view (w, h) model =
                 ]
                 (connection ++ graph ++ fps)
     in
-        Html.div [unselectableStyle] [svg]
+        Html.div [{-unselectableStyle-}] [svg]
 
 unselectableStyle: Html.Attribute
 unselectableStyle =
