@@ -3,7 +3,6 @@ import Signal
 import Mouse
 import Window
 import Html
-import Html.Lazy
 import MouseManipulator exposing (Action (..))
 import Mouse
 
@@ -21,4 +20,4 @@ main =
             |> Signal.map Tick
         ]
     |> Signal.foldp MouseManipulator.update MouseManipulator.testModel
-    |> Signal.map2 (Html.Lazy.lazy2 MouseManipulator.view) Window.dimensions
+    |> Signal.map2 MouseManipulator.view Window.dimensions
