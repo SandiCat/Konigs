@@ -29,7 +29,7 @@ testModel =
             [(600 - 100, 400), (600, 400 - 100), (600, 400 + 100)]
             [1..3]
     in
-        Graph.fromNodesAndEdges nodes [(Graph.Edge 1 2 (Edge))]
+        Graph.fromNodesAndEdges nodes [ Graph.Edge 1 2 (Edge) ]
         |> Model
 
 empty: Model
