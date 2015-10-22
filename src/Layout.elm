@@ -15,7 +15,7 @@ c2 = 200
 c3: Float
 c3 = 500000
 c4: Float
-c4 = 10
+c4 = 1
 
 nil: Vec.Vec2
 nil =
@@ -80,13 +80,9 @@ nodeRepulse ctx graph =
 stepLayout: Graph' e -> Float -> Graph' e
 stepLayout graph dt =
     let
-        dt' =
-            if dt > 0.6 * Time.second then 0 else dt
-
         stepPos ctx pos =
             Vec.add (nodeRepulse ctx graph) (nodeAttract ctx graph)
             |> Vec.scale c4
-            |> Vec.scale (Time.inSeconds dt')
             |> Vec.add (posToVec pos)
             |> vecToPos
 
