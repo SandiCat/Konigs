@@ -23,7 +23,7 @@ type alias Model =
 
 type State
     = NoOp
-    | Connecting Graph.NodeId Node.Model (Int, Int)
+    | Connecting Graph.NodeId (Int, Int)
 
 testModel: Model
 testModel =
@@ -56,14 +56,14 @@ update action model =
                     Debug.log "otherwise in Hold/NoOp branch of MouseManipulator" model
         Release pos ->
             case model.state of
-                Connecting id node pos' ->
+                Connecting id pos' ->
                     endConnecting id pos model
                 otherwise ->
                     handleDoubleClick pos model
         Move pos ->
             case model.state of
-                Connecting id node pos' ->
-                    {model | state <- Connecting id node pos}
+                Connecting id pos' ->
+                    {model | state <- Connecting id pos}
                 otherwise -> model
         Tick dt ->
             { model
@@ -77,7 +77,7 @@ startConnecting pos model =
     case getPointedNode pos model.graphMap.graph of
         Nothing -> model
         Just (id, node) ->
-            {model | state <- Connecting id node (fst node.pos, snd node.pos)}
+            {model | state <- Connecting id (fst node.pos, snd node.pos)}
 
 endConnecting: Graph.NodeId -> (Int, Int) -> Model -> Model
 endConnecting id pos model =
@@ -110,8 +110,11 @@ view (w, h) model =
     let
         connection =
             case model.state of
-                Connecting id node pos ->
-                    [GraphMap.edgeForm node.pos pos]
+                Connecting id pos ->
+                    case Graph.get id model.graphMap.graph of
+                        Nothing -> []
+                        Just {incoming, node, outgoing} ->
+                            [ GraphMap.edgeForm node.label.pos pos ]
                 otherwise -> []
 
         graph =
