@@ -115,7 +115,7 @@ view (w, h) model =
                 [ toString w |> Att.width
                 , toString h |> Att.height
                 ]
-                ( 
+                (
                     connection
                     ++
                     [ GraphMap.view model.graphMap

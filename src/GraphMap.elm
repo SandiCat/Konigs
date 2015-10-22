@@ -26,13 +26,17 @@ type alias Edge = {}
 
 testModel: Model
 testModel =
-    let
-        nodes = List.map2 (\pos id -> Node.plainNode pos |> Graph.Node id)
-            [(600 - 100, 400), (600, 400 - 100), (600, 400 + 100)]
-            [1..3]
-    in
-        Graph.fromNodesAndEdges nodes [ Graph.Edge 1 2 (Edge) ]
-        |> Model
+    Graph.fromNodeLabelsAndEdgePairs
+        (List.map (\i -> Node.plainNode (500 + 30*i, 300 + (-1)^i*30*i)) [0..5])
+        [ (0, 1)
+        , (0, 2)
+        , (2, 3)
+        , (3, 4)
+        , (2, 5)
+        , (2, 4)
+        ]
+    |> Graph.mapEdges (always {})
+    |> Model
 
 empty: Model
 empty =
