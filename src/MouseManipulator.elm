@@ -110,20 +110,20 @@ view (w, h) model =
                             [ GraphMap.edgeForm node.label.pos pos ]
                 otherwise -> []
 
-        graph =
-            [ GraphMap.view model.graphMap ]
-
-        fps =
-            [ FpsClock.view model.fpsClock ]
-
         svg =
             Svg.svg
                 [ toString w |> Att.width
                 , toString h |> Att.height
                 ]
-                (connection ++ graph ++ fps)
+                ( 
+                    connection
+                    ++
+                    [ GraphMap.view model.graphMap
+                    , FpsClock.view model.fpsClock
+                    ]
+                )
     in
-        Html.div [{-unselectableStyle-}] [svg]
+        Html.div [ unselectableStyle ] [ svg ]
 
 unselectableStyle: Html.Attribute
 unselectableStyle =
