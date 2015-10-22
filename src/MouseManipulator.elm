@@ -29,13 +29,6 @@ testModel: Model
 testModel =
     Model GraphMap.testModel NoOp 10000000 FpsClock.init
 
-getPointedNode: (Int, Int) -> GraphMap.Graph -> Maybe (Graph.NodeId, Node.Model)
-getPointedNode pos graph =
-    Graph.nodes graph
-    |> List.filter (\n -> Node.isMouseWithin pos n.label)
-    |> List.map (\n -> (n.id, n.label))
-    |> List.head
-
 
 -- UPDATE
 
@@ -74,14 +67,14 @@ update action model =
 
 startConnecting: (Int, Int) -> Model -> Model
 startConnecting pos model =
-    case getPointedNode pos model.graphMap.graph of
+    case GraphMap.getPointedNode pos model.graphMap of
         Nothing -> model
         Just (id, node) ->
             {model | state <- Connecting id (fst node.pos, snd node.pos)}
 
 endConnecting: Graph.NodeId -> (Int, Int) -> Model -> Model
 endConnecting id pos model =
-    case getPointedNode pos model.graphMap.graph of
+    case GraphMap.getPointedNode pos model.graphMap of
         Nothing -> {model | state <- NoOp}
         Just (id', node') ->
             if id == id' then

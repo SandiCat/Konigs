@@ -1,4 +1,4 @@
-module Layout (stepLayout) where
+module Layout (stepLayout, drawForces) where
 
 import Graph
 import IntDict
@@ -7,9 +7,11 @@ import Focus exposing ((=>))
 import Time
 import Node
 import Debug
+import Svg
+import Svg.Attributes as Att
 
 c1: Float
-c1 = 50
+c1 = 100
 c2: Float
 c2 = 200
 c3: Float
@@ -35,7 +37,7 @@ type alias Context e =
 type alias Graph' e =
     Graph.Graph Node.Model e
 
-nodeAttract: Context e -> Graph' e -> Vec.Vec2
+nodeAttract: Context e -> Graph' e -> List Vec.Vec2
 nodeAttract ctx graph =
     let
         thisVec =
@@ -45,13 +47,15 @@ nodeAttract ctx graph =
             Vec.direction thisVec vec
             |> Vec.scale (-c1 * (logBase 10 ((Vec.distance thisVec vec) / c2)))
     in
-        IntDict.union ctx.incoming ctx.outgoing
-        |> IntDict.keys
-        |> List.filterMap (\id -> Graph.get id graph)
-        |> List.map ((\ctx -> ctx.node.label.pos) >> posToVec >> calculateForce)
-        |> List.foldr Vec.add nil
+        if IntDict.isEmpty ctx.incoming && IntDict.isEmpty ctx.outgoing then
+            []
+        else
+            IntDict.union ctx.incoming ctx.outgoing
+            |> IntDict.keys
+            |> List.filterMap (\id -> Graph.get id graph)
+            |> List.map ((\ctx -> ctx.node.label.pos) >> posToVec >> calculateForce)
 
-nodeRepulse: Context e -> Graph' e -> Vec.Vec2
+nodeRepulse: Context e -> Graph' e -> List Vec.Vec2
 nodeRepulse ctx graph =
     let
         neighbours =
@@ -72,16 +76,19 @@ nodeRepulse ctx graph =
                     && (IntDict.member id neighbours |> not)
                     && ((IntDict.isEmpty incoming |> not) || (IntDict.isEmpty outgoing |> not))
     in
-        Graph.nodes graph
-        |> List.filter keep
-        |> List.map ((\node -> node.label.pos) >> posToVec >> calculateForce)
-        |> List.foldr Vec.add nil
+        if IntDict.isEmpty ctx.incoming && IntDict.isEmpty ctx.outgoing then
+            []
+        else
+            Graph.nodes graph
+            |> List.filter keep
+            |> List.map ((\node -> node.label.pos) >> posToVec >> calculateForce)
 
 stepLayout: Graph' e -> Float -> Graph' e
 stepLayout graph dt =
     let
         stepPos ctx pos =
-            Vec.add (nodeRepulse ctx graph) (nodeAttract ctx graph)
+            (nodeRepulse ctx graph ++ nodeAttract ctx graph)
+            |> List.foldr Vec.add nil
             |> Vec.scale c4
             |> Vec.add (posToVec pos)
             |> vecToPos
@@ -94,9 +101,34 @@ stepLayout graph dt =
             Focus.create .pos (\f rec  -> {rec | pos <- f rec.pos})
 
         update ctx =
-            if IntDict.isEmpty ctx.incoming && IntDict.isEmpty ctx.outgoing then
-                ctx
-            else
-                Focus.update (node => label => pos)  (stepPos ctx) ctx
+            Focus.update (node => label => pos)  (stepPos ctx) ctx
     in
         Graph.mapContexts update graph
+
+drawForces: Graph' e -> Svg.Svg
+drawForces graph =
+    let
+        singleForce (x, y) vec color =
+            Svg.line
+                [ toString x |> Att.x1
+                , toString y |> Att.y1
+                , Vec.getX vec |> round |> (+) x |> toString |> Att.x2
+                , Vec.getY vec |> round |> (+) y |> toString |> Att.y2
+                , Att.stroke color
+                , Att.strokeWidth "3"
+                ]
+                []
+
+        singleNode node color forceF =
+            case Graph.get node.id graph of
+                Just ctx ->
+                    forceF ctx graph
+                    |> List.map 
+                        (\vec -> singleForce node.label.pos (Vec.scale 30 vec) color)
+                Nothing -> []
+    in
+        Graph.nodes graph
+        |> List.map 
+            (\n -> singleNode  n "red" nodeRepulse ++ singleNode n "yellow" nodeAttract)
+        |> List.concat
+        |> Svg.g []

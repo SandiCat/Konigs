@@ -1,4 +1,6 @@
-module GraphMap (Model, testModel, Action (..), update, view, Graph, edgeForm) where
+module GraphMap 
+    (Model, testModel, Action (..), update, view, Graph, edgeForm, getPointedNode)
+    where
 
 import Graph
 import IntDict
@@ -35,6 +37,13 @@ testModel =
 empty: Model
 empty =
     Model Graph.empty
+
+getPointedNode: (Int, Int) -> Model -> Maybe (Graph.NodeId, Node.Model)
+getPointedNode pos model =
+    Graph.nodes model.graph
+    |> List.filter (\n -> Node.isMouseWithin pos n.label)
+    |> List.map (\n -> (n.id, n.label))
+    |> List.head
 
 
 -- UPDATE
@@ -84,7 +93,10 @@ addUnconnectedNode node graph =
 
 view: Model -> Svg.Svg
 view model =
-    showGraph model.graph
+    Svg.g [] 
+    [ showGraph model.graph
+    --, Layout.drawForces model.graph
+    ]
 
 showGraph: Graph -> Svg.Svg
 showGraph graph =
