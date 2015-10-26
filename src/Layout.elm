@@ -47,13 +47,10 @@ nodeAttract ctx graph =
             Vec.direction thisVec vec
             |> Vec.scale (-c1 * (logBase 10 ((Vec.distance thisVec vec) / c2)))
     in
-        if IntDict.isEmpty ctx.incoming && IntDict.isEmpty ctx.outgoing then
-            []
-        else
-            IntDict.union ctx.incoming ctx.outgoing
-            |> IntDict.keys
-            |> List.filterMap (\id -> Graph.get id graph)
-            |> List.map ((\ctx -> ctx.node.label.pos) >> posToVec >> calculateForce)
+        IntDict.union ctx.incoming ctx.outgoing
+        |> IntDict.keys
+        |> List.filterMap (\id -> Graph.get id graph)
+        |> List.map ((\ctx -> ctx.node.label.pos) >> posToVec >> calculateForce)
 
 nodeRepulse: Context e -> Graph' e -> List Vec.Vec2
 nodeRepulse ctx graph =
@@ -94,14 +91,14 @@ stepLayout graph dt =
             |> vecToPos
 
         node =
-            Focus.create .node (\f rec  -> {rec | node <- f rec.node})
+            Focus.create .node (\f rec -> {rec | node <- f rec.node})
         label =
-            Focus.create .label (\f rec  -> {rec | label <- f rec.label})
+            Focus.create .label (\f rec -> {rec | label <- f rec.label})
         pos =
-            Focus.create .pos (\f rec  -> {rec | pos <- f rec.pos})
+            Focus.create .pos (\f rec -> {rec | pos <- f rec.pos})
 
         update ctx =
-            Focus.update (node => label => pos)  (stepPos ctx) ctx
+            Focus.update (node => label => pos) (stepPos ctx) ctx
     in
         Graph.mapContexts update graph
 
@@ -119,16 +116,17 @@ drawForces graph =
                 ]
                 []
 
-        singleNode node color forceF =
-            case Graph.get node.id graph of
-                Just ctx ->
-                    forceF ctx graph
-                    |> List.map 
-                        (\vec -> singleForce node.label.pos (Vec.scale 30 vec) color)
-                Nothing -> []
+        singleNode ctx color forceF =
+            forceF ctx graph
+            |> List.map 
+                (\vec -> singleForce ctx.node.label.pos (Vec.scale 30 vec) color)
     in
-        Graph.nodes graph
-        |> List.map 
-            (\n -> singleNode  n "red" nodeRepulse ++ singleNode n "yellow" nodeAttract)
+        Graph.fold
+            ( \ctx acc ->
+                singleNode ctx "yellow" nodeAttract
+                :: singleNode ctx "red" nodeRepulse
+                :: acc )
+            []
+            graph
         |> List.concat
         |> Svg.g []
