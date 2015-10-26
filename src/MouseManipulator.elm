@@ -1,4 +1,6 @@
-module MouseManipulator where
+module MouseManipulator
+    (Model, testModel, Action (..), update, view)
+    where
 
 import GraphMap exposing (Action (..))
 import Time
