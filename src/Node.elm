@@ -83,7 +83,7 @@ view context model =
                 , snd model.pos |> toString |> Att.cy
                 , round radius' |> toString |> Att.r
                 , Att.fill "white"
-                , Att.stroke "blue"
+                , Att.stroke "#5E81C1"
                 , toString model.thickness |> Att.strokeWidth
                 ]
                 []

@@ -134,7 +134,7 @@ edgeForm (x, y) (x', y') =
         , toString y |> Att.y1
         , toString x' |> Att.x2
         , toString y' |> Att.y2
-        , Att.stroke "black"
+        , Att.stroke "#244F9F"
         , Att.fill "transparent"
         , Att.strokeWidth "5"
         ]
