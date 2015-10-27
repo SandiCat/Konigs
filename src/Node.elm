@@ -1,4 +1,4 @@
-module Node (Model, view, Context, isMouseWithin, plainNode) where
+module Node (Model, view, Context, isMouseWithin, init) where
 
 --import Debug
 import Svg
@@ -14,8 +14,8 @@ type alias Model =
     , thickness: Int
     }
 
-plainNode: (Int, Int) -> Model
-plainNode pos =
+init: (Int, Int) -> Model
+init pos =
     Model pos "" 40 7
 
 isMouseWithin: (Int, Int) -> Model -> Bool

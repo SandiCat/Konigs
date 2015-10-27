@@ -91,7 +91,7 @@ handleDoubleClick: (Int, Int) -> Model -> Model
 handleDoubleClick pos model =
     if model.dtLastClick <= 500 then
         { model
-            | graphMap <- GraphMap.update (Node.plainNode pos |> AddNode) model.graphMap
+            | graphMap <- GraphMap.update (Node.init pos |> AddNode) model.graphMap
             , dtLastClick <- 0
         }
     else
