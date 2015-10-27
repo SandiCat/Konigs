@@ -4,7 +4,6 @@ import Graph
 import IntDict
 import Math.Vector2 as Vec
 import Focus exposing ((=>))
-import Time
 import Node
 import Debug
 import Svg
@@ -80,8 +79,8 @@ nodeRepulse ctx graph =
             |> List.filter keep
             |> List.map ((\node -> node.label.pos) >> posToVec >> calculateForce)
 
-stepLayout: Graph' e -> Float -> Graph' e
-stepLayout graph dt =
+stepLayout: Graph' e -> Graph' e
+stepLayout graph =
     let
         stepPos ctx pos =
             (nodeRepulse ctx graph ++ nodeAttract ctx graph)

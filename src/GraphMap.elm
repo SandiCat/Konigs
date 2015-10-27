@@ -55,7 +55,8 @@ getPointedNode pos model =
 type Action
     = AddNode Node.Model
     | AddEdge Graph.NodeId Graph.NodeId Edge
-    | StepLayout Time.Time
+    | StepLayout
+    | TickNodes Time.Time
 
 update: Action -> Model -> Model
 update action model =
@@ -64,8 +65,10 @@ update action model =
             {model | graph <- addUnconnectedNode node model.graph}
         AddEdge a b edge ->
             {model | graph <- addEdge a b edge model.graph}
-        StepLayout dt ->
-            {model | graph <- Layout.stepLayout model.graph dt}
+        StepLayout ->
+            {model | graph <- Layout.stepLayout model.graph}
+        TickNodes dt ->
+            {model | graph <- Graph.mapNodes (Node.Tick dt |> Node.update) model.graph}
 
 addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
 addEdge a b edge graph =

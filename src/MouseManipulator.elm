@@ -62,7 +62,9 @@ update action model =
                 otherwise -> model
         Tick dt ->
             { model
-                | graphMap <- GraphMap.update (StepLayout dt) model.graphMap
+                | graphMap <-
+                    GraphMap.update StepLayout model.graphMap
+                    |> GraphMap.update (TickNodes dt)
                 , fpsClock <- FpsClock.update dt
                 , dtLastClick <- model.dtLastClick + dt
             }
