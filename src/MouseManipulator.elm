@@ -53,13 +53,13 @@ update action model =
             case model.state of
                 Connecting id pos' ->
                     endConnecting id pos model
-                otherwise ->
+                NoOp ->
                     handleDoubleClick pos model
         Move pos ->
             case model.state of
                 Connecting id pos' ->
                     {model | state <- Connecting id pos}
-                otherwise -> model
+                NoOp -> model
         Tick dt ->
             { model
                 | graphMap <-
@@ -93,7 +93,7 @@ handleDoubleClick: (Int, Int) -> Model -> Model
 handleDoubleClick pos model =
     if model.dtLastClick <= 500 then
         { model
-            | graphMap <- GraphMap.update (Node.init pos |> AddNode) model.graphMap
+            | graphMap <- GraphMap.update (Node.testNode pos |> AddNode) model.graphMap
             , dtLastClick <- 0
         }
     else

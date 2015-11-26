@@ -1,12 +1,11 @@
-module Node
-    (Model, view, Context, isMouseWithin, init, update, Action (..))
-    where
+module Node where
 
 import Debug
 import Svg
-import Svg.Attributes as Att
 import Time
-import NodeBase exposing (Action(..))
+import NodeBase
+import MetaContent
+import Content.Term as Term
 
 
 -- MODEL
@@ -15,11 +14,17 @@ type alias Model =
     { pos: (Int, Int)
     , radius: Int
     , base: NodeBase.Model
+    , content: MetaContent.MultiModel
     }
 
-init: (Int, Int) -> Model
-init pos =
-    Model pos 40 NodeBase.init
+init: (Int, Int) -> MetaContent.MultiModel -> Model
+init pos content =
+    Model pos 40 NodeBase.init content
+
+testNode: (Int, Int) -> Model
+testNode pos =
+    Term.init "Test Term" |> MetaContent.MTerm
+    |> init pos
 
 isMouseWithin: (Int, Int) -> Model -> Bool
 isMouseWithin (x, y) model =
@@ -48,4 +53,7 @@ type alias Context = {}
 
 view: Context -> Model -> Svg.Svg
 view context model =
-    NodeBase.view model.pos model.radius model.base
+    Svg.g []
+        [ NodeBase.view model.pos model.radius model.base
+        , MetaContent.view model.pos model.radius model.content
+        ]

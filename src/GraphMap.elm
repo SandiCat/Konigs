@@ -27,7 +27,12 @@ type alias Edge = {}
 testModel: Model
 testModel =
     Graph.fromNodeLabelsAndEdgePairs
-        (List.map (\i -> Node.init (500 + 30*i, 300 + (-1)^i*30*i)) [0..5])
+        (List.map 
+            (\i -> 
+                Node.testNode (500 + 30*i, 300 + (-1)^i*30*i)
+            ) 
+            [0..5]
+        )
         [ (0, 1)
         , (0, 2)
         , (2, 3)
