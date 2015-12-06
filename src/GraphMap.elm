@@ -11,6 +11,7 @@ import Svg.Attributes as Att
 import List.Extra
 import Layout
 import Time
+import Focus exposing ((=>))
 
 
 -- MODEL
@@ -62,18 +63,33 @@ type Action
     | AddEdge Graph.NodeId Graph.NodeId Edge
     | StepLayout
     | TickNodes Time.Time
+    | NodeAction Graph.NodeId Node.Action
 
 update: Action -> Model -> Model
 update action model =
     case action of
         AddNode node ->
-            {model | graph <- addUnconnectedNode node model.graph}
+            {model | graph = addUnconnectedNode node model.graph}
         AddEdge a b edge ->
-            {model | graph <- addEdge a b edge model.graph}
+            {model | graph = addEdge a b edge model.graph}
         StepLayout ->
-            {model | graph <- Layout.stepLayout model.graph}
+            {model | graph = Layout.stepLayout model.graph}
         TickNodes dt ->
-            {model | graph <- Graph.mapNodes (Node.Tick dt |> Node.update) model.graph}
+            {model | graph = Graph.mapNodes (Node.Tick dt |> Node.update) model.graph}
+        NodeAction id nodeAction ->
+            let
+                updateCtx maybeCtx =
+                    case maybeCtx of
+                        Just ctx ->
+                            Focus.update
+                                (Graph.node => Graph.label)
+                                (Node.update nodeAction)
+                                ctx
+                            |> Just
+                        Nothing ->
+                            Nothing
+            in
+                {model | graph = Graph.update id updateCtx model.graph}
 
 addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
 addEdge a b edge graph =
@@ -82,7 +98,7 @@ addEdge a b edge graph =
             case maybectx of
                 Nothing -> Nothing
                 Just ctx -> Just
-                    {ctx | incoming <- IntDict.insert id edge ctx.incoming}
+                    {ctx | incoming = IntDict.insert id edge ctx.incoming}
     in
         Graph.update a (contextUpdate b) graph
         |> Graph.update b (contextUpdate a)
@@ -103,15 +119,8 @@ addUnconnectedNode node graph =
 
 -- VIEW
 
-view: Model -> Svg.Svg
-view model =
-    Svg.g [] 
-    [ showGraph model.graph
-    --, Layout.drawForces model.graph
-    ]
-
-showGraph: Graph -> Svg.Svg
-showGraph graph =
+view: Signal.Address Action -> Model -> Svg.Svg
+view address {graph} =
     let
         toPositions list =
             List.filterMap (\id -> Graph.get id graph) list
@@ -125,12 +134,16 @@ showGraph graph =
             |> (\(l1, l2) -> List.map2 (,) (toPositions l1) (toPositions l2))
             |> List.map (\(a, b) -> edgeForm a b)
 
+        context id =
+            NodeAction id
+            |> Signal.forwardTo address
+            |> Node.Context
+
         nodes =
             Graph.nodes graph
-            |> List.map (.label >> Node.view {})
+            |> List.map (\{id, label} -> Node.view (context id) label)
     in
         Svg.g [] (edges ++ nodes)
-
 
 edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg
 edgeForm (x, y) (x', y') =

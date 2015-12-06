@@ -90,11 +90,11 @@ stepLayout graph =
             |> vecToPos
 
         node =
-            Focus.create .node (\f rec -> {rec | node <- f rec.node})
+            Focus.create .node (\f rec -> {rec | node = f rec.node})
         label =
-            Focus.create .label (\f rec -> {rec | label <- f rec.label})
+            Focus.create .label (\f rec -> {rec | label = f rec.label})
         pos =
-            Focus.create .pos (\f rec -> {rec | pos <- f rec.pos})
+            Focus.create .pos (\f rec -> {rec | pos = f rec.pos})
 
         update ctx =
             Focus.update (node => label => pos) (stepPos ctx) ctx

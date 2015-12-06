@@ -12,6 +12,7 @@ import Html
 import Svg
 import Svg.Attributes as Att
 import FpsClock
+import Signal
 
 
 -- MODEL
@@ -39,6 +40,7 @@ type Action
     | Release (Int, Int)
     | Move (Int, Int)
     | Tick Time.Time
+    | GraphMapAction GraphMap.Action
 
 update: Action -> Model -> Model
 update action model =
@@ -58,52 +60,54 @@ update action model =
         Move pos ->
             case model.state of
                 Connecting id pos' ->
-                    {model | state <- Connecting id pos}
+                    {model | state = Connecting id pos}
                 NoOp -> model
         Tick dt ->
             { model
-                | graphMap <-
+                | graphMap =
                     GraphMap.update StepLayout model.graphMap
                     |> GraphMap.update (TickNodes dt)
-                , fpsClock <- FpsClock.update dt
-                , dtLastClick <- model.dtLastClick + dt
+                , fpsClock = FpsClock.update dt
+                , dtLastClick = model.dtLastClick + dt
             }
+        GraphMapAction graphMapAction ->
+            { model | graphMap = GraphMap.update graphMapAction model.graphMap}
 
 startConnecting: (Int, Int) -> Model -> Model
 startConnecting pos model =
     case GraphMap.getPointedNode pos model.graphMap of
         Nothing -> model
         Just (id, node) ->
-            {model | state <- Connecting id (fst node.pos, snd node.pos)}
+            {model | state = Connecting id (fst node.pos, snd node.pos)}
 
 endConnecting: Graph.NodeId -> (Int, Int) -> Model -> Model
 endConnecting id pos model =
     case GraphMap.getPointedNode pos model.graphMap of
-        Nothing -> {model | state <- NoOp}
+        Nothing -> {model | state = NoOp}
         Just (id', node') ->
             if id == id' then
-                {model | state <- NoOp}
+                {model | state = NoOp}
             else
                 { model
-                    | graphMap <- GraphMap.update (AddEdge id id' {}) model.graphMap
-                    , state <- NoOp
+                    | graphMap = GraphMap.update (AddEdge id id' {}) model.graphMap
+                    , state = NoOp
                 }
 
 handleDoubleClick: (Int, Int) -> Model -> Model
 handleDoubleClick pos model =
     if model.dtLastClick <= 500 then
         { model
-            | graphMap <- GraphMap.update (Node.testNode pos |> AddNode) model.graphMap
-            , dtLastClick <- 0
+            | graphMap = GraphMap.update (Node.testNode pos |> AddNode) model.graphMap
+            , dtLastClick = 0
         }
     else
-        { model | dtLastClick <- 0 }
+        { model | dtLastClick = 0 }
 
 
 -- VIEW
 
-view: (Int, Int) -> Model -> Html.Html
-view (w, h) model =
+view: Signal.Address Action -> (Int, Int) -> Model -> Html.Html
+view address (w, h) model =
     let
         connection =
             case model.state of
@@ -122,7 +126,7 @@ view (w, h) model =
                 (
                     connection
                     ++
-                    [ GraphMap.view model.graphMap
+                    [ GraphMap.view (Signal.forwardTo address GraphMapAction) model.graphMap
                     , FpsClock.view model.fpsClock
                     ]
                 )

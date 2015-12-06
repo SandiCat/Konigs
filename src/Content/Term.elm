@@ -2,6 +2,11 @@ module Content.Term where
 
 import Svg
 import Svg.Attributes as Att
+import ContentUtil
+import Html
+import Html.Attributes as HtmlAtt
+import Html.Events as Events
+import Signal
 
 
 -- MODEL
@@ -18,18 +23,28 @@ init text =
 -- UPDATE
 
 type Action
-    = NoOp
+    = InputChange String
 
 update: Action -> Model -> Model
 update action model =
-    model
+    case action of
+        InputChange newText ->
+            { model | text = newText }
+
 
 -- VIEW
 
-view: (Int, Int) -> Int -> Model -> Svg.Svg
-view pos radius model =
-    Svg.text'
-        [ fst pos |> toString |> Att.x
-        , snd pos |> toString |> Att.y
+view: ContentUtil.ViewContext Action -> Model -> Svg.Svg
+view context model =
+    Svg.foreignObject
+        [ Att.width "50"
+        , Att.height "50"
+        , fst context.pos |> toString |> Att.x
+        , snd context.pos |> toString |> Att.y
         ]
-        [ Svg.text model.text ]
+        [ Html.input
+            [ HtmlAtt.value model.text
+            , Events.on "input" Events.targetValue (InputChange >> Signal.message context.actions)
+            ]
+            []
+        ]

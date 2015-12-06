@@ -3,9 +3,11 @@ module Node where
 import Debug
 import Svg
 import Time
+import Signal
 import NodeBase
 import MetaContent
 import Content.Term as Term
+import ContentUtil
 
 
 -- MODEL
@@ -39,21 +41,28 @@ isMouseWithin (x, y) model =
 
 type Action
     = Tick Time.Time
+    | ContentAction MetaContent.MultiAction
 
 update: Action -> Model -> Model
 update action model =
     case action of
         Tick dt ->
-            {model | base <- NodeBase.update (NodeBase.Tick dt) model.base}
+            {model | base = NodeBase.update (NodeBase.Tick dt) model.base}
+        ContentAction contentAction ->
+            {model | content = MetaContent.update contentAction model.content}
 
 
 -- VIEW
 
-type alias Context = {}
+type alias Context =
+    { actions: Signal.Address Action}
 
 view: Context -> Model -> Svg.Svg
 view context model =
     Svg.g []
         [ NodeBase.view model.pos model.radius model.base
-        , MetaContent.view model.pos model.radius model.content
+        , MetaContent.view
+            (Signal.forwardTo context.actions ContentAction
+                |> ContentUtil.ViewContext model.pos model.radius)
+            model.content
         ]

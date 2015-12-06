@@ -38,9 +38,9 @@ update action model =
                 Appearing elapsed ->
                     let newElapsed = elapsed + dt in
                         if newElapsed >= appearDuration then
-                            {model | animation <- None}
+                            {model | animation = None}
                         else
-                            {model | animation <- newElapsed |> Appearing}
+                            {model | animation = newElapsed |> Appearing}
 
 
 -- VIEW

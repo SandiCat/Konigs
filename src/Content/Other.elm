@@ -2,6 +2,7 @@ module Content.Other where
 
 import Svg
 import Svg.Attributes as Att
+import ContentUtil
 
 
 -- MODEL
@@ -26,10 +27,10 @@ update action model =
 
 -- VIEW
 
-view: (Int, Int) -> Int -> Model -> Svg.Svg
-view pos radius model =
+view: ContentUtil.ViewContext Action -> Model -> Svg.Svg
+view context model =
     Svg.text'
-        [ fst pos |> toString |> Att.x
-        , snd pos |> toString |> Att.y
+        [ fst context.pos |> toString |> Att.x
+        , snd context.pos |> toString |> Att.y
         ]
         [ Svg.text "I'm Other" ]
