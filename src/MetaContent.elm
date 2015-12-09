@@ -49,6 +49,7 @@ update multiAction multiModel =
 
 view: ContentUtil.ViewContext MultiAction -> MultiModel -> Svg.Svg
 view context multiModel =
+    case multiModel of
         MOther model ->
             Other.view
                 { context | actions = Signal.forwardTo context.actions AOther }

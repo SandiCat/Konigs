@@ -67,6 +67,7 @@ update multiAction multiModel =
 
 view: ContentUtil.ViewContext MultiAction -> MultiModel -> Svg.Svg
 view context multiModel =
+    case multiModel of
 {}"""
 
 f = open(join("src", "MetaContent.elm"), "w")
