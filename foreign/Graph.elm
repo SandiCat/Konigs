@@ -652,17 +652,17 @@ so that the fold can exit early when the suspended accumulator is not forced.
 fold : (NodeContext n e -> acc -> acc) -> acc -> Graph n e -> acc
 fold f acc graph =
   let
-    go acc graph' =
+    go acc graph2 =
       let
         maybeContext =
-          graph'
+          graph2
             |> nodeIdRange
             |> Maybe.map fst
             |> flip Maybe.andThen (\id -> get id graph) -- get should never return Nothing
       in
         case maybeContext of
           Just ctx ->
-            go (f ctx acc) (remove ctx.node.id graph')
+            go (f ctx acc) (remove ctx.node.id graph2)
           Nothing ->
             acc
   in
