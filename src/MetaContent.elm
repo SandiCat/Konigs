@@ -8,21 +8,21 @@ import Signal
 import Debug
 import Svg
 
-import Content.Other as Other
+import Content.Button as Button
 import Content.Term as Term
 
 
 -- MODEL
 
 type MultiModel
-    = MOther Other.Model
+    = MButton Button.Model
     | MTerm Term.Model
 
 
 -- UPDATE
 
 type MultiAction
-    = AOther Other.Action
+    = AButton Button.Action
     | ATerm Term.Action
 
 mismatchError: String
@@ -31,10 +31,10 @@ mismatchError = "MetaContent.update action model type mismatch"
 update: MultiAction -> MultiModel -> MultiModel
 update multiAction multiModel =
     case multiAction of
-        AOther action ->
+        AButton action ->
             case multiModel of
-                MOther model ->
-                    Other.update action model |> MOther
+                MButton model ->
+                    Button.update action model |> MButton
                 otherwise ->
                     Debug.crash mismatchError
         ATerm action ->
@@ -50,9 +50,9 @@ update multiAction multiModel =
 view: ContentUtil.ViewContext MultiAction -> MultiModel -> Svg.Svg
 view context multiModel =
     case multiModel of
-        MOther model ->
-            Other.view
-                { context | actions = Signal.forwardTo context.actions AOther }
+        MButton model ->
+            Button.view
+                { context | actions = Signal.forwardTo context.actions AButton }
                 model
         MTerm model ->
             Term.view
