@@ -2,17 +2,19 @@ module MouseManipulator
     (Model, testModel, Action (..), update, view)
     where
 
-import GraphMap exposing (Action (..))
+import GraphMap
 import Time
 import Node
 import Graph
 import Debug
 import Html.Attributes
 import Html
+import Html.Events as Events
 import Svg
 import Svg.Attributes as Att
 import FpsClock
 import Signal
+import NodeBase
 
 
 -- MODEL
@@ -20,8 +22,8 @@ import Signal
 type alias Model =
     { graphMap: GraphMap.Model
     , state: State
-    , dtLastClick: Time.Time
     , fpsClock: FpsClock.Model
+    , pos: (Int, Int)
     }
 
 type State
@@ -30,78 +32,66 @@ type State
 
 testModel: Model
 testModel =
-    Model GraphMap.testModel NoOp 10000000 FpsClock.init
+    Model GraphMap.testModel NoOp FpsClock.init (0, 0)
 
 
 -- UPDATE
 
 type Action
-    = Hold (Int, Int)
-    | Release (Int, Int)
-    | Move (Int, Int)
+    = Move (Int, Int)
     | Tick Time.Time
     | GraphMapAction GraphMap.Action
+    | NodeMouseAction (Graph.NodeId, NodeBase.MouseAction)
+    | DoubleClick
+    | Release
 
 update: Action -> Model -> Model
 update action model =
     case action of
-        Hold pos ->
-            case model.state of
-                NoOp ->
-                    startConnecting pos model
-                otherwise ->
-                    Debug.log "otherwise in Hold/NoOp branch of MouseManipulator" model
-        Release pos ->
-            case model.state of
-                Connecting id pos' ->
-                    endConnecting id pos model
-                NoOp ->
-                    handleDoubleClick pos model
+        GraphMapAction graphMapAction ->
+            { model | graphMap = GraphMap.update graphMapAction model.graphMap }
         Move pos ->
             case model.state of
                 Connecting id pos' ->
-                    {model | state = Connecting id pos}
-                NoOp -> model
+                    { model 
+                        | state = Connecting id pos
+                        , pos = pos
+                    }
+                NoOp -> { model | pos = pos }
+        DoubleClick ->
+            { model | graphMap = GraphMap.update 
+                (Node.testNode model.pos |> GraphMap.AddNode)
+                model.graphMap
+            }
+        Release ->
+            { model | state = NoOp}
         Tick dt ->
             { model
                 | graphMap =
-                    GraphMap.update StepLayout model.graphMap
-                    |> GraphMap.update (TickNodes dt)
+                    GraphMap.update GraphMap.StepLayout model.graphMap
+                    |> GraphMap.update (GraphMap.TickNodes dt)
                 , fpsClock = FpsClock.update dt
-                , dtLastClick = model.dtLastClick + dt
             }
-        GraphMapAction graphMapAction ->
-            { model | graphMap = GraphMap.update graphMapAction model.graphMap}
-
-startConnecting: (Int, Int) -> Model -> Model
-startConnecting pos model =
-    case GraphMap.getPointedNode pos model.graphMap of
-        Nothing -> model
-        Just (id, node) ->
-            {model | state = Connecting id (fst node.pos, snd node.pos)}
-
-endConnecting: Graph.NodeId -> (Int, Int) -> Model -> Model
-endConnecting id pos model =
-    case GraphMap.getPointedNode pos model.graphMap of
-        Nothing -> {model | state = NoOp}
-        Just (id', node') ->
-            if id == id' then
-                {model | state = NoOp}
-            else
-                { model
-                    | graphMap = GraphMap.update (AddEdge id id' {}) model.graphMap
-                    , state = NoOp
-                }
-
-handleDoubleClick: (Int, Int) -> Model -> Model
-handleDoubleClick pos model =
-    if model.dtLastClick <= 500 then
-        { model
-            | graphMap = GraphMap.update (Node.testNode pos |> AddNode) model.graphMap
-            , dtLastClick = 0
-        }
-    else
-        { model | dtLastClick = 0 }
+        NodeMouseAction (id, mouseAction) ->
+            case mouseAction of
+                NodeBase.Down ->
+                    let
+                        pos = 
+                            case GraphMap.getNodePos id model.graphMap of
+                                Just pos -> pos
+                                Nothing -> Debug.log "mouse action no id" (0, 0)
+                    in
+                        { model | state = Connecting id (fst pos, snd pos) }
+                NodeBase.Up ->
+                    case model.state of
+                        NoOp -> model
+                        Connecting id' pos ->
+                            { model | 
+                                graphMap = GraphMap.update 
+                                    (GraphMap.AddEdge id id' {})
+                                    model.graphMap
+                                , state = NoOp
+                            }
 
 
 -- VIEW
@@ -126,12 +116,20 @@ view address (w, h) model =
                 (
                     connection
                     ++
-                    [ GraphMap.view (Signal.forwardTo address GraphMapAction) model.graphMap
+                    [ GraphMap.view 
+                        (Signal.forwardTo address NodeMouseAction)
+                        (Signal.forwardTo address GraphMapAction)
+                        model.graphMap
                     , FpsClock.view model.fpsClock
                     ]
                 )
     in
-        Html.div [ unselectableStyle ] [ svg ]
+        Html.div 
+            [ unselectableStyle
+            , Events.onMouseUp address Release
+            , Events.onDoubleClick address DoubleClick
+            ]
+            [ svg ]
 
 unselectableStyle: Html.Attribute
 unselectableStyle =

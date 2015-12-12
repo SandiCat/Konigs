@@ -55,12 +55,14 @@ update action model =
 -- VIEW
 
 type alias Context =
-    { actions: Signal.Address Action}
+    { mouseActions: Signal.Address NodeBase.MouseAction
+    , actions: Signal.Address Action 
+    }
 
 view: Context -> Model -> Svg.Svg
 view context model =
     Svg.g []
-        [ NodeBase.view model.pos model.radius model.base
+        [ NodeBase.view context.mouseActions model.pos model.radius model.base
         , MetaContent.view
             (Signal.forwardTo context.actions ContentAction
                 |> ContentUtil.ViewContext model.pos model.radius)

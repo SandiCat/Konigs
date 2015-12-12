@@ -4,6 +4,10 @@ import Time
 import Easing
 import SvgHelp
 import Svg
+import Svg.Attributes as Att
+import Html
+import Html.Events as Events
+import Signal
 
 
 -- MODEL
@@ -45,8 +49,12 @@ update action model =
 
 -- VIEW
 
-view: (Int, Int) -> Int -> Model -> Svg.Svg
-view pos radius model =
+type MouseAction
+    = Down
+    | Up
+
+view: Signal.Address MouseAction -> (Int, Int) -> Int -> Model -> Svg.Svg
+view mouseAddress pos radius model =
     let
         radius' =
             case model.animation of
@@ -60,4 +68,8 @@ view pos radius model =
                         appearDuration
                         elapsed
     in
-        SvgHelp.circle pos (round radius') 7 "#5E81C1" "white"
+        Svg.g 
+            [ Events.onMouseDown mouseAddress Down
+            , Events.onMouseUp mouseAddress Up
+            ] 
+            [ SvgHelp.circle pos (round radius') 7 "#5E81C1" "white" ]

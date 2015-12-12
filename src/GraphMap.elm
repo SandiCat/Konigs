@@ -1,6 +1,4 @@
-module GraphMap 
-    (Model, testModel, Action (..), update, view, Graph, edgeForm, getPointedNode)
-    where
+module GraphMap where
 
 import Graph
 import IntDict
@@ -12,6 +10,7 @@ import List.Extra
 import Layout
 import Time
 import Focus exposing ((=>))
+import NodeBase
 
 
 -- MODEL
@@ -48,12 +47,12 @@ empty: Model
 empty =
     Model Graph.empty
 
-getPointedNode: (Int, Int) -> Model -> Maybe (Graph.NodeId, Node.Model)
-getPointedNode pos model =
-    Graph.nodes model.graph
-    |> List.filter (\n -> Node.isMouseWithin pos n.label)
-    |> List.map (\n -> (n.id, n.label))
-    |> List.head
+getNodePos: Graph.NodeId -> Model -> Maybe (Int, Int)
+getNodePos id {graph} =
+    case Graph.get id graph of
+        Just {node, incoming, outgoing} ->
+            Just node.label.pos
+        Nothing -> Nothing
 
 
 -- UPDATE
@@ -100,8 +99,11 @@ addEdge a b edge graph =
                 Just ctx -> Just
                     {ctx | incoming = IntDict.insert id edge ctx.incoming}
     in
-        Graph.update a (contextUpdate b) graph
-        |> Graph.update b (contextUpdate a)
+        if a /= b then
+            Graph.update a (contextUpdate b) graph
+            |> Graph.update b (contextUpdate a)
+        else
+            graph
 
 addUnconnectedNode: Node.Model -> Graph -> Graph
 addUnconnectedNode node graph =
@@ -119,8 +121,9 @@ addUnconnectedNode node graph =
 
 -- VIEW
 
-view: Signal.Address Action -> Model -> Svg.Svg
-view address {graph} =
+view: Signal.Address (Graph.NodeId, NodeBase.MouseAction) 
+    -> Signal.Address Action -> Model -> Svg.Svg
+view mouseAddress address {graph} =
     let
         toPositions list =
             List.filterMap (\id -> Graph.get id graph) list
@@ -137,7 +140,7 @@ view address {graph} =
         context id =
             NodeAction id
             |> Signal.forwardTo address
-            |> Node.Context
+            |> Node.Context (Signal.forwardTo mouseAddress (\action -> (id, action)))
 
         nodes =
             Graph.nodes graph
