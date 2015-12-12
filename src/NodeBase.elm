@@ -1,9 +1,9 @@
 module NodeBase where
 
-import Svg
-import Svg.Attributes as Att
 import Time
 import Easing
+import SvgHelp
+import Svg
 
 
 -- MODEL
@@ -60,12 +60,4 @@ view pos radius model =
                         appearDuration
                         elapsed
     in
-        Svg.circle
-            [ fst pos |> toString |> Att.cx
-            , snd pos |> toString |> Att.cy
-            , round radius' |> toString |> Att.r
-            , Att.fill "white"
-            , Att.stroke "#5E81C1"
-            , Att.strokeWidth "7"
-            ]
-            []
+        SvgHelp.circle pos (round radius') 7 "#5E81C1" "white"

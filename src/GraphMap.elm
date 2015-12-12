@@ -7,7 +7,7 @@ import IntDict
 import Node
 import Debug
 import Svg
-import Svg.Attributes as Att
+import SvgHelp
 import List.Extra
 import Layout
 import Time
@@ -146,14 +146,5 @@ view address {graph} =
         Svg.g [] (edges ++ nodes)
 
 edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg
-edgeForm (x, y) (x', y') =
-    Svg.line
-        [ toString x |> Att.x1
-        , toString y |> Att.y1
-        , toString x' |> Att.x2
-        , toString y' |> Att.y2
-        , Att.stroke "#244F9F"
-        , Att.fill "transparent"
-        , Att.strokeWidth "5"
-        ]
-        []
+edgeForm posA posB =
+    SvgHelp.line posA posB 5 "#244F9F"
