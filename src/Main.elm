@@ -1,24 +1,33 @@
-import Time
-import Signal
-import Mouse
+import Effects
+import MouseManipulator
+import StartApp
+import Task
 import Window
-import Html
-import MouseManipulator exposing (Action (..))
 import Mouse
+import Html
 
 
-mailbox: Signal.Mailbox MouseManipulator.Action
-mailbox =
-    Signal.mailbox (Tick 0)
+inputs: List (Signal MouseManipulator.Action)
+inputs =
+    [ Mouse.position
+        |> Signal.map MouseManipulator.Move
+    , Window.dimensions
+        |> Signal.map MouseManipulator.Resize
+    ]
 
-main: Signal.Signal Html.Html
+app : StartApp.App MouseManipulator.Model
+app =
+  StartApp.start
+    { init = MouseManipulator.init
+    , update = MouseManipulator.update
+    , view = MouseManipulator.view
+    , inputs = inputs
+    }
+
+main : Signal Html.Html
 main =
-    Signal.mergeMany
-        [ Mouse.position
-            |> Signal.map Move
-        , Time.fps 30
-            |> Signal.map Tick
-        , mailbox.signal
-        ]
-    |> Signal.foldp MouseManipulator.update MouseManipulator.testModel
-    |> Signal.map2 (MouseManipulator.view mailbox.address) Window.dimensions
+  app.html
+
+port tasks : Signal (Task.Task Effects.Never ())
+port tasks =
+  app.tasks

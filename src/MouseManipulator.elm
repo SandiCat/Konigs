@@ -1,9 +1,8 @@
 module MouseManipulator
-    (Model, testModel, Action (..), update, view)
+    (Model, init, Action (..), update, view)
     where
 
 import GraphMap
-import Time
 import Node
 import Graph
 import Debug
@@ -15,6 +14,7 @@ import Svg.Attributes as Att
 import FpsClock
 import Signal
 import NodeBase
+import Effects exposing (Effects)
 
 
 -- MODEL
@@ -24,54 +24,62 @@ type alias Model =
     , state: State
     , fpsClock: FpsClock.Model
     , pos: (Int, Int)
+    , size: {w: Int, h: Int}
     }
 
 type State
     = NoOp
     | Connecting Graph.NodeId (Int, Int)
 
-testModel: Model
-testModel =
-    Model GraphMap.testModel NoOp FpsClock.init (0, 0)
+init: (Model, Effects Action)
+init =
+    let
+        (graphMap, fx) = GraphMap.init
+    in
+        ( Model graphMap NoOp FpsClock.init (0, 0) {w = 2000, h = 2000}
+        , Effects.map GraphMapAction fx
+        )
 
 
 -- UPDATE
 
 type Action
     = Move (Int, Int)
-    | Tick Time.Time
     | GraphMapAction GraphMap.Action
     | NodeMouseAction (Graph.NodeId, NodeBase.MouseAction)
     | DoubleClick
     | Release
+    | Resize (Int, Int)
 
-update: Action -> Model -> Model
+update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         GraphMapAction graphMapAction ->
-            { model | graphMap = GraphMap.update graphMapAction model.graphMap }
+            let
+                (graphMap, fx) = GraphMap.update graphMapAction model.graphMap
+            in
+                ({ model | graphMap = graphMap }, Effects.map GraphMapAction fx)
         Move pos ->
             case model.state of
                 Connecting id pos' ->
-                    { model 
-                        | state = Connecting id pos
-                        , pos = pos
-                    }
-                NoOp -> { model | pos = pos }
+                    ( { model 
+                            | state = Connecting id pos
+                            , pos = pos }
+                    , Effects.none
+                    )
+                NoOp -> ({ model | pos = pos }, Effects.none)
         DoubleClick ->
-            { model | graphMap = GraphMap.update 
-                (Node.testNode model.pos |> GraphMap.AddNode)
-                model.graphMap
-            }
+            let
+                (graphMap, fx) = 
+                    GraphMap.update 
+                        (Node.testNode model.pos |> GraphMap.AddNode)
+                        model.graphMap
+            in
+                ({ model | graphMap = graphMap }, Effects.map GraphMapAction fx)
         Release ->
-            { model | state = NoOp}
-        Tick dt ->
-            { model
-                | graphMap =
-                    GraphMap.update GraphMap.StepLayout model.graphMap
-                    |> GraphMap.update (GraphMap.TickNodes dt)
-                , fpsClock = FpsClock.update dt
-            }
+            ({ model | state = NoOp }, Effects.none)
+        Resize (w, h) ->
+            ({ model | size = {w = w, h = h} }, Effects.none)
         NodeMouseAction (id, mouseAction) ->
             case mouseAction of
                 NodeBase.Down ->
@@ -81,23 +89,26 @@ update action model =
                                 Just pos -> pos
                                 Nothing -> Debug.log "mouse action no id" (0, 0)
                     in
-                        { model | state = Connecting id (fst pos, snd pos) }
+                        ( { model | state = Connecting id (fst pos, snd pos) }
+                        , Effects.none
+                        )
                 NodeBase.Up ->
                     case model.state of
-                        NoOp -> model
+                        NoOp -> (model, Effects.none)
                         Connecting id' pos ->
-                            { model | 
-                                graphMap = GraphMap.update 
-                                    (GraphMap.AddEdge id id' {})
-                                    model.graphMap
-                                , state = NoOp
-                            }
+                            let
+                                (graphMap, fx) =
+                                    GraphMap.update 
+                                        (GraphMap.AddEdge id id' {})
+                                        model.graphMap
+                            in
+                                ({ model | graphMap = graphMap }, Effects.map GraphMapAction fx)
 
 
 -- VIEW
 
-view: Signal.Address Action -> (Int, Int) -> Model -> Html.Html
-view address (w, h) model =
+view: Signal.Address Action -> Model -> Html.Html
+view address model =
     let
         connection =
             case model.state of
@@ -110,8 +121,8 @@ view address (w, h) model =
 
         svg =
             Svg.svg
-                [ toString w |> Att.width
-                , toString h |> Att.height
+                [ toString model.size.w |> Att.width
+                , toString model.size.h |> Att.height
                 ]
                 (
                     connection

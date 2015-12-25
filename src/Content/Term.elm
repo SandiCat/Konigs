@@ -7,6 +7,7 @@ import Html
 import Html.Attributes as HtmlAtt
 import Html.Events as Events
 import Signal
+import Effects exposing (Effects)
 
 
 -- MODEL
@@ -15,9 +16,9 @@ type alias Model =
     { text: String
     }
 
-init: String -> Model
+init: String -> (Model, Effects Action)
 init text =
-    Model text
+    (Model text, Effects.none)
 
 
 -- UPDATE
@@ -25,11 +26,11 @@ init text =
 type Action
     = InputChange String
 
-update: Action -> Model -> Model
+update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         InputChange newText ->
-            { model | text = newText }
+            ({ model | text = newText }, Effects.none)
 
 
 -- VIEW

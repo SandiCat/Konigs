@@ -6,6 +6,7 @@ import ContentUtil
 import Html
 import Html.Attributes as HtmlAtt
 import Html.Events as Events
+import Effects exposing (Effects)
 
 
 -- MODEL
@@ -14,9 +15,9 @@ type alias Model =
     { counter: Int
     }
 
-init: Int -> Model
+init: Int -> (Model, Effects Action)
 init start =
-    Model start
+    (Model start, Effects.none)
 
 
 -- UPDATE
@@ -24,11 +25,11 @@ init start =
 type Action
     = Increment
 
-update: Action -> Model -> Model
+update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         Increment ->
-            {model | counter = model.counter + 1}
+            ({model | counter = model.counter + 1}, Effects.none)
 
 -- VIEW
 

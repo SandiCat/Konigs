@@ -2,12 +2,12 @@ module Node where
 
 import Debug
 import Svg
-import Time
 import Signal
 import NodeBase
 import MetaContent
 import Content.Term as Term
 import ContentUtil
+import Effects exposing (Effects)
 
 
 -- MODEL
@@ -19,37 +19,53 @@ type alias Model =
     , content: MetaContent.MultiModel
     }
 
-init: (Int, Int) -> MetaContent.MultiModel -> Model
-init pos content =
-    Model pos 40 NodeBase.init content
-
-testNode: (Int, Int) -> Model
-testNode pos =
-    Term.init "Test Term" |> MetaContent.MTerm
-    |> init pos
-
-isMouseWithin: (Int, Int) -> Model -> Bool
-isMouseWithin (x, y) model =
+init: 
+    (Int, Int) 
+    -> (MetaContent.MultiModel, Effects MetaContent.MultiAction)
+    -> (Model, Effects Action)
+init pos (content, contentFx) =
     let
-        x' = fst model.pos
-        y' = snd model.pos
+        (base, baseFx) = NodeBase.init
     in
-        (x - x')^2 + (y - y')^2 <= model.radius^2
+        (Model pos 40 base content
+        , Effects.batch
+            [ Effects.map BaseAction baseFx
+            , Effects.map ContentAction contentFx
+            ]
+        )
+
+testNode: (Int, Int) -> (Model, Effects Action)
+testNode pos =
+    let
+        (content, fx) = Term.init "Test Term"
+    in
+        (content |> MetaContent.MTerm, Effects.map MetaContent.ATerm fx)
+        |> init pos
 
 
 -- UPDATE
 
 type Action
-    = Tick Time.Time
+    = BaseAction NodeBase.Action
     | ContentAction MetaContent.MultiAction
 
-update: Action -> Model -> Model
+update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
-        Tick dt ->
-            {model | base = NodeBase.update (NodeBase.Tick dt) model.base}
+        BaseAction baseAction ->
+            let
+                (base, fx) = NodeBase.update baseAction model.base
+            in
+                ( { model | base = base }
+                , Effects.map BaseAction fx
+                )
         ContentAction contentAction ->
-            {model | content = MetaContent.update contentAction model.content}
+            let
+                (content, fx) = MetaContent.update contentAction model.content
+            in
+                ( { model | content = content }
+                , Effects.map ContentAction fx
+                )
 
 
 -- VIEW

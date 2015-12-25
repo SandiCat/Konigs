@@ -11,6 +11,7 @@ import Layout
 import Time
 import Focus exposing ((=>))
 import NodeBase
+import Effects exposing (Effects)
 
 
 -- MODEL
@@ -24,28 +25,42 @@ type alias Graph =
 
 type alias Edge = {}
 
-testModel: Model
-testModel =
-    Graph.fromNodeLabelsAndEdgePairs
-        (List.map 
-            (\i -> 
-                Node.testNode (500 + 30*i, 300 + (-1)^i*30*i)
-            ) 
-            [0..5]
-        )
-        [ (0, 1)
-        , (0, 2)
-        , (2, 3)
-        , (3, 4)
-        , (2, 5)
-        , (2, 4)
-        ]
-    |> Graph.mapEdges (always {})
-    |> Model
+init: (Model, Effects Action)
+init =
+    let
+        range = [0..5]
 
-empty: Model
+        (nodes, nodeFxs) = 
+            List.map 
+                (\i -> 
+                    Node.testNode (500 + 30*i, 300 + (-1)^i*30*i)
+                )
+                range
+            |> List.unzip
+
+        model =         
+            Graph.fromNodeLabelsAndEdgePairs
+                nodes
+                [ (0, 1)
+                , (0, 2)
+                , (2, 3)
+                , (3, 4)
+                , (2, 5)
+                , (2, 4)
+                ]
+            |> Graph.mapEdges (always {})
+            |> Model
+
+        fxs =
+            List.map2 (\i fx -> Effects.map (NodeAction i) fx) range nodeFxs
+            |> (::) (Effects.tick StepLayout)
+            |> Effects.batch
+    in
+        (model, fxs)
+
+empty: (Model, Effects Action)
 empty =
-    Model Graph.empty
+    (Model Graph.empty, Effects.none)
 
 getNodePos: Graph.NodeId -> Model -> Maybe (Int, Int)
 getNodePos id {graph} =
@@ -58,37 +73,59 @@ getNodePos id {graph} =
 -- UPDATE
 
 type Action
-    = AddNode Node.Model
+    = AddNode (Node.Model, Effects Node.Action)
     | AddEdge Graph.NodeId Graph.NodeId Edge
-    | StepLayout
-    | TickNodes Time.Time
+    | StepLayout Time.Time
     | NodeAction Graph.NodeId Node.Action
 
-update: Action -> Model -> Model
+update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
-        AddNode node ->
-            {model | graph = addUnconnectedNode node model.graph}
-        AddEdge a b edge ->
-            {model | graph = addEdge a b edge model.graph}
-        StepLayout ->
-            {model | graph = Layout.stepLayout model.graph}
-        TickNodes dt ->
-            {model | graph = Graph.mapNodes (Node.Tick dt |> Node.update) model.graph}
-        NodeAction id nodeAction ->
+        AddNode (node, fx) ->
             let
+                (graph, id) =
+                    addUnconnectedNode node model.graph
+            in   
+                ( { model | graph = graph }
+                , Effects.map (NodeAction id) fx
+                )
+        AddEdge a b edge ->
+            ({model | graph = addEdge a b edge model.graph}, Effects.none)
+        StepLayout dt ->
+            ({model | graph = Layout.stepLayout model.graph}
+            , Effects.tick StepLayout
+            )
+        NodeAction id nodeAction ->
+            {-
+                Well, ain't this fugly. Graph keep Node.Model, but Node.update returns
+                (Model, Effects Action). This is all standard Elm Architecture stuff.
+                A slight deviation would be having the Graph keep the tuple, but this would
+                complicate all other graph modifications that involve node manipulations,
+                i.e. all of them. So, Debug.crash and ugliness it is. I think monads are ment
+                for doing this type of stuff. It could be a hole in the language.
+            -}
+            let
+                (updatedNode, fx) =
+                    case Graph.get id model.graph of
+                        Nothing ->
+                            Debug.crash "unknown id in NodeAction GraphMap update"
+                        Just ctx ->
+                            Node.update nodeAction ctx.node.label
+
                 updateCtx maybeCtx =
                     case maybeCtx of
                         Just ctx ->
                             Focus.update
                                 (Graph.node => Graph.label)
-                                (Node.update nodeAction)
+                                (always updatedNode)
                                 ctx
                             |> Just
                         Nothing ->
                             Nothing
             in
-                {model | graph = Graph.update id updateCtx model.graph}
+                ( {model | graph = Graph.update id updateCtx model.graph}
+                , Effects.map (NodeAction id) fx
+                )
 
 addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
 addEdge a b edge graph =
@@ -105,7 +142,7 @@ addEdge a b edge graph =
         else
             graph
 
-addUnconnectedNode: Node.Model -> Graph -> Graph
+addUnconnectedNode: Node.Model -> Graph -> (Graph, Graph.NodeId)
 addUnconnectedNode node graph =
     let
         id =
@@ -116,7 +153,7 @@ addUnconnectedNode node graph =
         newNode = 
             {node = Graph.Node id node, incoming = IntDict.empty, outgoing = IntDict.empty}
     in
-        Graph.insert newNode graph
+        (Graph.insert newNode graph, id)
 
 
 -- VIEW

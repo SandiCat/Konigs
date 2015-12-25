@@ -8,24 +8,28 @@ import Svg.Attributes as Att
 import Html
 import Html.Events as Events
 import Signal
+import Effects exposing (Effects)
 
 
 -- MODEL
 
 type alias Model =
     { animation: Animation
+    , prevTime: Time.Time
+    , elapsed: Time.Time
     }
 
-init: Model
+init: (Model, Effects Action)
 init =
-    Appearing 0 |> Model
+    (Model (Begin Appearing) 0 0, Effects.tick Tick)
 
 type Animation
     = None
-    | Appearing Time.Time
+    | Appearing
+    | Begin Animation
 
-appearDuration : Float
-appearDuration = 0.7 * Time.second
+duration : Float
+duration = 0.7 * Time.second
 
 
 -- UPDATE
@@ -33,18 +37,25 @@ appearDuration = 0.7 * Time.second
 type Action
     = Tick Time.Time
 
-update: Action -> Model -> Model
+update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
-        Tick dt ->
+        Tick time ->
             case model.animation of
-                None -> model
-                Appearing elapsed ->
-                    let newElapsed = elapsed + dt in
-                        if newElapsed >= appearDuration then
-                            {model | animation = None}
-                        else
-                            {model | animation = newElapsed |> Appearing}
+                None -> init
+                Begin animation ->
+                    ( Model animation time 0
+                    , Effects.tick Tick
+                    )
+                _ ->
+                    if model.elapsed + time - model.prevTime >= duration then
+                        (Model None 0 0, Effects.none)
+                    else
+                        ( { model |
+                                elapsed = model.elapsed + time - model.prevTime,
+                                prevTime = time }
+                        , Effects.tick Tick
+                        )
 
 
 -- VIEW
@@ -58,15 +69,18 @@ view mouseAddress pos radius model =
     let
         radius' =
             case model.animation of
-                None -> radius |> toFloat
-                Appearing elapsed ->
+                Appearing ->
                     Easing.ease
                         Easing.easeOutBounce
                         Easing.float
                         0
                         (toFloat radius)
-                        appearDuration
-                        elapsed
+                        duration
+                        model.elapsed
+                Begin _ ->
+                    0
+                None ->
+                    radius |> toFloat
     in
         Svg.g 
             [ Events.onMouseDown mouseAddress Down
