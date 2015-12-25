@@ -4,29 +4,40 @@ import Svg
 import Svg.Attributes as Att
 import Time
 import List.Extra
+import Effects exposing (Effects)
 
 
 -- MODEL
 
-type alias Model = Time.Time
+type alias Model =
+    { prevTime: Time.Time
+    , dt: Time.Time
+    }
 
-init: Model
+init: (Model, Effects Action)
 init =
-    0
+    (Model 0 0, Effects.tick Tick)
 
 
 -- UPDATE
 
-update: Time.Time -> Model
-update dt =
-    dt
+type Action
+    = Tick Time.Time
+
+update: Action -> Model -> (Model, Effects Action)
+update action model =
+    case action of
+        Tick time ->
+            ( Model time (time - model.prevTime)
+            , Effects.tick Tick
+            )
 
 
 -- VIEW
 
 view: Model -> Svg.Svg
 view model =
-    Time.inSeconds model
+    Time.inSeconds model.dt
     |> (/) 1
     |> round
     |> toString

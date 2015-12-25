@@ -34,10 +34,14 @@ type State
 init: (Model, Effects Action)
 init =
     let
-        (graphMap, fx) = GraphMap.init
+        (graphMap, graphFx) = GraphMap.init
+        (fpsClock, fpsFx) = FpsClock.init
     in
-        ( Model graphMap NoOp FpsClock.init (0, 0) {w = 2000, h = 2000}
-        , Effects.map GraphMapAction fx
+        ( Model graphMap NoOp fpsClock (0, 0) {w = 2000, h = 2000}
+        , Effects.batch
+            [ Effects.map GraphMapAction graphFx
+            , Effects.map FpsClockAction fpsFx
+            ]
         )
 
 
@@ -47,6 +51,7 @@ type Action
     = Move (Int, Int)
     | GraphMapAction GraphMap.Action
     | NodeMouseAction (Graph.NodeId, NodeBase.MouseAction)
+    | FpsClockAction FpsClock.Action
     | DoubleClick
     | Release
     | Resize (Int, Int)
@@ -54,6 +59,11 @@ type Action
 update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
+        FpsClockAction fpsClockAction ->
+            let
+                (fpsClock, fx) = FpsClock.update fpsClockAction model.fpsClock
+            in
+                ({ model | fpsClock = fpsClock }, Effects.map FpsClockAction fx)
         GraphMapAction graphMapAction ->
             let
                 (graphMap, fx) = GraphMap.update graphMapAction model.graphMap
