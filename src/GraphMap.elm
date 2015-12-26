@@ -69,6 +69,34 @@ getNodePos id {graph} =
             Just node.label.pos
         Nothing -> Nothing
 
+addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
+addEdge a b edge graph =
+    let
+        contextUpdate id maybectx =
+            case maybectx of
+                Nothing -> Nothing
+                Just ctx -> Just
+                    {ctx | incoming = IntDict.insert id edge ctx.incoming}
+    in
+        if a /= b then
+            Graph.update a (contextUpdate b) graph
+            |> Graph.update b (contextUpdate a)
+        else
+            graph
+
+addUnconnectedNode: Node.Model -> Graph -> (Graph, Graph.NodeId)
+addUnconnectedNode node graph =
+    let
+        id =
+            case Graph.nodeIdRange graph of
+                Just (a, b) -> b + 1
+                Nothing -> 1
+
+        newNode = 
+            {node = Graph.Node id node, incoming = IntDict.empty, outgoing = IntDict.empty}
+    in
+        (Graph.insert newNode graph, id)
+
 
 -- UPDATE
 
@@ -126,34 +154,6 @@ update action model =
                 ( {model | graph = Graph.update id updateCtx model.graph}
                 , Effects.map (NodeAction id) fx
                 )
-
-addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
-addEdge a b edge graph =
-    let
-        contextUpdate id maybectx =
-            case maybectx of
-                Nothing -> Nothing
-                Just ctx -> Just
-                    {ctx | incoming = IntDict.insert id edge ctx.incoming}
-    in
-        if a /= b then
-            Graph.update a (contextUpdate b) graph
-            |> Graph.update b (contextUpdate a)
-        else
-            graph
-
-addUnconnectedNode: Node.Model -> Graph -> (Graph, Graph.NodeId)
-addUnconnectedNode node graph =
-    let
-        id =
-            case Graph.nodeIdRange graph of
-                Just (a, b) -> b + 1
-                Nothing -> 1
-
-        newNode = 
-            {node = Graph.Node id node, incoming = IntDict.empty, outgoing = IntDict.empty}
-    in
-        (Graph.insert newNode graph, id)
 
 
 -- VIEW
