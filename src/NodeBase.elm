@@ -7,7 +7,6 @@ import Svg
 import Svg.Attributes as Att
 import Html
 import Html.Events as Events
-import Signal
 import Effects exposing (Effects)
 
 

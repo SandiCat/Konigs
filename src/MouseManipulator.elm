@@ -5,14 +5,12 @@ module MouseManipulator
 import GraphMap
 import Node
 import Graph
-import Debug
 import Html.Attributes
 import Html
 import Html.Events as Events
 import Svg
 import Svg.Attributes as Att
 import FpsClock
-import Signal
 import NodeBase
 import Effects exposing (Effects)
 

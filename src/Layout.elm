@@ -5,7 +5,6 @@ import IntDict
 import Math.Vector2 as Vec
 import Focus exposing ((=>))
 import Node
-import Debug
 import Svg
 import Svg.Attributes as Att
 

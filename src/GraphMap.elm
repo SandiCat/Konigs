@@ -3,7 +3,6 @@ module GraphMap where
 import Graph
 import IntDict
 import Node
-import Debug
 import Svg
 import SvgHelp
 import List.Extra

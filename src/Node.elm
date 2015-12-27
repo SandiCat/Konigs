@@ -1,8 +1,6 @@
 module Node where
 
-import Debug
 import Svg
-import Signal
 import NodeBase
 import MetaContent
 import Content.Term as Term

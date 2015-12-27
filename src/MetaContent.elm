@@ -4,8 +4,6 @@
 module MetaContent where
 
 import ContentUtil
-import Signal
-import Debug
 import Svg
 import Effects exposing (Effects)
 
