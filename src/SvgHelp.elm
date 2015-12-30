@@ -28,3 +28,9 @@ line (x, y) (x', y') thickness stroke =
         , toString thickness |> Att.strokeWidth
         ]
         []
+
+position: (Int, Int) -> List Svg.Attribute
+position (x, y) =
+    [ toString x |> Att.x
+    , toString y |> Att.y
+    ]
