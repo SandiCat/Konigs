@@ -15,7 +15,7 @@ inputs =
         |> Signal.map MouseManipulator.Resize
     ]
 
-app : StartApp.App MouseManipulator.Model
+app: StartApp.App MouseManipulator.Model
 app =
   StartApp.start
     { init = MouseManipulator.init
@@ -24,10 +24,10 @@ app =
     , inputs = inputs
     }
 
-main : Signal Html.Html
+main: Signal Html.Html
 main =
   app.html
 
-port tasks : Signal (Task.Task Effects.Never ())
+port tasks: Signal (Task.Task Effects.Never ())
 port tasks =
   app.tasks

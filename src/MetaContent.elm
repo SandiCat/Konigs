@@ -4,6 +4,8 @@
 module MetaContent where
 
 import ContentUtil
+import Signal
+import Debug
 import Svg
 import Effects exposing (Effects)
 
@@ -36,7 +38,7 @@ update multiAction multiModel =
                     let
                         (model', fx) = Button.update action model
                     in
-                        (model' |> MButton, Effects.map AButton fx)
+                        (MButton model', Effects.map AButton fx)
                 otherwise ->
                     Debug.crash mismatchError
         ATerm action ->
@@ -45,7 +47,7 @@ update multiAction multiModel =
                     let
                         (model', fx) = Term.update action model
                     in
-                        (model' |> MTerm, Effects.map ATerm fx)
+                        (MTerm model', Effects.map ATerm fx)
                 otherwise ->
                     Debug.crash mismatchError
 

@@ -29,15 +29,15 @@ init =
     let
         range = [0..5]
 
-        (nodes, nodeFxs) = 
-            List.map 
-                (\i -> 
+        (nodes, nodeFxs) =
+            List.map
+                (\i ->
                     Node.testNode (500 + 30*i, 300 + (-1)^i*30*i)
                 )
                 range
             |> List.unzip
 
-        model =         
+        model =
             Graph.fromNodeLabelsAndEdgePairs
                 nodes
                 [ (0, 1)
@@ -91,7 +91,7 @@ addUnconnectedNode node graph =
                 Just (a, b) -> b + 1
                 Nothing -> 1
 
-        newNode = 
+        newNode =
             {node = Graph.Node id node, incoming = IntDict.empty, outgoing = IntDict.empty}
     in
         (Graph.insert newNode graph, id)
@@ -112,7 +112,7 @@ update action model =
             let
                 (graph, id) =
                     addUnconnectedNode node model.graph
-            in   
+            in
                 ( { model | graph = graph }
                 , Effects.map (NodeAction id) fx
                 )
@@ -157,7 +157,7 @@ update action model =
 
 -- VIEW
 
-view: Signal.Address (Graph.NodeId, NodeBase.MouseAction) 
+view: Signal.Address (Graph.NodeId, NodeBase.MouseAction)
     -> Signal.Address Action -> Model -> Svg.Svg
 view mouseAddress address {graph} =
     let

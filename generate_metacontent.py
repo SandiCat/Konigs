@@ -24,7 +24,7 @@ parts = [
                     let
                         (model', fx) = {0}.update action model
                     in
-                        (model' |> M{0}, Effects.map A{0} fx)
+                        (M{0} model', Effects.map A{0} fx)
                 otherwise ->
                     Debug.crash mismatchError"""),
     generate_part("""\

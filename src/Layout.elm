@@ -8,6 +8,7 @@ import Node
 import Svg
 import Svg.Attributes as Att
 
+
 c1: Float
 c1 = 100
 c2: Float
@@ -116,7 +117,7 @@ drawForces graph =
 
         singleNode ctx color forceF =
             forceF ctx graph
-            |> List.map 
+            |> List.map
                 (\vec -> singleForce ctx.node.label.pos (Vec.scale 30 vec) color)
     in
         Graph.fold

@@ -10,6 +10,7 @@ import Effects exposing (Effects)
 
 -- MODEL
 
+
 type alias Model =
     { pos: (Int, Int)
     , radius: Int
@@ -17,8 +18,8 @@ type alias Model =
     , content: MetaContent.MultiModel
     }
 
-init: 
-    (Int, Int) 
+init:
+    (Int, Int)
     -> (MetaContent.MultiModel, Effects MetaContent.MultiAction)
     -> (Model, Effects Action)
 init pos (content, contentFx) =
@@ -70,7 +71,7 @@ update action model =
 
 type alias Context =
     { mouseActions: Signal.Address NodeBase.MouseAction
-    , actions: Signal.Address Action 
+    , actions: Signal.Address Action
     }
 
 view: Context -> Model -> Svg.Svg

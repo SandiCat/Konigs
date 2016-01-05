@@ -11,7 +11,6 @@ import Signal
 import Effects exposing (Effects)
 import Json.Decode
 
-
 -- MODEL
 
 type alias Model =
@@ -55,7 +54,7 @@ update action model =
                     )
                 KeyPress code ->
                     if code == 13 then -- 13 is Enter
-                        ( { model 
+                        ( { model
                             | mode = Display
                             , text = if model.text == "" then "enter text" else model.text }
                         , Effects.none
@@ -84,7 +83,7 @@ view context model =
                 ]
                 [ Html.input
                     [ HtmlAtt.value model.text
-                    , Events.on 
+                    , Events.on
                         "input"
                         Events.targetValue
                         (InputChange >> Signal.message context.actions)
