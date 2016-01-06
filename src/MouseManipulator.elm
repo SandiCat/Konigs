@@ -35,7 +35,8 @@ init =
         (graphMap, graphFx) = GraphMap.init
         (fpsClock, fpsFx) = FpsClock.init
     in
-        ( Model graphMap NoOp fpsClock (0, 0) {w = 2000, h = 2000}
+        ( Model graphMap NoOp fpsClock (0, 0) {w = 0, h = 0}
+            -- the dimensions change at startup to match window's, hence the 0 0
         , Effects.batch
             [ Effects.map GraphMapAction graphFx
             , Effects.map FpsClockAction fpsFx
@@ -126,6 +127,7 @@ view address model =
                         Just {incoming, node, outgoing} ->
                             [ GraphMap.edgeForm node.label.pos pos ]
                 otherwise -> []
+                -- TODO: make the optionality of this with a Maybe, not this list fuckery
 
         svg =
             Svg.svg
