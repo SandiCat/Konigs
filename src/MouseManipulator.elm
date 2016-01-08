@@ -10,7 +10,6 @@ import Html
 import Html.Events as Events
 import Svg
 import Svg.Attributes as Att
-import FpsClock
 import NodeBase
 import Effects exposing (Effects)
 
@@ -20,7 +19,6 @@ import Effects exposing (Effects)
 type alias Model =
     { graphMap: GraphMap.Model
     , state: State
-    , fpsClock: FpsClock.Model
     , pos: (Int, Int)
     , size: {w: Int, h: Int}
     }
@@ -33,14 +31,10 @@ init: (Model, Effects Action)
 init =
     let
         (graphMap, graphFx) = GraphMap.init
-        (fpsClock, fpsFx) = FpsClock.init
     in
-        ( Model graphMap NoOp fpsClock (0, 0) {w = 0, h = 0}
+        ( Model graphMap NoOp (0, 0) {w = 0, h = 0}
             -- the dimensions change at startup to match window's, hence the 0 0
-        , Effects.batch
-            [ Effects.map GraphMapAction graphFx
-            , Effects.map FpsClockAction fpsFx
-            ]
+        , Effects.map GraphMapAction graphFx
         )
 
 
@@ -50,7 +44,6 @@ type Action
     = Move (Int, Int)
     | GraphMapAction GraphMap.Action
     | NodeMouseAction (Graph.NodeId, NodeBase.MouseAction)
-    | FpsClockAction FpsClock.Action
     | DoubleClick
     | Release
     | Resize (Int, Int)
@@ -58,11 +51,6 @@ type Action
 update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
-        FpsClockAction fpsClockAction ->
-            let
-                (fpsClock, fx) = FpsClock.update fpsClockAction model.fpsClock
-            in
-                ({ model | fpsClock = fpsClock }, Effects.map FpsClockAction fx)
         GraphMapAction graphMapAction ->
             let
                 (graphMap, fx) = GraphMap.update graphMapAction model.graphMap
@@ -141,7 +129,6 @@ view address model =
                         (Signal.forwardTo address NodeMouseAction)
                         (Signal.forwardTo address GraphMapAction)
                         model.graphMap
-                    , FpsClock.view model.fpsClock
                     ]
                 )
     in
