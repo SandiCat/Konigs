@@ -24,9 +24,9 @@ parts = [
                     let
                         (model', fx) = {0}.update action model
                     in
-                        (M{0} model', Effects.map A{0} fx)
-                otherwise ->
-                    Debug.crash mismatchError"""),
+                        Just (M{0} model', Effects.map A{0} fx)
+                _ ->
+                    Debug.log mismatchError Nothing"""),
     generate_part("""\
         M{0} model ->
             {0}.view
@@ -42,7 +42,6 @@ module MetaContent where
 
 import ContentUtil
 import Signal
-import Debug
 import Svg
 import Effects exposing (Effects)
 
@@ -63,7 +62,7 @@ type MultiAction
 mismatchError: String
 mismatchError = "MetaContent.update action model type mismatch"
 
-update: MultiAction -> MultiModel -> (MultiModel, Effects MultiAction)
+update: MultiAction -> MultiModel -> Maybe (MultiModel, Effects MultiAction)
 update multiAction multiModel =
     case multiAction of
 {}

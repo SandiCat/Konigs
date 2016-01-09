@@ -5,7 +5,6 @@ module MetaContent where
 
 import ContentUtil
 import Signal
-import Debug
 import Svg
 import Effects exposing (Effects)
 
@@ -29,7 +28,7 @@ type MultiAction
 mismatchError: String
 mismatchError = "MetaContent.update action model type mismatch"
 
-update: MultiAction -> MultiModel -> (MultiModel, Effects MultiAction)
+update: MultiAction -> MultiModel -> Maybe (MultiModel, Effects MultiAction)
 update multiAction multiModel =
     case multiAction of
         AButton action ->
@@ -38,18 +37,18 @@ update multiAction multiModel =
                     let
                         (model', fx) = Button.update action model
                     in
-                        (MButton model', Effects.map AButton fx)
-                otherwise ->
-                    Debug.crash mismatchError
+                        Just (MButton model', Effects.map AButton fx)
+                _ ->
+                    Debug.log mismatchError Nothing
         ATerm action ->
             case multiModel of
                 MTerm model ->
                     let
                         (model', fx) = Term.update action model
                     in
-                        (MTerm model', Effects.map ATerm fx)
-                otherwise ->
-                    Debug.crash mismatchError
+                        Just (MTerm model', Effects.map ATerm fx)
+                _ ->
+                    Debug.log mismatchError Nothing
 
 
 -- VIEW

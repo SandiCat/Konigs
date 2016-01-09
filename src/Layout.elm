@@ -89,15 +89,11 @@ stepLayout graph =
             |> Vec.add (posToVec pos)
             |> vecToPos
 
-        node =
-            Focus.create .node (\f rec -> {rec | node = f rec.node})
-        label =
-            Focus.create .label (\f rec -> {rec | label = f rec.label})
         pos =
             Focus.create .pos (\f rec -> {rec | pos = f rec.pos})
 
         update ctx =
-            Focus.update (node => label => pos) (stepPos ctx) ctx
+            Focus.update (Graph.node => Graph.label => pos) (stepPos ctx) ctx
     in
         Graph.mapContexts update graph
 

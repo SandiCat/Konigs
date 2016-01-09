@@ -59,12 +59,12 @@ update action model =
                 , Effects.map BaseAction fx
                 )
         ContentAction contentAction ->
-            let
-                (content, fx) = MetaContent.update contentAction model.content
-            in
-                ( { model | content = content }
-                , Effects.map ContentAction fx
-                )
+            case MetaContent.update contentAction model.content of
+                Just (content, fx) -> 
+                    ( { model | content = content }
+                    , Effects.map ContentAction fx
+                    )
+                Nothing -> (model, Effects.none)
 
 
 -- VIEW

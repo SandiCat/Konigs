@@ -114,8 +114,7 @@ view address model =
                         Nothing -> []
                         Just {incoming, node, outgoing} ->
                             [ GraphMap.edgeForm node.label.pos pos ]
-                otherwise -> []
-                -- TODO: make the optionality of this with a Maybe, not this list fuckery
+                _ -> []
 
         svg =
             Svg.svg

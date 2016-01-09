@@ -71,8 +71,8 @@ getNodePos id {graph} =
 addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
 addEdge a b edge graph =
     let
-        contextUpdate id maybectx =
-            case maybectx of
+        contextUpdate id maybeCtx =
+            case maybeCtx of
                 Nothing -> Nothing
                 Just ctx -> Just
                     {ctx | incoming = IntDict.insert id edge ctx.incoming}
@@ -123,32 +123,25 @@ update action model =
             , Effects.tick StepLayout
             )
         NodeAction id nodeAction ->
-            {-
-                Well, ain't this fugly. Graph keep Node.Model, but Node.update returns
-                (Model, Effects Action). This is all standard Elm Architecture stuff.
-                A slight deviation would be having the Graph keep the tuple, but this would
-                complicate all other graph modifications that involve node manipulations,
-                i.e. all of them. So, Debug.crash and ugliness it is. I think monads are ment
-                for doing this type of stuff. It could be a hole in the language.
-            -}
             let
-                (updatedNode, fx) =
+                (maybeNode, fx) =
                     case Graph.get id model.graph of
                         Nothing ->
-                            Debug.crash "unknown id in NodeAction GraphMap update"
+                            (Nothing, Effects.none)
                         Just ctx ->
-                            Node.update nodeAction ctx.node.label
+                            let
+                                (node, fx) = Node.update nodeAction ctx.node.label
+                            in
+                                (Just node, fx)
+
+                focusUpdate ctx node =
+                    Focus.update
+                        (Graph.node => Graph.label)
+                        (always node)
+                        ctx
 
                 updateCtx maybeCtx =
-                    case maybeCtx of
-                        Just ctx ->
-                            Focus.update
-                                (Graph.node => Graph.label)
-                                (always updatedNode)
-                                ctx
-                            |> Just
-                        Nothing ->
-                            Nothing
+                    Maybe.map2 focusUpdate maybeCtx maybeNode
             in
                 ( {model | graph = Graph.update id updateCtx model.graph}
                 , Effects.map (NodeAction id) fx
