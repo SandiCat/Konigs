@@ -12,6 +12,7 @@ import Svg
 import Svg.Attributes as Att
 import NodeBase
 import Effects exposing (Effects)
+import EffectsUtil
 
 
 -- MODEL
@@ -29,13 +30,10 @@ type State
 
 init: (Model, Effects Action)
 init =
-    let
-        (graphMap, graphFx) = GraphMap.init
-    in
-        ( Model graphMap NoOp (0, 0) {w = 0, h = 0}
-            -- the dimensions change at startup to match window's, hence the 0 0
-        , Effects.map GraphMapAction graphFx
-        )
+    EffectsUtil.update
+        (\x -> Model x NoOp (0, 0) {w = 0, h = 0})
+        GraphMapAction
+        GraphMap.init
 
 
 -- UPDATE
@@ -52,31 +50,29 @@ update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         GraphMapAction graphMapAction ->
-            let
-                (graphMap, fx) = GraphMap.update graphMapAction model.graphMap
-            in
-                ({ model | graphMap = graphMap }, Effects.map GraphMapAction fx)
+            EffectsUtil.update
+                (\x -> { model | graphMap = x })
+                GraphMapAction
+                (GraphMap.update graphMapAction model.graphMap)
         Move pos ->
             case model.state of
                 Connecting id pos' ->
-                    ( { model 
-                            | state = Connecting id pos
-                            , pos = pos }
-                    , Effects.none
-                    )
-                NoOp -> ({ model | pos = pos }, Effects.none)
-        DoubleClick ->
-            let
-                (graphMap, fx) = 
-                    GraphMap.update 
-                        (Node.testNode model.pos |> GraphMap.AddNode)
-                        model.graphMap
-            in
-                ({ model | graphMap = graphMap }, Effects.map GraphMapAction fx)
+                    { model 
+                        | state = Connecting id pos
+                        , pos = pos }
+                    |> EffectsUtil.noFx
+                NoOp -> EffectsUtil.noFx { model | pos = pos }
+        DoubleClick -> 
+            GraphMap.update 
+                (Node.testNode model.pos |> GraphMap.AddNode)
+                model.graphMap
+            |> EffectsUtil.update
+                (\x -> { model | graphMap = x })
+                GraphMapAction
         Release ->
-            ({ model | state = NoOp }, Effects.none)
+            EffectsUtil.noFx { model | state = NoOp }
         Resize (w, h) ->
-            ({ model | size = {w = w, h = h} }, Effects.none)
+            EffectsUtil.noFx { model | size = {w = w, h = h} }
         NodeMouseAction (id, mouseAction) ->
             case mouseAction of
                 NodeBase.Down ->
@@ -86,20 +82,17 @@ update action model =
                                 Just pos -> pos
                                 Nothing -> Debug.log "mouse action no id" (0, 0)
                     in
-                        ( { model | state = Connecting id (fst pos, snd pos) }
-                        , Effects.none
-                        )
+                        EffectsUtil.noFx { model | state = Connecting id (fst pos, snd pos) }
                 NodeBase.Up ->
                     case model.state of
-                        NoOp -> (model, Effects.none)
+                        NoOp -> EffectsUtil.noFx model
                         Connecting id' pos ->
-                            let
-                                (graphMap, fx) =
-                                    GraphMap.update 
-                                        (GraphMap.AddEdge id id' {})
-                                        model.graphMap
-                            in
-                                ({ model | graphMap = graphMap }, Effects.map GraphMapAction fx)
+                            GraphMap.update 
+                                (GraphMap.AddEdge id id' {})
+                                model.graphMap
+                            |> EffectsUtil.update
+                                (\x -> { model | graphMap = x })
+                                GraphMapAction
 
 
 -- VIEW

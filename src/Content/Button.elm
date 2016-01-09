@@ -7,6 +7,7 @@ import Html
 import Html.Attributes as HtmlAtt
 import Html.Events as Events
 import Effects exposing (Effects)
+import EffectsUtil
 
 
 -- MODEL
@@ -17,7 +18,7 @@ type alias Model =
 
 init: Int -> (Model, Effects Action)
 init start =
-    (Model start, Effects.none)
+    Model start |> EffectsUtil.noFx
 
 
 -- UPDATE
@@ -29,7 +30,7 @@ update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         Increment ->
-            ({model | counter = model.counter + 1}, Effects.none)
+            EffectsUtil.noFx {model | counter = model.counter + 1}
 
 -- VIEW
 

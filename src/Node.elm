@@ -6,6 +6,7 @@ import MetaContent
 import Content.Term as Term
 import ContentUtil
 import Effects exposing (Effects)
+import EffectsUtil
 
 
 -- MODEL
@@ -52,19 +53,17 @@ update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         BaseAction baseAction ->
-            let
-                (base, fx) = NodeBase.update baseAction model.base
-            in
-                ( { model | base = base }
-                , Effects.map BaseAction fx
-                )
+            EffectsUtil.update
+                (\x -> { model | base = x })
+                BaseAction
+                (NodeBase.update baseAction model.base)
         ContentAction contentAction ->
             case MetaContent.update contentAction model.content of
                 Just (content, fx) -> 
                     ( { model | content = content }
                     , Effects.map ContentAction fx
                     )
-                Nothing -> (model, Effects.none)
+                Nothing -> EffectsUtil.noFx model
 
 
 -- VIEW

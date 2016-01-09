@@ -2,12 +2,13 @@ module NodeBase where
 
 import Time
 import Easing
-import SvgHelp
+import SvgUtil
 import Svg
 import Svg.Attributes as Att
 import Html
 import Html.Events as Events
 import Effects exposing (Effects)
+import EffectsUtil
 
 
 -- MODEL
@@ -48,7 +49,7 @@ update action model =
                     )
                 _ ->
                     if model.elapsed + time - model.prevTime >= duration then
-                        (Model None 0 0, Effects.none)
+                        Model None 0 0 |> EffectsUtil.noFx
                     else
                         ( { model |
                                 elapsed = model.elapsed + time - model.prevTime,
@@ -85,4 +86,4 @@ view mouseAddress pos radius model =
             [ Events.onMouseDown mouseAddress Down
             , Events.onMouseUp mouseAddress Up
             ] 
-            [ SvgHelp.circle pos (round radius') 7 "#5E81C1" "white" ]
+            [ SvgUtil.circle pos (round radius') 7 "#5E81C1" "white" ]

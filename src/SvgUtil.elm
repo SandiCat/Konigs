@@ -1,4 +1,4 @@
-module SvgHelp where
+module SvgUtil where
 
 import Svg
 import Svg.Attributes as Att

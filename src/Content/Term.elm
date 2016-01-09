@@ -2,13 +2,14 @@ module Content.Term where
 
 import Svg
 import Svg.Attributes as Att
-import SvgHelp
+import SvgUtil
 import ContentUtil
 import Html
 import Html.Attributes as HtmlAtt
 import Html.Events as Events
 import Signal
 import Effects exposing (Effects)
+import EffectsUtil
 import Json.Decode
 
 -- MODEL
@@ -24,7 +25,7 @@ type Mode
 
 init: String -> (Model, Effects Action)
 init text =
-    (Model text Display, Effects.none)
+    Model text Display |> EffectsUtil.noFx
 
 
 -- UPDATE
@@ -41,32 +42,25 @@ update action model =
         Display ->
             case action of
                 EnterInput ->
-                    ( { model | mode = Input }
-                    , Effects.none
-                    )
+                    EffectsUtil.noFx { model | mode = Input }
                 _ ->
-                    ( model, Effects.none )
+                    EffectsUtil.noFx model
         Input ->
             case action of
                 InputChange newText ->
-                    ( { model | text = newText }
-                    , Effects.none
-                    )
+                    EffectsUtil.noFx { model | text = newText }
                 KeyPress code ->
                     if code == 13 then -- 13 is Enter
-                        ( { model
+                        { model
                             | mode = Display
                             , text = if model.text == "" then "enter text" else model.text }
-                        , Effects.none
-                        )
+                        |> EffectsUtil.noFx
                     else
-                        ( model, Effects.none )
+                        EffectsUtil.noFx model
                 DeFocus ->
-                    ( { model | mode = Display }
-                    , Effects.none
-                    )
+                    EffectsUtil.noFx { model | mode = Display }
                 _ ->
-                    ( model, Effects.none)
+                    EffectsUtil.noFx model
 
 
 -- VIEW
@@ -95,7 +89,7 @@ view context model =
         Display ->
             Svg.text'
                 (
-                    ( SvgHelp.position context.pos )
+                    ( SvgUtil.position context.pos )
                     ++
                     [ Events.onClick context.actions EnterInput ]
                 )

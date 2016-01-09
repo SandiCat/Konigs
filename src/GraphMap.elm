@@ -4,13 +4,14 @@ import Graph
 import IntDict
 import Node
 import Svg
-import SvgHelp
+import SvgUtil
 import List.Extra
 import Layout
 import Time
 import Focus exposing ((=>))
 import NodeBase
 import Effects exposing (Effects)
+import EffectsUtil
 
 
 -- MODEL
@@ -59,7 +60,7 @@ init =
 
 empty: (Model, Effects Action)
 empty =
-    (Model Graph.empty, Effects.none)
+    Model Graph.empty |> EffectsUtil.noFx
 
 getNodePos: Graph.NodeId -> Model -> Maybe (Int, Int)
 getNodePos id {graph} =
@@ -117,7 +118,7 @@ update action model =
                 , Effects.map (NodeAction id) fx
                 )
         AddEdge a b edge ->
-            ({model | graph = addEdge a b edge model.graph}, Effects.none)
+            EffectsUtil.noFx {model | graph = addEdge a b edge model.graph}
         StepLayout dt ->
             ({model | graph = Layout.stepLayout model.graph}
             , Effects.tick StepLayout
@@ -127,7 +128,7 @@ update action model =
                 (maybeNode, fx) =
                     case Graph.get id model.graph of
                         Nothing ->
-                            (Nothing, Effects.none)
+                            EffectsUtil.noFx Nothing
                         Just ctx ->
                             let
                                 (node, fx) = Node.update nodeAction ctx.node.label
@@ -179,4 +180,4 @@ view mouseAddress address {graph} =
 
 edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg
 edgeForm posA posB =
-    SvgHelp.line posA posB 5 "#244F9F"
+    SvgUtil.line posA posB 5 "#244F9F"
