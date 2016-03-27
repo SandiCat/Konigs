@@ -20,7 +20,7 @@ import EffectsUtil
 type alias Model =
     { graphMap: GraphMap.Model
     , state: State
-    , pos: (Int, Int)
+    , pos: (Int, Int) -- mouse position
     , size: {w: Int, h: Int}
     }
 

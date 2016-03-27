@@ -5,7 +5,6 @@ import IntDict
 import Node
 import Svg
 import SvgUtil
-import List.Extra
 import Layout
 import Time
 import Focus exposing ((=>))
@@ -38,16 +37,19 @@ init =
                 range
             |> List.unzip
 
+        edges = 
+            [ (0, 1)
+            , (0, 2)
+            , (2, 3)
+            , (3, 4)
+            , (2, 5)
+            , (2, 4)
+            ]
+
         model =
             Graph.fromNodeLabelsAndEdgePairs
                 nodes
-                [ (0, 1)
-                , (0, 2)
-                , (2, 3)
-                , (3, 4)
-                , (2, 5)
-                , (2, 4)
-                ]
+                (edges ++ (List.map (\(a, b) -> (b, a)) edges)) -- undirected graph
             |> Graph.mapEdges (always {})
             |> Model
 
@@ -72,13 +74,18 @@ getNodePos id {graph} =
 addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
 addEdge a b edge graph =
     let
+        exists =
+            case Graph.get a graph of
+                Just ctx ->
+                    IntDict.member b ctx.incoming
+                Nothing -> False
         contextUpdate id maybeCtx =
             case maybeCtx of
                 Nothing -> Nothing
                 Just ctx -> Just
                     {ctx | incoming = IntDict.insert id edge ctx.incoming}
     in
-        if a /= b then
+        if a /= b && not exists then
             Graph.update a (contextUpdate b) graph
             |> Graph.update b (contextUpdate a)
         else
@@ -161,8 +168,7 @@ view mouseAddress address {graph} =
 
         edges =
             Graph.edges graph
-            |> List.map (\{from, to, label} -> (max from to, min from to))
-            |> List.Extra.dropDuplicates
+            |> List.map (\{from, to, label} -> (from, to))
             |> List.unzip
             |> (\(l1, l2) -> List.map2 (,) (toPositions l1) (toPositions l2))
             |> List.map (\(a, b) -> edgeForm a b)

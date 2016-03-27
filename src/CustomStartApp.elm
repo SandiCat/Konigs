@@ -54,7 +54,7 @@ start config =
         inputs =
             messages.signal :: List.map (Signal.map singleton) config.inputs
             |> listFairMerge
-            |> Signal.map (Debug.log "in")
+            -- |> Signal.map (Debug.log "in")
 
         -- effectsAndModel : Signal (model, Effects action)
         effectsAndModel =
