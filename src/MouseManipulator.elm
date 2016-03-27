@@ -78,7 +78,7 @@ update action model =
                 NodeBase.Down ->
                     let
                         pos = 
-                            case GraphMap.getNodePos id model.graphMap of
+                            case GraphMap.getNodePos id model.graphMap.graph of
                                 Just pos -> pos
                                 Nothing -> Debug.log "mouse action no id" (0, 0)
                     in

@@ -64,8 +64,8 @@ empty: (Model, Effects Action)
 empty =
     Model Graph.empty |> EffectsUtil.noFx
 
-getNodePos: Graph.NodeId -> Model -> Maybe (Int, Int)
-getNodePos id {graph} =
+getNodePos: Graph.NodeId -> Graph -> Maybe (Int, Int)
+getNodePos id graph =
     case Graph.get id graph of
         Just {node, incoming, outgoing} ->
             Just node.label.pos
@@ -162,16 +162,15 @@ view: Signal.Address (Graph.NodeId, NodeBase.MouseAction)
     -> Signal.Address Action -> Model -> Svg.Svg
 view mouseAddress address {graph} =
     let
-        toPositions list =
-            List.filterMap (\id -> Graph.get id graph) list
-            |> List.map (\ctx -> ctx.node.label.pos)
-
+        toEdgeForm {from, to, label} =
+            case Maybe.map2 (,) (getNodePos from graph) (getNodePos to graph) of
+                Just (a, b) ->
+                    edgeForm a b
+                Nothing ->
+                    Svg.g [] []
         edges =
             Graph.edges graph
-            |> List.map (\{from, to, label} -> (from, to))
-            |> List.unzip
-            |> (\(l1, l2) -> List.map2 (,) (toPositions l1) (toPositions l2))
-            |> List.map (\(a, b) -> edgeForm a b)
+            |> List.map toEdgeForm
 
         context id =
             NodeAction id
@@ -185,5 +184,5 @@ view mouseAddress address {graph} =
         Svg.g [] (edges ++ nodes)
 
 edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg
-edgeForm posA posB =
-    SvgUtil.line posA posB 5 "#244F9F"
+edgeForm a b =
+    SvgUtil.line a b 5 "#244F9F"
