@@ -4,8 +4,8 @@ import Svg
 import Svg.Attributes as Att
 
 
-circle: (Int, Int) -> Int -> Int -> String -> String -> Svg.Svg
-circle (x, y) radius thickness stroke fill =
+circle: Int -> String -> String -> (Int, Int) -> Int -> Svg.Svg
+circle thickness stroke fill (x, y) radius =
     Svg.circle
         [ toString x |> Att.cx
         , toString y |> Att.cy
@@ -16,8 +16,8 @@ circle (x, y) radius thickness stroke fill =
         ]
         []
 
-line: (Int, Int) -> (Int, Int) -> Int -> String -> Svg.Svg
-line (x, y) (x', y') thickness stroke =
+line: Int -> String -> (Int, Int) -> (Int, Int) -> Svg.Svg
+line thickness stroke (x, y) (x', y') =
     Svg.line
         [ toString x |> Att.x1
         , toString y |> Att.y1

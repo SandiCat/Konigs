@@ -184,5 +184,5 @@ view mouseAddress address {graph} =
         Svg.g [] (edges ++ nodes)
 
 edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg
-edgeForm a b =
-    SvgUtil.line a b 5 "#244F9F"
+edgeForm =
+    SvgUtil.line 5 "#244F9F"

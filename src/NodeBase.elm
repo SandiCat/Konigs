@@ -86,4 +86,4 @@ view mouseAddress pos radius model =
             [ Events.onMouseDown mouseAddress Down
             , Events.onMouseUp mouseAddress Up
             ] 
-            [ SvgUtil.circle pos (round radius') 7 "#5E81C1" "white" ]
+            [ SvgUtil.circle 7 "#5E81C1" "white" pos (round radius') ]
