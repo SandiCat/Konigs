@@ -12,6 +12,7 @@ import Effects exposing (Effects)
 import EffectsUtil
 import Json.Decode
 
+
 -- MODEL
 
 type alias Model =
