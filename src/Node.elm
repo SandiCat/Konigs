@@ -1,6 +1,7 @@
 module Node where
 
 import Svg
+import Svg.Attributes as Att
 import NodeBase
 import MetaContent
 import Content.Term as Term
@@ -77,8 +78,12 @@ view: Context -> Model -> Svg.Svg
 view context model =
     Svg.g []
         [ NodeBase.view context.mouseActions model.pos model.radius model.base
-        , MetaContent.view
+        , [ MetaContent.view
             (Signal.forwardTo context.actions ContentAction
                 |> ContentUtil.ViewContext model.pos model.radius)
-            model.content
+            model.content ]
+            |> Svg.foreignObject
+                [ fst model.pos |> toString |> Att.x
+                , snd model.pos |> toString |> Att.y
+                ]
         ]

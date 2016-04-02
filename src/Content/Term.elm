@@ -1,11 +1,8 @@
 module Content.Term where
 
-import Svg
-import Svg.Attributes as Att
-import SvgUtil
 import ContentUtil
 import Html
-import Html.Attributes as HtmlAtt
+import Html.Attributes as Att
 import Html.Events as Events
 import Signal
 import Effects exposing (Effects)
@@ -65,35 +62,22 @@ update action model =
 
 -- VIEW
 
-view: ContentUtil.ViewContext Action -> Model -> Svg.Svg
+view: ContentUtil.ViewContext Action -> Model -> Html.Html
 view context model =
     case model.mode of
         Input ->
-            Svg.foreignObject
-                [ Att.width "50"
-                , Att.height "50"
-                , fst context.pos |> toString |> Att.x
-                , snd context.pos |> toString |> Att.y
+            Html.input
+                [ Att.value model.text
+                , Events.on
+                    "input"
+                    Events.targetValue
+                    (InputChange >> Signal.message context.actions)
+                , Events.onKeyPress context.actions KeyPress
+                , Events.onBlur context.actions DeFocus
                 ]
-                [ Html.input
-                    [ HtmlAtt.value model.text
-                    , Events.on
-                        "input"
-                        Events.targetValue
-                        (InputChange >> Signal.message context.actions)
-                    , Events.onKeyPress context.actions KeyPress
-                    , Events.onBlur context.actions DeFocus
-                    ]
-                    []
-                ]
+                []
         Display ->
-            Svg.text'
-                (
-                    ( SvgUtil.position context.pos )
-                    ++
-                    [ Events.onClick context.actions EnterInput ]
-                )
-                [ Svg.text model.text ]
+            Html.div [ Events.onClick context.actions EnterInput ] [ Html.text model.text ]
 
 onDoubleClick: Signal.Address a -> a -> Html.Attribute
 onDoubleClick address action =

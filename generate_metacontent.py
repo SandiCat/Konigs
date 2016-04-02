@@ -42,7 +42,7 @@ module MetaContent where
 
 import ContentUtil
 import Signal
-import Svg
+import Html
 import Effects exposing (Effects)
 
 {}
@@ -70,7 +70,7 @@ update multiAction multiModel =
 
 -- VIEW
 
-view: ContentUtil.ViewContext MultiAction -> MultiModel -> Svg.Svg
+view: ContentUtil.ViewContext MultiAction -> MultiModel -> Html.Html
 view context multiModel =
     case multiModel of
 {}"""
