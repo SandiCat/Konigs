@@ -5,7 +5,8 @@
     "license": "BSD3",
     "source-directories": [
         "src",
-        "foreign"
+        "foreign",
+        "src/CssStuff"
     ],
     "exposed-modules": [],
     "native-modules": true,
@@ -19,6 +20,7 @@
         "evancz/elm-svg": "2.0.1 <= v < 3.0.0",
         "evancz/focus": "2.0.0 <= v < 3.0.0",
         "imeckler/queue": "1.1.2 <= v < 2.0.0",
+        "rtfeldman/elm-css": "1.1.0 <= v < 2.0.0",
         "sgraf812/elm-graph": "1.1.1 <= v < 2.0.0",
         "sgraf812/elm-intdict": "1.4.2 <= v < 2.0.0"
     },
