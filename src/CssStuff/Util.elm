@@ -1,4 +1,4 @@
-module CssUtil where
+module CssStuff.Util where
 
 import Css
 import Html.Attributes
