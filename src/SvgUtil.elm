@@ -34,3 +34,8 @@ position (x, y) =
     [ toString x |> Att.x
     , toString y |> Att.y
     ]
+
+translate: Int -> Int -> Svg.Attribute
+translate x y =
+    "translate(" ++ toString x ++ "," ++ toString y ++ ")"
+    |> Att.transform

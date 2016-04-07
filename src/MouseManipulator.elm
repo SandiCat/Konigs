@@ -10,11 +10,13 @@ import Html
 import Html.Events as Events
 import Svg
 import Svg.Attributes as Att
+import SvgUtil
 import NodeBase
 import Effects exposing (Effects)
 import EffectsUtil
 import Css exposing (px)
 import CssStuff.Util as CssUtil exposing (ipx)
+import List.Extra
 
 
 -- MODEL
@@ -118,32 +120,33 @@ view address model =
             case model.state of
                 Connecting id ->
                     case GraphMap.getNodePos id model.graphMap.graph of
-                        Nothing -> []
+                        Nothing -> Nothing
                         Just nodePos ->
-                            [ GraphMap.edgeForm nodePos (offsetMouse model) ]
-                _ -> []
+                            GraphMap.edgeForm nodePos (offsetMouse model) |> Just
+                _ -> Nothing
 
-        svg =
-            Svg.svg
-                [ toString model.size.w |> Att.width
-                , toString model.size.h |> Att.height
-                , CssUtil.style
-                    [ ipx model.origin.xo |> Css.left
-                    , ipx model.origin.yo |> Css.top
-                    , Css.position Css.absolute
-                    ]
-                ]
-                (
-                    connection
-                    ++
-                    [ GraphMap.view 
-                        (Signal.forwardTo address NodeMouseAction)
-                        (Signal.forwardTo address GraphMapAction)
-                        model.graphMap
-                    ]
-                )
+        graphMap =
+            GraphMap.view
+                (Signal.forwardTo address NodeMouseAction)
+                (Signal.forwardTo address GraphMapAction)
+                model.graphMap
+
     in
-        Html.div 
+        Svg.g
+            [ SvgUtil.translate model.origin.xo model.origin.yo ]
+            ( case connection of
+                Just x ->
+                    [ x, graphMap ]
+                Nothing ->
+                    [ graphMap ]
+            )
+        |> List.Extra.singleton
+        |> Svg.svg
+            [ toString model.size.w |> Att.width
+            , toString model.size.h |> Att.height
+            ]
+        |> List.Extra.singleton
+        |> Html.div 
             [ unselectableStyle
             , Events.onMouseUp address Release
             , Events.onMouseDown address Hold
@@ -152,9 +155,6 @@ view address model =
                 [ Css.width (ipx model.size.w)
                 , Css.height (ipx model.size.h)
                 ]
-            ]
-            [ toString model.origin.xo ++ ", " ++ toString model.origin.yo |> Html.text 
-            , svg
             ]
 
 unselectableStyle: Html.Attribute
