@@ -12,7 +12,6 @@ import EffectsUtil
 
 -- MODEL
 
-
 type alias Model =
     { pos: (Int, Int)
     , radius: Int
