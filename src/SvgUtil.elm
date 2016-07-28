@@ -1,10 +1,10 @@
-module SvgUtil where
+module SvgUtil exposing (..) 
 
 import Svg
 import Svg.Attributes as Att
 
 
-circle: Int -> String -> String -> (Int, Int) -> Int -> Svg.Svg
+circle: Int -> String -> String -> (Int, Int) -> Int -> Svg.Svg msg
 circle thickness stroke fill (x, y) radius =
     Svg.circle
         [ toString x |> Att.cx
@@ -16,7 +16,7 @@ circle thickness stroke fill (x, y) radius =
         ]
         []
 
-line: Int -> String -> (Int, Int) -> (Int, Int) -> Svg.Svg
+line: Int -> String -> (Int, Int) -> (Int, Int) -> Svg.Svg msg
 line thickness stroke (x, y) (x', y') =
     Svg.line
         [ toString x |> Att.x1
@@ -29,13 +29,13 @@ line thickness stroke (x, y) (x', y') =
         ]
         []
 
-position: (Int, Int) -> List Svg.Attribute
+position: (Int, Int) -> List (Svg.Attribute msg)
 position (x, y) =
     [ toString x |> Att.x
     , toString y |> Att.y
     ]
 
-translate: Int -> Int -> Svg.Attribute
+translate: Int -> Int -> Svg.Attribute msg
 translate x y =
     "translate(" ++ toString x ++ "," ++ toString y ++ ")"
     |> Att.transform

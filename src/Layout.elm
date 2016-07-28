@@ -1,4 +1,4 @@
-module Layout (stepLayout, drawForces) where
+module Layout exposing (stepLayout, drawForces)
 
 import Graph
 import IntDict
@@ -97,7 +97,7 @@ stepLayout graph =
     in
         Graph.mapContexts update graph
 
-drawForces: Graph' e -> Svg.Svg
+drawForces: Graph' e -> Svg.Svg msg
 drawForces graph =
     let
         singleForce (x, y) vec color =

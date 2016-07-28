@@ -1,4 +1,4 @@
-module CssStuff.Util where
+module CssStuff.Util exposing (..)
 
 import Css
 import Html.Attributes
@@ -10,10 +10,10 @@ zIndex z =
     toString z
     |> Css.property "z-index"
 
-style: List Css.Mixin -> Html.Attribute
+style: List Css.Mixin -> Html.Attribute msg
 style = Css.asPairs >> Html.Attributes.style
 
-layers: Int -> List Html.Attribute -> List Html.Html -> Html.Html
+layers: Int -> List (Html.Attribute msg) -> List (Html.Html msg) -> Html.Html msg
 layers startIndex attrs list =
     List.map2
         (\i elem ->

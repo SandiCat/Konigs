@@ -1,13 +1,11 @@
-module Content.Button where
+module Content.Button exposing (..)
 
 import Svg
 import Svg.Attributes as Att
-import ContentUtil
 import Html
 import Html.Attributes as HtmlAtt
 import Html.Events as Events
-import Effects exposing (Effects)
-import EffectsUtil
+import CmdUtil
 
 
 -- MODEL
@@ -16,33 +14,33 @@ type alias Model =
     { counter: Int
     }
 
-init: Int -> (Model, Effects Action)
+init: Int -> (Model, Cmd Msg)
 init start =
-    Model start |> EffectsUtil.noFx
+    Model start |> CmdUtil.noFx
 
 
 -- UPDATE
 
-type Action
+type Msg
     = Increment
 
-update: Action -> Model -> (Model, Effects Action)
-update action model =
-    case action of
+update: Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
         Increment ->
-            EffectsUtil.noFx {model | counter = model.counter + 1}
+            CmdUtil.noFx {model | counter = model.counter + 1}
 
 -- VIEW
 
-view: ContentUtil.ViewContext Action -> Model -> Svg.Svg
-view context model =
+view: (Int, Int) -> Int -> Model -> Svg.Svg Msg
+view pos radius model =
     Svg.foreignObject
         [ Att.width "50"
         , Att.height "50"
-        , fst context.pos |> toString |> Att.x
-        , snd context.pos |> toString |> Att.y
+        , fst pos |> toString |> Att.x
+        , snd pos |> toString |> Att.y
         ]
         [ Html.button 
-            [ Events.onClick context.actions Increment ] 
+            [ Events.onClick Increment ] 
             [ toString model.counter |> Html.text]
         ]

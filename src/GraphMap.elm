@@ -1,4 +1,4 @@
-module GraphMap where
+module GraphMap exposing (..)
 
 import Graph
 import IntDict
@@ -6,11 +6,11 @@ import Node
 import Svg
 import SvgUtil
 import Layout
+import AnimationFrame
 import Time
 import Focus exposing ((=>))
-import NodeBase
-import Effects exposing (Effects)
-import EffectsUtil
+import CmdUtil
+import Html.App
 
 
 -- MODEL
@@ -24,7 +24,7 @@ type alias Graph =
 
 type alias Edge = {}
 
-init: (Model, Effects Action)
+init: (Model, Cmd Msg)
 init =
     let
         range = [0..5]
@@ -54,15 +54,14 @@ init =
             |> Model
 
         fxs =
-            List.map2 (\i fx -> Effects.map (NodeAction i) fx) range nodeFxs
-            |> (::) (Effects.tick StepLayout)
-            |> Effects.batch
+            List.map2 (\i fx -> Cmd.map (NodeMsg i) fx) range nodeFxs
+            |> Cmd.batch
     in
         (model, fxs)
 
-empty: (Model, Effects Action)
+empty: (Model, Cmd Msg)
 empty =
-    Model Graph.empty |> EffectsUtil.noFx
+    Model Graph.empty |> CmdUtil.noFx
 
 getNodePos: Graph.NodeId -> Graph -> Maybe (Int, Int)
 getNodePos id graph =
@@ -107,40 +106,49 @@ addUnconnectedNode node graph =
 
 -- UPDATE
 
-type Action
-    = AddNode (Node.Model, Effects Node.Action)
+type Msg
+    = AddNode (Node.Model, Cmd Node.Msg)
     | AddEdge Graph.NodeId Graph.NodeId Edge
     | StepLayout Time.Time
-    | NodeAction Graph.NodeId Node.Action
+    | NodeMsg Graph.NodeId Node.Msg
 
-update: Action -> Model -> (Model, Effects Action)
-update action model =
-    case action of
+type OutMsg -- there's no ToParent like in Node, it's not needed
+    = MouseUp Graph.NodeId
+    | MouseDown Graph.NodeId
+
+update: Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
+update msg model =
+    case msg of
         AddNode (node, fx) ->
             let
                 (graph, id) =
                     addUnconnectedNode node model.graph
             in
                 ( { model | graph = graph }
-                , Effects.map (NodeAction id) fx
+                , Cmd.map (NodeMsg id) fx
+                , Nothing
                 )
         AddEdge a b edge ->
-            EffectsUtil.noFx {model | graph = addEdge a b edge model.graph}
+            ( {model | graph = addEdge a b edge model.graph}
+            , Cmd.none
+            , Nothing
+            )
         StepLayout dt ->
             ({model | graph = Layout.stepLayout model.graph}
-            , Effects.tick StepLayout
+            , Cmd.none
+            , Nothing
             )
-        NodeAction id nodeAction ->
+        NodeMsg id nodeMsg ->
             let
-                (maybeNode, fx) =
+                (maybeNode, fx, nodeOutMsg) =
                     case Graph.get id model.graph of
                         Nothing ->
-                            EffectsUtil.noFx Nothing
+                            (Nothing, Cmd.none, Nothing)
                         Just ctx ->
                             let
-                                (node, fx) = Node.update nodeAction ctx.node.label
+                                (node, fx, outMsg) = Node.update nodeMsg ctx.node.label
                             in
-                                (Just node, fx)
+                                (Just node, fx, outMsg)
 
                 focusUpdate ctx node =
                     Focus.update
@@ -150,17 +158,30 @@ update action model =
 
                 updateCtx maybeCtx =
                     Maybe.map2 focusUpdate maybeCtx maybeNode
+
+                (model', outMsgFx, outMsg) =
+                    updateNodeOutMsg id nodeOutMsg model
             in
                 ( {model | graph = Graph.update id updateCtx model.graph}
-                , Effects.map (NodeAction id) fx
+                , Cmd.batch [ Cmd.map (NodeMsg id) fx, outMsgFx ]
+                , outMsg
                 )
+
+updateNodeOutMsg: Graph.NodeId -> Maybe Node.OutMsg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
+updateNodeOutMsg id msg model =
+    case msg of
+        Just Node.MouseDown -> 
+            ( model, Cmd.none, MouseDown id |> Just)
+        Just Node.MouseUp -> 
+            ( model, Cmd.none, MouseUp id |> Just)
+        Nothing ->
+            (model, Cmd.none, Nothing)
 
 
 -- VIEW
 
-view: Signal.Address (Graph.NodeId, NodeBase.MouseAction)
-    -> Signal.Address Action -> Model -> Svg.Svg
-view mouseAddress address {graph} =
+view: Model -> Svg.Svg Msg
+view {graph} =
     let
         toEdgeForm {from, to, label} =
             case Maybe.map2 (,) (getNodePos from graph) (getNodePos to graph) of
@@ -172,17 +193,19 @@ view mouseAddress address {graph} =
             Graph.edges graph
             |> List.map toEdgeForm
 
-        context id =
-            NodeAction id
-            |> Signal.forwardTo address
-            |> Node.Context (Signal.forwardTo mouseAddress (\action -> (id, action)))
-
         nodes =
             Graph.nodes graph
-            |> List.map (\{id, label} -> Node.view (context id) label)
+            |> List.map (\{id, label} -> Node.view label |> Html.App.map (NodeMsg id))
     in
         Svg.g [] (edges ++ nodes)
 
-edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg
+edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg msg
 edgeForm =
     SvgUtil.line 5 "#244F9F"
+
+
+-- SUBSCRIPTIONS
+
+subscriptions: Model -> Sub Msg
+subscriptions model =
+    AnimationFrame.diffs StepLayout 
