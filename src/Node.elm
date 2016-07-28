@@ -30,7 +30,7 @@ testNode pos =
     let
         (content, fx) = Term.init "Test Term"
     in
-        (content |> MetaContent.MTerm, Cmd.map MetaContent.ATerm fx)
+        (content |> MetaContent.MdlTerm, Cmd.map MetaContent.MsgTerm fx)
         |> init pos
 
 

@@ -5,6 +5,7 @@ module MetaContent exposing (..)
 
 import Html
 import Html.App
+
 import Content.Button as Button
 import Content.Term as Term
 
@@ -12,15 +13,15 @@ import Content.Term as Term
 -- MODEL
 
 type MultiModel
-    = MButton Button.Model
-    | MTerm Term.Model
+    = MdlButton Button.Model
+    | MdlTerm Term.Model
 
 
 -- UPDATE
 
 type MultiMsg
-    = AButton Button.Msg
-    | ATerm Term.Msg
+    = MsgButton Button.Msg
+    | MsgTerm Term.Msg
 
 mismatchError: String
 mismatchError = "MetaContent.update msg model type mismatch"
@@ -28,22 +29,22 @@ mismatchError = "MetaContent.update msg model type mismatch"
 update: MultiMsg -> MultiModel -> Maybe (MultiModel, Cmd MultiMsg)
 update multiMsg multiModel =
     case multiMsg of
-        AButton msg ->
+        MsgButton action ->
             case multiModel of
-                MButton model ->
+                MdlButton model ->
                     let
-                        (model', fx) = Button.update msg model
+                        (model', cmd) = Button.update action model
                     in
-                        Just (MButton model', Cmd.map AButton fx)
+                        Just (MdlButton model', Cmd.map MsgButton cmd)
                 _ ->
                     Debug.log mismatchError Nothing
-        ATerm msg ->
+        MsgTerm action ->
             case multiModel of
-                MTerm model ->
+                MdlTerm model ->
                     let
-                        (model', fx) = Term.update msg model
+                        (model', cmd) = Term.update action model
                     in
-                        Just (MTerm model', Cmd.map ATerm fx)
+                        Just (MdlTerm model', Cmd.map MsgTerm cmd)
                 _ ->
                     Debug.log mismatchError Nothing
 
@@ -53,9 +54,9 @@ update multiMsg multiModel =
 view: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
 view pos radius multiModel =
     case multiModel of
-        MButton model ->
+        MdlButton model ->
             Button.view pos radius model
-            |> Html.App.map AButton
-        MTerm model ->
+            |> Html.App.map MsgButton
+        MdlTerm model ->
             Term.view pos radius model
-            |> Html.App.map ATerm
+            |> Html.App.map MsgTerm
