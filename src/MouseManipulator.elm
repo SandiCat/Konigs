@@ -44,10 +44,10 @@ offsetMouse model =
 init: (Model, Cmd Msg)
 init =
     let
-        (graphMap, gmFx) = GraphMap.init
+        (graphMap, gmCmd) = GraphMap.init
     in
         Model graphMap NoOp (0, 0) {width = 0, height = 0} {xo = 0, yo = 0} !
-            [ gmFx |> Cmd.map GraphMapMsg
+            [ gmCmd |> Cmd.map GraphMapMsg
             , Task.perform (Resize {width = 1000, height = 500} |> always) Resize Window.size
             ]
 
@@ -71,8 +71,8 @@ update msg model =
         Move (x, y) ->
             case model.state of
                 MovingCamera (xm, ym) {xo, yo} ->
-                    CmdUtil.noFx { model | origin = {xo = xo + x - xm, yo = yo + y - ym} }
-                _ -> CmdUtil.noFx { model | mousePos = (x, y) }
+                    CmdUtil.noCmd { model | origin = {xo = xo + x - xm, yo = yo + y - ym} }
+                _ -> CmdUtil.noCmd { model | mousePos = (x, y) }
         DoubleClick -> 
             GraphMap.update 
                 (offsetMouse model |> Node.testNode |> GraphMap.AddNode)
@@ -81,13 +81,13 @@ update msg model =
         Hold ->
             case model.state of
                 NoOp ->
-                    CmdUtil.noFx { model | state = MovingCamera model.mousePos model.origin }
+                    CmdUtil.noCmd { model | state = MovingCamera model.mousePos model.origin }
                 _ ->
-                    CmdUtil.noFx model
+                    CmdUtil.noCmd model
         Release ->
-            CmdUtil.noFx { model | state = NoOp }
+            CmdUtil.noCmd { model | state = NoOp }
         Resize size ->
-            CmdUtil.noFx { model | size = size }
+            CmdUtil.noCmd { model | size = size }
 
 updateGraphMapOutMsg: Maybe GraphMap.OutMsg -> Model -> (Model, Cmd Msg)
 updateGraphMapOutMsg msg model =
@@ -99,7 +99,7 @@ updateGraphMapOutMsg msg model =
                         (GraphMap.AddEdge id id' {})
                         model.graphMap
                     |> updateGraphMapHelp model
-                _ -> CmdUtil.noFx model
+                _ -> CmdUtil.noCmd model
         Just (GraphMap.MouseDown id) ->
             let
                 pos = 
@@ -107,17 +107,17 @@ updateGraphMapOutMsg msg model =
                         Just pos -> pos
                         Nothing -> Debug.log "mouse Msg no id" (0, 0)
             in
-                CmdUtil.noFx { model | state = Connecting id }
+                CmdUtil.noCmd { model | state = Connecting id }
         Nothing ->
             (model, Cmd.none)
 
 updateGraphMapHelp: Model -> (GraphMap.Model, Cmd GraphMap.Msg, Maybe GraphMap.OutMsg) -> (Model, Cmd Msg)
-updateGraphMapHelp model (graphMap, graphMapfx, outMsg) =
+updateGraphMapHelp model (graphMap, graphMapcmd, outMsg) =
     let
-        (model', fx) = updateGraphMapOutMsg outMsg model
+        (model', cmd) = updateGraphMapOutMsg outMsg model
     in
         ( {model' | graphMap = graphMap}
-        , Cmd.batch [ fx, Cmd.map GraphMapMsg graphMapfx ]
+        , Cmd.batch [ cmd, Cmd.map GraphMapMsg graphMapcmd ]
         )
 
 -- VIEW

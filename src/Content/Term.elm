@@ -20,7 +20,7 @@ type Mode
 
 init: String -> (Model, Cmd Msg)
 init text =
-    Model text Display |> CmdUtil.noFx
+    Model text Display |> CmdUtil.noCmd
 
 
 -- UPDATE
@@ -37,25 +37,25 @@ update msg model =
         Display ->
             case msg of
                 EnterInput ->
-                    CmdUtil.noFx { model | mode = Input }
+                    CmdUtil.noCmd { model | mode = Input }
                 _ ->
-                    CmdUtil.noFx model
+                    CmdUtil.noCmd model
         Input ->
             case msg of
                 InputChange newText ->
-                    CmdUtil.noFx { model | text = newText }
+                    CmdUtil.noCmd { model | text = newText }
                 KeyPress code ->
                     if code == 13 then -- 13 is Enter
                         { model
                             | mode = Display
                             , text = if model.text == "" then "enter text" else model.text }
-                        |> CmdUtil.noFx
+                        |> CmdUtil.noCmd
                     else
-                        CmdUtil.noFx model
+                        CmdUtil.noCmd model
                 DeFocus ->
-                    CmdUtil.noFx { model | mode = Display }
+                    CmdUtil.noCmd { model | mode = Display }
                 _ ->
-                    CmdUtil.noFx model
+                    CmdUtil.noCmd model
 
 
 -- VIEW

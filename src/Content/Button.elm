@@ -16,7 +16,7 @@ type alias Model =
 
 init: Int -> (Model, Cmd Msg)
 init start =
-    Model start |> CmdUtil.noFx
+    Model start |> CmdUtil.noCmd
 
 
 -- UPDATE
@@ -28,7 +28,7 @@ update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Increment ->
-            CmdUtil.noFx {model | counter = model.counter + 1}
+            CmdUtil.noCmd {model | counter = model.counter + 1}
 
 -- VIEW
 

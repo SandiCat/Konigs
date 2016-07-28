@@ -1,7 +1,7 @@
 module CmdUtil exposing (..) 
 
-noFx: a -> (a, Cmd b)
-noFx model =
+noCmd: a -> (a, Cmd b)
+noCmd model =
     (model, Cmd.none)
 
 update:
@@ -9,5 +9,5 @@ update:
     -> (inMsg -> outMsg)
     -> (inModel, Cmd inMsg)
     -> (outModel, Cmd outMsg)
-update updateOutModel tagMsg (inModel, inFx) =
-    (updateOutModel inModel, Cmd.map tagMsg inFx)
+update updateOutModel tagMsg (inModel, inCmd) =
+    (updateOutModel inModel, Cmd.map tagMsg inCmd)

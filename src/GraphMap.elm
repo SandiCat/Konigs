@@ -29,7 +29,7 @@ init =
     let
         range = [0..5]
 
-        (nodes, nodeFxs) =
+        (nodes, nodeCmds) =
             List.map
                 (\i ->
                     Node.testNode (500 + 30*i, 300 + (-1)^i*30*i)
@@ -53,15 +53,15 @@ init =
             |> Graph.mapEdges (always {})
             |> Model
 
-        fxs =
-            List.map2 (\i fx -> Cmd.map (NodeMsg i) fx) range nodeFxs
+        cmds =
+            List.map2 (\i cmd -> Cmd.map (NodeMsg i) cmd) range nodeCmds
             |> Cmd.batch
     in
-        (model, fxs)
+        (model, cmds)
 
 empty: (Model, Cmd Msg)
 empty =
-    Model Graph.empty |> CmdUtil.noFx
+    Model Graph.empty |> CmdUtil.noCmd
 
 getNodePos: Graph.NodeId -> Graph -> Maybe (Int, Int)
 getNodePos id graph =
@@ -119,13 +119,13 @@ type OutMsg -- there's no ToParent like in Node, it's not needed
 update: Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
 update msg model =
     case msg of
-        AddNode (node, fx) ->
+        AddNode (node, cmd) ->
             let
                 (graph, id) =
                     addUnconnectedNode node model.graph
             in
                 ( { model | graph = graph }
-                , Cmd.map (NodeMsg id) fx
+                , Cmd.map (NodeMsg id) cmd
                 , Nothing
                 )
         AddEdge a b edge ->
@@ -140,15 +140,15 @@ update msg model =
             )
         NodeMsg id nodeMsg ->
             let
-                (maybeNode, fx, nodeOutMsg) =
+                (maybeNode, cmd, nodeOutMsg) =
                     case Graph.get id model.graph of
                         Nothing ->
                             (Nothing, Cmd.none, Nothing)
                         Just ctx ->
                             let
-                                (node, fx, outMsg) = Node.update nodeMsg ctx.node.label
+                                (node, cmd, outMsg) = Node.update nodeMsg ctx.node.label
                             in
-                                (Just node, fx, outMsg)
+                                (Just node, cmd, outMsg)
 
                 focusUpdate ctx node =
                     Focus.update
@@ -159,11 +159,11 @@ update msg model =
                 updateCtx maybeCtx =
                     Maybe.map2 focusUpdate maybeCtx maybeNode
 
-                (model', outMsgFx, outMsg) =
+                (model', outMsgCmd, outMsg) =
                     updateNodeOutMsg id nodeOutMsg model
             in
                 ( {model | graph = Graph.update id updateCtx model.graph}
-                , Cmd.batch [ Cmd.map (NodeMsg id) fx, outMsgFx ]
+                , Cmd.batch [ Cmd.map (NodeMsg id) cmd, outMsgCmd ]
                 , outMsg
                 )
 

@@ -22,15 +22,15 @@ init:
     (Int, Int)
     -> (MetaContent.MultiModel, Cmd MetaContent.MultiMsg)
     -> (Model, Cmd Msg)
-init pos (content, contentFx) =
-    Model pos 40 content ! [ Cmd.map ContentMsg contentFx ]
+init pos (content, contentCmd) =
+    Model pos 40 content ! [ Cmd.map ContentMsg contentCmd ]
 
 testNode: (Int, Int) -> (Model, Cmd Msg)
 testNode pos =
     let
-        (content, fx) = Term.init "Test Term"
+        (content, cmd) = Term.init "Test Term"
     in
-        (content |> MetaContent.MdlTerm, Cmd.map MetaContent.MsgTerm fx)
+        (content |> MetaContent.MdlTerm, Cmd.map MetaContent.MsgTerm cmd)
         |> init pos
 
 
@@ -49,9 +49,9 @@ update msg model =
     case msg of
         ContentMsg contentMsg ->
             case MetaContent.update contentMsg model.content of
-                Just (content, fx) -> 
+                Just (content, cmd) -> 
                     ( { model | content = content }
-                    , Cmd.map ContentMsg fx
+                    , Cmd.map ContentMsg cmd
                     , Nothing
                     )
                 Nothing ->
