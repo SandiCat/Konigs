@@ -2,6 +2,7 @@ import MouseManipulator
 import Html.App
 
 
+main: Program Never
 main =
     Html.App.program
         { init = MouseManipulator.init 
