@@ -101,13 +101,7 @@ updateGraphMapOutMsg msg model =
                     |> updateGraphMapHelp model
                 _ -> CmdUtil.noCmd model
         Just (GraphMap.MouseDown id) ->
-            let
-                pos = 
-                    case GraphMap.getNodePos id model.graphMap.graph of
-                        Just pos -> pos
-                        Nothing -> Debug.log "mouse Msg no id" (0, 0)
-            in
-                CmdUtil.noCmd { model | state = Connecting id }
+            CmdUtil.noCmd { model | state = Connecting id }
         Nothing ->
             (model, Cmd.none)
 
@@ -128,10 +122,9 @@ view model =
         connection =
             case model.state of
                 Connecting id ->
-                    case GraphMap.getNodePos id model.graphMap.graph of
-                        Nothing -> Nothing
-                        Just nodePos ->
-                            GraphMap.edgeForm nodePos (offsetMouse model) |> Just
+                    offsetMouse model
+                    |> GraphMap.edgeForm (GraphMap.getNodePos id model.graphMap.graph)
+                    |> Just
                 _ -> Nothing
 
         graphMap =

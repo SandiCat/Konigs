@@ -63,12 +63,12 @@ empty: (Model, Cmd Msg)
 empty =
     Model Graph.empty |> CmdUtil.noCmd
 
-getNodePos: Graph.NodeId -> Graph -> Maybe (Int, Int)
+getNodePos: Graph.NodeId -> Graph -> (Int, Int)
 getNodePos id graph =
     case Graph.get id graph of
         Just {node, incoming, outgoing} ->
-            Just node.label.pos
-        Nothing -> Nothing
+            node.label.pos
+        Nothing -> Debug.log "getNodePos got nonexisting id!" (0, 0)
 
 addEdge: Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
 addEdge a b edge graph =
@@ -183,12 +183,8 @@ updateNodeOutMsg id msg model =
 view: Model -> Svg.Svg Msg
 view {graph} =
     let
-        toEdgeForm {from, to, label} =
-            case Maybe.map2 (,) (getNodePos from graph) (getNodePos to graph) of
-                Just (a, b) ->
-                    edgeForm a b
-                Nothing ->
-                    Svg.g [] []
+        toEdgeForm {from, to, label} = edgeForm (getNodePos from graph) (getNodePos to graph)
+
         edges =
             Graph.edges graph
             |> List.map toEdgeForm
