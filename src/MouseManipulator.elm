@@ -12,7 +12,7 @@ import Svg.Attributes as Att
 import SvgUtil
 import CmdUtil
 import Css exposing (px)
-import CssStuff.Util as CssUtil exposing (ipx)
+import CssUtil exposing (ipx)
 import List.Extra
 import Html.App
 import Mouse

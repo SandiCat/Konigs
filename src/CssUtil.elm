@@ -1,4 +1,4 @@
-module CssStuff.Util exposing (..)
+module CssUtil exposing (..)
 
 import Css
 import Html.Attributes

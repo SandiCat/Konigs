@@ -5,6 +5,7 @@ import Html.Attributes as Att
 import Html.Events as Events
 import CmdUtil
 import Json.Decode
+import MyCss
 
 
 -- MODEL
@@ -72,7 +73,11 @@ view pos radius model =
                 ]
                 []
         Display ->
-            Html.div [ Events.onClick EnterInput ] [ Html.text model.text ]
+            Html.div
+                [ Events.onClick EnterInput 
+                , MyCss.class [ MyCss.TermText ]
+                ]
+                [ Html.text model.text ]
 
 onKeyPress: (Int -> msg) -> Html.Attribute msg
 onKeyPress tagger =
