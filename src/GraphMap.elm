@@ -78,15 +78,14 @@ addEdge a b edge graph =
                 Just ctx ->
                     IntDict.member b ctx.incoming
                 Nothing -> False
-        contextUpdate id maybeCtx =
-            case maybeCtx of
-                Nothing -> Nothing
-                Just ctx -> Just
-                    {ctx | incoming = IntDict.insert id edge ctx.incoming}
+
+        contextUpdate id ctx =
+            { ctx
+                | incoming = IntDict.insert id edge ctx.incoming
+                , outgoing = IntDict.insert id edge ctx.outgoing }
     in
         if a /= b && not exists then
-            Graph.update a (contextUpdate b) graph
-            |> Graph.update b (contextUpdate a)
+            Graph.update a (contextUpdate b |> Maybe.map) graph
         else
             graph
 
@@ -175,7 +174,7 @@ updateNodeOutMsg id msg model =
         Just Node.MouseUp -> 
             ( model, Cmd.none, MouseUp id |> Just)
         Nothing ->
-            (model, Cmd.none, Nothing)
+            ( model, Cmd.none, Nothing )
 
 
 -- VIEW

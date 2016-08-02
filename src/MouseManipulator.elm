@@ -108,9 +108,10 @@ updateGraphMapOutMsg msg model =
 updateGraphMapHelp: Model -> (GraphMap.Model, Cmd GraphMap.Msg, Maybe GraphMap.OutMsg) -> (Model, Cmd Msg)
 updateGraphMapHelp model (graphMap, graphMapcmd, outMsg) =
     let
-        (model', cmd) = updateGraphMapOutMsg outMsg model
+        (model', cmd) =
+            updateGraphMapOutMsg outMsg { model | graphMap = graphMap }
     in
-        ( {model' | graphMap = graphMap}
+        ( model'
         , Cmd.batch [ cmd, Cmd.map GraphMapMsg graphMapcmd ]
         )
 
