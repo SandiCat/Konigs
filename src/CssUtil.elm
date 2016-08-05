@@ -26,6 +26,5 @@ layers startIndex attrs list =
     |> Html.div attrs
 
 -- ipx: Int -> Css.ExplicitLength Css.PxUnits
-ipx x =
-    toFloat x
-    |> Css.px
+ipx =
+    toFloat >> Css.px
