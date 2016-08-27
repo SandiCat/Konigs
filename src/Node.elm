@@ -8,6 +8,7 @@ import Content.Term as Term
 import CmdUtil
 import Html.Events as Events
 import Html.App
+import Html
 
 
 -- MODEL
@@ -62,18 +63,15 @@ update msg model =
 
 -- VIEW
 
-view: Model -> Svg.Svg Msg
+view: Model -> Html.Html Msg
 view model =
-    Svg.g []
-        [ Svg.g 
-            [ Events.onMouseDown (ToParent MouseDown)
-            , Events.onMouseUp (ToParent MouseUp)
-            ] 
-            [ SvgUtil.circle 7 "#5E81C1" "white" model.pos model.radius ]
-        , [ MetaContent.view model.pos model.radius model.content ]
-            |> Svg.foreignObject
-                [ fst model.pos |> toString |> Att.x
-                , snd model.pos |> toString |> Att.y
-                ]
-            |> Html.App.map ContentMsg
-        ]
+    MetaContent.view model.pos model.radius model.content
+    |> Html.App.map ContentMsg
+
+baseView: Model -> Svg.Svg Msg
+baseView model =
+    Svg.g 
+        [ Events.onMouseDown (ToParent MouseDown)
+        , Events.onMouseUp (ToParent MouseUp)
+        ] 
+        [ SvgUtil.circle 7 "#5E81C1" "white" model.pos model.radius ]

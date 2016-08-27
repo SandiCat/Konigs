@@ -7,13 +7,9 @@ import Graph
 import Html.Attributes
 import Html
 import Html.Events as Events
-import Svg
-import Svg.Attributes as Att
-import SvgUtil
 import CmdUtil
 import Css exposing (px)
 import CssUtil exposing (ipx)
-import List.Extra
 import Html.App
 import Mouse
 import Window
@@ -120,34 +116,13 @@ updateGraphMapHelp model (graphMap, graphMapcmd, outMsg) =
 view: Model -> Html.Html Msg
 view model =
     let
-        connection =
+        edge =
             case model.state of
                 Connecting id ->
-                    offsetMouse model
-                    |> GraphMap.edgeForm (GraphMap.getNodePos id model.graphMap.graph)
-                    |> Just
+                    Just {mousePos = offsetMouse model, originNode = id}
                 _ -> Nothing
-
-        graphMap =
-            GraphMap.view model.graphMap
-            |> Html.App.map GraphMapMsg
-
     in
-        Svg.g
-            [ SvgUtil.translate model.origin.xo model.origin.yo ]
-            ( case connection of
-                Just x ->
-                    [ x, graphMap ]
-                Nothing ->
-                    [ graphMap ]
-            )
-        |> List.Extra.singleton
-        |> Svg.svg
-            [ toString model.size.width |> Att.width
-            , toString model.size.height |> Att.height
-            ]
-        |> List.Extra.singleton
-        |> Html.div 
+        Html.div 
             [ unselectableStyle
             , Events.onMouseUp Release
             , Events.onMouseDown Hold
@@ -156,6 +131,13 @@ view model =
                 [ Css.width (ipx model.size.width)
                 , Css.height (ipx model.size.height)
                 ]
+            ]
+            [ GraphMap.view
+                model.size
+                model.origin
+                edge
+                model.graphMap
+                |> Html.App.map GraphMapMsg
             ]
 
 unselectableStyle: Html.Attribute msg

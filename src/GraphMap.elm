@@ -4,6 +4,7 @@ import Graph
 import IntDict
 import Node
 import Svg
+import Svg.Attributes as Att
 import SvgUtil
 import Layout
 import AnimationFrame
@@ -11,6 +12,8 @@ import Time
 import Focus exposing ((=>))
 import CmdUtil
 import Html.App
+import Html
+import CssUtil
 
 
 -- MODEL
@@ -179,8 +182,13 @@ updateNodeOutMsg id msg model =
 
 -- VIEW
 
-view: Model -> Svg.Svg Msg
-view {graph} =
+view:
+    {width: Int, height: Int} ->
+    {xo: Int, yo: Int} ->
+    Maybe {mousePos: (Int, Int), originNode: Graph.NodeId} -> 
+    Model -> 
+    Html.Html Msg
+view window camera maybeConnectEdge {graph} =
     let
         toEdgeForm {from, to, label} = edgeForm (getNodePos from graph) (getNodePos to graph)
 
@@ -190,9 +198,24 @@ view {graph} =
 
         nodes =
             Graph.nodes graph
-            |> List.map (\{id, label} -> Node.view label |> Html.App.map (NodeMsg id))
+            |> List.map (\{id, label} -> Node.baseView label |> Html.App.map (NodeMsg id))
+
+        connectEdge =
+            case maybeConnectEdge of
+                Just {mousePos, originNode} ->
+                    [ edgeForm mousePos (getNodePos originNode graph) ]
+                Nothing -> []
     in
-        Svg.g [] (edges ++ nodes)
+        CssUtil.layers 0 [] 
+            [ Svg.svg
+                [ toString window.width |> Att.width
+                , toString window.height |> Att.height
+                ]
+                [ Svg.g [ SvgUtil.translate camera.xo camera.yo ]
+                    (edges ++ connectEdge ++ nodes)
+                ]
+            , Html.text "sup bitch"
+            ]
 
 edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg msg
 edgeForm =
