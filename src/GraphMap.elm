@@ -190,7 +190,7 @@ view:
     Html.Html Msg
 view window camera maybeConnectEdge {graph} =
     let
-        toEdgeForm {from, to, label} = edgeForm (getNodePos from graph) (getNodePos to graph)
+        toEdgeForm {from, to, label} = edgeView (getNodePos from graph) (getNodePos to graph)
 
         edges =
             Graph.edges graph
@@ -203,7 +203,7 @@ view window camera maybeConnectEdge {graph} =
         connectEdge =
             case maybeConnectEdge of
                 Just {mousePos, originNode} ->
-                    [ edgeForm mousePos (getNodePos originNode graph) ]
+                    [ edgeView mousePos (getNodePos originNode graph) ]
                 Nothing -> []
     in
         CssUtil.layers 0 [] 
@@ -217,8 +217,8 @@ view window camera maybeConnectEdge {graph} =
             , Html.text "sup bitch"
             ]
 
-edgeForm: (Int, Int) -> (Int, Int) -> Svg.Svg msg
-edgeForm =
+edgeView: (Int, Int) -> (Int, Int) -> Svg.Svg msg
+edgeView =
     SvgUtil.line 5 "#244F9F"
 
 
