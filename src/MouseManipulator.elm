@@ -23,7 +23,7 @@ type alias Model =
     , state: State
     , mousePos: (Int, Int)
     , size: {width: Int, height: Int}
-    , origin: {xo: Int, yo: Int} -- camera position
+    , cameraPos: {xo: Int, yo: Int} -- camera position
     }
 
 type State
@@ -33,8 +33,8 @@ type State
 
 offsetMouse: Model -> (Int, Int)
 offsetMouse model =
-    ( fst model.mousePos - model.origin.xo
-    , snd model.mousePos - model.origin.yo
+    ( fst model.mousePos - model.cameraPos.xo
+    , snd model.mousePos - model.cameraPos.yo
     )
 
 init: (Model, Cmd Msg)
@@ -67,7 +67,7 @@ update msg model =
         Move (x, y) ->
             case model.state of
                 MovingCamera (xm, ym) {xo, yo} ->
-                    CmdUtil.noCmd { model | origin = {xo = xo + x - xm, yo = yo + y - ym} }
+                    CmdUtil.noCmd { model | cameraPos = {xo = xo + x - xm, yo = yo + y - ym} }
                 _ -> CmdUtil.noCmd { model | mousePos = (x, y) }
         DoubleClick -> 
             GraphMap.update 
@@ -77,7 +77,7 @@ update msg model =
         Hold ->
             case model.state of
                 NoOp ->
-                    CmdUtil.noCmd { model | state = MovingCamera model.mousePos model.origin }
+                    CmdUtil.noCmd { model | state = MovingCamera model.mousePos model.cameraPos }
                 _ ->
                     CmdUtil.noCmd model
         Release ->
@@ -134,7 +134,7 @@ view model =
             ]
             [ GraphMap.view
                 model.size
-                model.origin
+                model.cameraPos
                 edge
                 model.graphMap
                 |> Html.App.map GraphMapMsg

@@ -188,7 +188,7 @@ view:
     Maybe {mousePos: (Int, Int), originNode: Graph.NodeId} -> 
     Model -> 
     Html.Html Msg
-view window camera maybeConnectEdge {graph} =
+view size camera maybeConnectEdge {graph} =
     let
         toEdgeForm {from, to, label} = edgeView (getNodePos from graph) (getNodePos to graph)
 
@@ -208,8 +208,8 @@ view window camera maybeConnectEdge {graph} =
     in
         CssUtil.layers 0 [] 
             [ Svg.svg
-                [ toString window.width |> Att.width
-                , toString window.height |> Att.height
+                [ toString size.width |> Att.width
+                , toString size.height |> Att.height
                 ]
                 [ Svg.g [ SvgUtil.translate camera.xo camera.yo ]
                     (edges ++ connectEdge ++ nodes)
