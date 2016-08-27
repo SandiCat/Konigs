@@ -28,3 +28,10 @@ layers startIndex attrs list =
 -- ipx: Int -> Css.ExplicitLength Css.PxUnits
 ipx =
     toFloat >> Css.px
+
+position: (Int, Int) -> Html.Attribute msg
+position (x, y) =
+    style
+        [ ipx x |> Css.left
+        , ipx y |> Css.top
+        ]

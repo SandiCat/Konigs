@@ -13,6 +13,8 @@ namespaceName = "MyCss"
 
 type CssClasses
     = TermText
+    | Node
+    | NodeCont
 
 type CssIds
     = NothingAtAllToBeSeenHere
@@ -21,5 +23,12 @@ css =
     (stylesheet << namespace namespaceName)
     [ (.) TermText
         [ fontWeight bold
+        ]
+    , (.) Node
+        [ position absolute
+        , translate2 (pct -50) (pct -50) |> transform
+        ]
+    , (.) NodeCont
+        [ position absolute
         ]
     ]

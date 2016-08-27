@@ -1,14 +1,15 @@
 module Node exposing (..) 
 
 import Svg
-import Svg.Attributes as Att
 import SvgUtil
 import MetaContent
 import Content.Term as Term
-import CmdUtil
 import Html.Events as Events
 import Html.App
 import Html
+import MyCss
+import CssUtil
+import List.Extra
 
 
 -- MODEL
@@ -67,6 +68,11 @@ view: Model -> Html.Html Msg
 view model =
     MetaContent.view model.pos model.radius model.content
     |> Html.App.map ContentMsg
+    |> List.Extra.singleton
+    |> Html.div
+        [ MyCss.class [ MyCss.Node ]
+        , CssUtil.position model.pos
+        ]
 
 baseView: Model -> Svg.Svg Msg
 baseView model =

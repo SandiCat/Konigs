@@ -14,6 +14,7 @@ import CmdUtil
 import Html.App
 import Html
 import CssUtil
+import MyCss
 
 
 -- MODEL
@@ -214,7 +215,13 @@ view size camera maybeConnectEdge {graph} =
                 [ Svg.g [ SvgUtil.translate camera.xo camera.yo ]
                     (edges ++ connectEdge ++ nodes)
                 ]
-            , Html.text "sup bitch"
+            , Html.div 
+                [ MyCss.class [ MyCss.NodeCont ]
+                , CssUtil.position (camera.xo, camera.yo)
+                ]
+                ( Graph.nodes graph
+                    |> List.map (\{id, label} -> Node.view label |> Html.App.map (NodeMsg id))
+                )
             ]
 
 edgeView: (Int, Int) -> (Int, Int) -> Svg.Svg msg
