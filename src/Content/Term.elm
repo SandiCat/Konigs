@@ -70,6 +70,7 @@ view pos radius model =
                 , Events.onInput InputChange
                 , onKeyPress KeyPress
                 , Events.onBlur DeFocus
+                , MyCss.class [ MyCss.TermText, MyCss.TermInput ]
                 ]
                 []
         Display ->

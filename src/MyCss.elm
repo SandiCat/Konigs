@@ -15,6 +15,7 @@ type CssClasses
     = TermText
     | Node
     | NodeCont
+    | TermInput
 
 type CssIds
     = NothingAtAllToBeSeenHere
@@ -22,7 +23,16 @@ type CssIds
 css =
     (stylesheet << namespace namespaceName)
     [ (.) TermText
-        [ fontWeight bold
+        [ textAlign center
+        , fontFamilies ["Verdana", "Arial", .value sansSerif]
+        , px 14 |> fontSize 
+        ]
+    , (.) TermInput
+        [ borderColor transparent
+        , backgroundColor transparent
+        , focus
+            [ px 0 |> border
+            ]
         ]
     , (.) Node
         [ position absolute

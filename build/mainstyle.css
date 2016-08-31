@@ -1,5 +1,16 @@
 .MyCssTermText {
-    font-weight: bold;
+    text-align: center;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 14px;
+}
+
+.MyCssTermInput {
+    border-color: transparent;
+    background-color: transparent;
+}
+
+.MyCssTermInput:focus {
+    border: 0px;
 }
 
 .MyCssNode {
