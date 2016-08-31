@@ -28,9 +28,9 @@ parts = [
                 _ ->
                     Debug.log mismatchError Nothing"""),
     generate_part("""\
-        Mdl{0} model ->
-            {0}.view pos radius model
-            |> Html.App.map Msg{0}""")
+            Mdl{0} model ->
+                {0}.view pos radius model
+                |> Html.App.map Msg{0}""")
 ]
 
 base_code = """\
@@ -41,6 +41,7 @@ module MetaContent exposing (..)
 
 import Html
 import Html.App
+import MyCss
 
 {}
 
@@ -69,8 +70,10 @@ update multiMsg multiModel =
 
 view: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
 view pos radius multiModel =
-    case multiModel of
+    Html.div [ MyCss.class [ MyCss.Content ] ]
+        [ case multiModel of
 {}
+        ]
 """
 
 f = open(join("src", "MetaContent.elm"), "w")

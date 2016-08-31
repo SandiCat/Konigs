@@ -10,6 +10,7 @@ import Html
 import MyCss
 import CssUtil
 import List.Extra
+import ContextMenu
 
 
 -- MODEL
@@ -41,6 +42,7 @@ testNode pos =
 type Msg
     = ContentMsg MetaContent.MultiMsg
     | ToParent OutMsg
+    | NoOp
 
 type OutMsg
     = MouseUp
@@ -60,18 +62,21 @@ update msg model =
                     ( model, Cmd.none, Nothing )
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
+        NoOp ->
+            ( model, Cmd.none, Nothing )
 
 
 -- VIEW
 
 view: Model -> Html.Html Msg
 view model =
-    MetaContent.view model.pos model.radius model.content
-    |> Html.App.map ContentMsg
-    |> List.Extra.singleton
-    |> Html.div
+    Html.div
         [ MyCss.class [ MyCss.Node ]
         , CssUtil.position model.pos
+        ]
+        [ MetaContent.view model.pos model.radius model.content
+            |> Html.App.map ContentMsg
+        , ContextMenu.view |> Html.App.map (always NoOp)
         ]
 
 baseView: Model -> Svg.Svg Msg

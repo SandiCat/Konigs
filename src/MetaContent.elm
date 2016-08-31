@@ -5,6 +5,7 @@ module MetaContent exposing (..)
 
 import Html
 import Html.App
+import MyCss
 
 import Content.Button as Button
 import Content.Term as Term
@@ -53,10 +54,12 @@ update multiMsg multiModel =
 
 view: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
 view pos radius multiModel =
-    case multiModel of
-        MdlButton model ->
-            Button.view pos radius model
-            |> Html.App.map MsgButton
-        MdlTerm model ->
-            Term.view pos radius model
-            |> Html.App.map MsgTerm
+    Html.div [ MyCss.class [ MyCss.Content ] ]
+        [ case multiModel of
+            MdlButton model ->
+                Button.view pos radius model
+                |> Html.App.map MsgButton
+            MdlTerm model ->
+                Term.view pos radius model
+                |> Html.App.map MsgTerm
+        ]

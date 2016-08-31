@@ -16,6 +16,9 @@ type CssClasses
     | Node
     | NodeCont
     | TermInput
+    | ContextMenu
+    | MenuIcon
+    | Content
 
 type CssIds
     = NothingAtAllToBeSeenHere
@@ -34,11 +37,21 @@ css =
             [ px 0 |> border
             ]
         ]
-    , (.) Node
+    , (.) Content
         [ position absolute
         , translate2 (pct -50) (pct -50) |> transform
         ]
-    , (.) NodeCont
+    , each [(.) Node, (.) NodeCont]
         [ position absolute
+        ]
+    , (.) ContextMenu
+        [ displayFlex
+        , flexDirection column
+        , left (px -80)
+        , position absolute
+        , translateY (pct -50) |> transform
+        ]
+    , (.) MenuIcon
+        [
         ]
     ]
