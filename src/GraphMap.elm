@@ -209,9 +209,7 @@ view size camera maybeConnectEdge {graph} =
     in
         CssUtil.layers 0 []
             [ Svg.svg
-                [ toString size.width |> Att.width
-                , toString size.height |> Att.height
-                ]
+                (SvgUtil.size size.width size.height)
                 [ Svg.g [ SvgUtil.translate camera.xo camera.yo ]
                     (edges ++ connectEdge ++ nodes)
                 ]

@@ -35,6 +35,12 @@ position (x, y) =
     , toString y |> Att.y
     ]
 
+size: Int -> Int -> List (Svg.Attribute msg)
+size width height =
+    [ toString width |> Att.width
+    , toString height |> Att.height
+    ]
+
 translate: Int -> Int -> Svg.Attribute msg
 translate x y =
     "translate(" ++ toString x ++ "," ++ toString y ++ ")"
