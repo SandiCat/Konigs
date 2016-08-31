@@ -42,11 +42,12 @@ testNode pos =
 type Msg
     = ContentMsg MetaContent.MultiMsg
     | ToParent OutMsg
-    | NoOp
+    | ContextMenuMsg ContextMenu.Msg
 
 type OutMsg
     = MouseUp
     | MouseDown
+    | Remove
 
 update: Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
 update msg model =
@@ -62,7 +63,15 @@ update msg model =
                     ( model, Cmd.none, Nothing )
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
-        NoOp ->
+        ContextMenuMsg menuMsg ->
+            updateContextMenu menuMsg model
+
+updateContextMenu: ContextMenu.Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
+updateContextMenu msg model =
+    case msg of
+        ContextMenu.Remove ->
+            ( model, Cmd.none, Just Remove )
+        _ ->
             ( model, Cmd.none, Nothing )
 
 
@@ -76,7 +85,7 @@ view model =
         ]
         [ MetaContent.view model.pos model.radius model.content
             |> Html.App.map ContentMsg
-        , ContextMenu.view |> Html.App.map (always NoOp)
+        , ContextMenu.view |> Html.App.map ContextMenuMsg
         ]
 
 baseView: Model -> Svg.Svg Msg

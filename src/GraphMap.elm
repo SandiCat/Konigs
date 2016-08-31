@@ -162,10 +162,13 @@ update msg model =
                 updateCtx maybeCtx =
                     Maybe.map2 focusUpdate maybeCtx maybeNode
 
-                (model', outMsgCmd, outMsg) =
-                    updateNodeOutMsg id nodeOutMsg model
+                model2 =
+                    {model | graph = Graph.update id updateCtx model.graph}
+
+                (model3, outMsgCmd, outMsg) =
+                    updateNodeOutMsg id nodeOutMsg model2
             in
-                ( {model | graph = Graph.update id updateCtx model.graph}
+                ( model3
                 , Cmd.batch [ Cmd.map (NodeMsg id) cmd, outMsgCmd ]
                 , outMsg
                 )
@@ -177,6 +180,11 @@ updateNodeOutMsg id msg model =
             ( model, Cmd.none, MouseDown id |> Just)
         Just Node.MouseUp -> 
             ( model, Cmd.none, MouseUp id |> Just)
+        Just Node.Remove ->
+            ( { model | graph = Graph.remove id model.graph }
+            , Cmd.none
+            , Nothing
+            )
         Nothing ->
             ( model, Cmd.none, Nothing )
 

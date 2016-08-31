@@ -40,7 +40,10 @@ view =
 optionView: Option -> Html.Html Msg
 optionView option =
     Svg.svg
-        ( Events.onClick option.msg :: SvgUtil.size iconSize iconSize )
+        (SvgUtil.size iconSize iconSize)
         [ option.icon ]
     |> List.Extra.singleton
-    |> Html.div [ MyCss.class [ MyCss.MenuIcon ] ]
+    |> Html.div
+        [ MyCss.class [ MyCss.MenuIcon ]
+        , Events.onClick option.msg
+        ]
