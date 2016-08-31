@@ -75,3 +75,5 @@ view pos radius multiModel =
 
 f = open(join("src", "MetaContent.elm"), "w")
 f.write(base_code.format(*parts))
+
+print("Successfully generated MetaContent.elm!")
