@@ -24,8 +24,8 @@
 .MyCssContextMenu {
     display: flex;
     flex-direction: column;
-    transform: translateX(-80%);
+    transform: translate(-80%, -50%);
     position: absolute;
-    top: -20px;
+    top: 50%;
     padding: 20px;
 }

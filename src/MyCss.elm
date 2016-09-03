@@ -49,9 +49,9 @@ css =
     , (.) ContextMenu
         [ displayFlex
         , flexDirection column
-        , translateX (pct -80) |> transform
+        , translate2 (pct -80) (pct -50) |> transform
         , position absolute
-        , top (px -20)
+        , top (pct 50)
         , padding (px 20)
         ]
     , (.) MenuIcon
