@@ -9,7 +9,7 @@ import Html.App
 import Html
 import MyCss
 import CssUtil
-import List.Extra
+import Css
 import ContextMenu
 
 
@@ -19,14 +19,19 @@ type alias Model =
     { pos: (Int, Int)
     , radius: Int
     , content: MetaContent.MultiModel
+    , state: State
     }
+
+type State
+    = NoOp
+    | DisplayingMenu
 
 init:
     (Int, Int)
     -> (MetaContent.MultiModel, Cmd MetaContent.MultiMsg)
     -> (Model, Cmd Msg)
 init pos (content, contentCmd) =
-    Model pos 40 content ! [ Cmd.map ContentMsg contentCmd ]
+    Model pos 40 content NoOp ! [ Cmd.map ContentMsg contentCmd ]
 
 testNode: (Int, Int) -> (Model, Cmd Msg)
 testNode pos =
@@ -43,6 +48,8 @@ type Msg
     = ContentMsg MetaContent.MultiMsg
     | ToParent OutMsg
     | ContextMenuMsg ContextMenu.Msg
+    | MouseOver
+    | MouseLeave
 
 type OutMsg
     = MouseUp
@@ -65,6 +72,10 @@ update msg model =
             ( model, Cmd.none, Just outMsg )
         ContextMenuMsg menuMsg ->
             updateContextMenu menuMsg model
+        MouseOver ->
+            ( { model | state = DisplayingMenu }, Cmd.none, Nothing )
+        MouseLeave ->
+            ( { model | state = NoOp }, Cmd.none, Nothing )
 
 updateContextMenu: ContextMenu.Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
 updateContextMenu msg model =
@@ -85,13 +96,29 @@ view model =
         ]
         [ MetaContent.view model.pos model.radius model.content
             |> Html.App.map ContentMsg
-        , ContextMenu.view |> Html.App.map ContextMenuMsg
+        , Html.div
+            [ Events.onMouseOver MouseOver
+            , Events.onMouseDown (ToParent MouseDown)
+            , Events.onMouseUp (ToParent MouseUp)
+            , MyCss.class [ MyCss.NodeOver ]
+            , CssUtil.style
+                [ model.radius * 2 |> CssUtil.ipx |> Css.width
+                , model.radius * 2 |> CssUtil.ipx |> Css.height 
+                ]
+            ]
+            [ Html.div
+                [ Events.onMouseOut MouseLeave
+                , MyCss.class [ MyCss.NodeLeave ]
+                ]
+                [ if model.state == DisplayingMenu then 
+                    ContextMenu.view |> Html.App.map ContextMenuMsg
+                  else
+                    Html.div [] []
+                ]
+            ]
         ]
 
 baseView: Model -> Svg.Svg Msg
 baseView model =
-    Svg.g 
-        [ Events.onMouseDown (ToParent MouseDown)
-        , Events.onMouseUp (ToParent MouseUp)
-        ] 
+    Svg.g []
         [ SvgUtil.circle 7 "#5E81C1" "white" model.pos model.radius ]

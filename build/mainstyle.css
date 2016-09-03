@@ -22,10 +22,22 @@
     position: absolute;
 }
 
+.MyCssNodeOver {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.MyCssNodeLeave {
+    height: 100px;
+    width: 150px;
+    left: -100px;
+    position: absolute;
+    transform: translateY(-50%);
+}
+
 .MyCssContextMenu {
     display: flex;
     flex-direction: column;
-    left: -80px;
+    margin-left: 0px;
     position: absolute;
-    transform: translateY(-50%);
 }

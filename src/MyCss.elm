@@ -19,6 +19,8 @@ type CssClasses
     | ContextMenu
     | MenuIcon
     | Content
+    | NodeOver
+    | NodeLeave
 
 type CssIds
     = NothingAtAllToBeSeenHere
@@ -44,12 +46,25 @@ css =
     , each [(.) Node, (.) NodeCont]
         [ position absolute
         ]
+    , (.) NodeOver
+        [ position absolute
+        , translate2 (pct -50) (pct -50) |> transform
+        ]
+
+    , (.) NodeLeave
+        [ height (px 100)
+        , width (px 150)
+        , left (px -100)
+        , position absolute
+        , translateY (pct -50) |> transform
+        ]
     , (.) ContextMenu
         [ displayFlex
         , flexDirection column
-        , left (px -80)
+        --, left (px -80)
+        , marginLeft (px 0)
         , position absolute
-        , translateY (pct -50) |> transform
+        --, translateY (pct -50) |> transform
         ]
     , (.) MenuIcon
         [
