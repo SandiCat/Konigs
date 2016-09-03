@@ -14,6 +14,8 @@ import List.Extra
 type Msg
     = Remove
     | Edit
+    | MouseOver
+    | MouseOut
 
 type alias Option =
     { msg: Msg
@@ -35,7 +37,12 @@ options =
 view: Html.Html Msg
 view =
     List.map optionView options
-    |> Html.div [ MyCss.class [ MyCss.ContextMenu ] ]
+    |> Html.div
+        [ MyCss.class [ MyCss.ContextMenu ]
+        , Events.onMouseOver MouseOver
+        , Events.onMouseOut MouseOut
+        ]
+
 
 optionView: Option -> Html.Html Msg
 optionView option =

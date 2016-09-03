@@ -19,19 +19,16 @@ type alias Model =
     { pos: (Int, Int)
     , radius: Int
     , content: MetaContent.MultiModel
-    , state: State
+    , overBase: Bool
+    , overMenu: Bool
     }
-
-type State
-    = NoOp
-    | DisplayingMenu
 
 init:
     (Int, Int)
     -> (MetaContent.MultiModel, Cmd MetaContent.MultiMsg)
     -> (Model, Cmd Msg)
 init pos (content, contentCmd) =
-    Model pos 40 content NoOp ! [ Cmd.map ContentMsg contentCmd ]
+    Model pos 40 content False False ! [ Cmd.map ContentMsg contentCmd ]
 
 testNode: (Int, Int) -> (Model, Cmd Msg)
 testNode pos =
@@ -49,7 +46,7 @@ type Msg
     | ToParent OutMsg
     | ContextMenuMsg ContextMenu.Msg
     | MouseOver
-    | MouseLeave
+    | MouseOut
 
 type OutMsg
     = MouseUp
@@ -73,13 +70,17 @@ update msg model =
         ContextMenuMsg menuMsg ->
             updateContextMenu menuMsg model
         MouseOver ->
-            ( { model | state = DisplayingMenu }, Cmd.none, Nothing )
-        MouseLeave ->
-            ( { model | state = NoOp }, Cmd.none, Nothing )
+            ( { model | overBase = True }, Cmd.none, Nothing )
+        MouseOut ->
+            ( { model | overBase = False }, Cmd.none, Nothing )
 
 updateContextMenu: ContextMenu.Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
 updateContextMenu msg model =
     case msg of
+        ContextMenu.MouseOver ->
+            ( { model | overMenu = True }, Cmd.none, Nothing )
+        ContextMenu.MouseOut ->
+            ( { model | overMenu = False }, Cmd.none, Nothing )
         ContextMenu.Remove ->
             ( model, Cmd.none, Just Remove )
         _ ->
@@ -88,37 +89,33 @@ updateContextMenu msg model =
 
 -- VIEW
 
+width: Model -> Int
+width model =
+    model.radius * 2 + 7
+
 view: Model -> Html.Html Msg
 view model =
     Html.div
         [ MyCss.class [ MyCss.Node ]
-        , CssUtil.position model.pos
+        , CssUtil.style
+            [ fst model.pos |> CssUtil.ipx |> Css.left
+            , snd model.pos |> CssUtil.ipx |> Css.top
+            , width model |> CssUtil.ipx |> Css.width
+            , width model |> CssUtil.ipx |> Css.height
+            ]
+        , Events.onMouseOver MouseOver
+        , Events.onMouseOut MouseOut
+        , Events.onMouseDown (ToParent MouseDown)
+        , Events.onMouseUp (ToParent MouseUp)
         ]
         [ MetaContent.view model.pos model.radius model.content
             |> Html.App.map ContentMsg
-        , Html.div
-            [ Events.onMouseOver MouseOver
-            , Events.onMouseDown (ToParent MouseDown)
-            , Events.onMouseUp (ToParent MouseUp)
-            , MyCss.class [ MyCss.NodeOver ]
-            , CssUtil.style
-                [ model.radius * 2 |> CssUtil.ipx |> Css.width
-                , model.radius * 2 |> CssUtil.ipx |> Css.height 
-                ]
-            ]
-            [ Html.div
-                [ Events.onMouseOut MouseLeave
-                , MyCss.class [ MyCss.NodeLeave ]
-                ]
-                [ if model.state == DisplayingMenu then 
-                    ContextMenu.view |> Html.App.map ContextMenuMsg
-                  else
-                    Html.div [] []
-                ]
-            ]
+        , if model.overBase || model.overMenu then 
+            ContextMenu.view |> Html.App.map ContextMenuMsg
+          else
+            Html.div [] []
         ]
 
 baseView: Model -> Svg.Svg Msg
 baseView model =
-    Svg.g []
-        [ SvgUtil.circle 7 "#5E81C1" "white" model.pos model.radius ]
+    SvgUtil.circle 7 "#5E81C1" "white" model.pos model.radius 

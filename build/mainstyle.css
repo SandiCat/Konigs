@@ -13,31 +13,19 @@
     border: 0px;
 }
 
-.MyCssContent {
-    position: absolute;
-    transform: translate(-50%, -50%);
-}
-
 .MyCssNode, .MyCssNodeCont {
     position: absolute;
 }
 
-.MyCssNodeOver {
-    position: absolute;
+.MyCssNode {
     transform: translate(-50%, -50%);
-}
-
-.MyCssNodeLeave {
-    height: 100px;
-    width: 150px;
-    left: -100px;
-    position: absolute;
-    transform: translateY(-50%);
 }
 
 .MyCssContextMenu {
     display: flex;
     flex-direction: column;
-    margin-left: 0px;
+    transform: translateX(-80%);
     position: absolute;
+    top: -20px;
+    padding: 20px;
 }
