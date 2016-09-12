@@ -16,6 +16,7 @@ type CssClasses
     | Node
     | NodeCont
     | TermInput
+    | TermDisplay
     | ContextMenu
     | MenuIcon
     | Content
@@ -26,9 +27,8 @@ type CssIds
 css =
     (stylesheet << namespace namespaceName)
     [ (.) TermText
-        [ textAlign center
-        , fontFamilies ["Verdana", "Arial", .value sansSerif]
-        , px 14 |> fontSize 
+        [ fontFamilies ["Verdana", "Arial", .value sansSerif]
+        , px 14 |> fontSize
         ]
     , (.) TermInput
         [ borderColor transparent
@@ -36,6 +36,14 @@ css =
         , focus
             [ px 0 |> border
             ]
+        ]
+    , (.) TermDisplay
+        [ displayFlex
+        , alignItems center
+        , property "justify-content" "center"
+        , height (pct 100)
+        , width (pct 100)
+        , textAlign center
         ]
     , (.) Content
         [ 

@@ -76,7 +76,7 @@ view pos radius model =
         Display ->
             Html.div
                 [ Events.onClick EnterInput 
-                , MyCss.class [ MyCss.TermText ]
+                , MyCss.class [ MyCss.TermText, MyCss.TermDisplay ]
                 ]
                 [ Html.text model.text ]
 
