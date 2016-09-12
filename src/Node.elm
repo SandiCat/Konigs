@@ -11,6 +11,7 @@ import MyCss
 import CssUtil
 import Css
 import ContextMenu
+import Platform.Cmd as Cmd
 
 
 -- MODEL
@@ -19,8 +20,8 @@ type alias Model =
     { pos: (Int, Int)
     , radius: Int
     , content: MetaContent.MultiModel
-    , overBase: Bool
-    , overMenu: Bool
+    , mouseOver: Bool
+    , contextMenu: ContextMenu.Model
     }
 
 init:
@@ -28,7 +29,7 @@ init:
     -> (MetaContent.MultiModel, Cmd MetaContent.MultiMsg)
     -> (Model, Cmd Msg)
 init pos (content, contentCmd) =
-    Model pos 40 content False False ! [ Cmd.map ContentMsg contentCmd ]
+    Model pos 40 content False ContextMenu.init ! [ Cmd.map ContentMsg contentCmd ]
 
 testNode: (Int, Int) -> (Model, Cmd Msg)
 testNode pos =
@@ -68,20 +69,29 @@ update msg model =
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
         ContextMenuMsg menuMsg ->
-            updateContextMenu menuMsg model
-        MouseOver ->
-            ( { model | overBase = True }, Cmd.none, Nothing )
-        MouseOut ->
-            ( { model | overBase = False }, Cmd.none, Nothing )
+            let
+                (ctxmenu, ctxCmd, ctxOutMsg) =
+                    ContextMenu.update menuMsg model.contextMenu
 
-updateContextMenu: ContextMenu.Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
+                (model', cmd, outMsg) =
+                    updateContextMenu ctxOutMsg model
+            in
+                ( { model' | contextMenu = ctxmenu }
+                , Cmd.batch
+                    [ ctxCmd |> Cmd.map ContextMenuMsg
+                    , cmd
+                    ]
+                , outMsg
+                )
+        MouseOver ->
+            ( { model | mouseOver = True }, Cmd.none, Nothing )
+        MouseOut ->
+            ( { model | mouseOver = False }, Cmd.none, Nothing )
+
+updateContextMenu: Maybe ContextMenu.OutMsg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
 updateContextMenu msg model =
     case msg of
-        ContextMenu.MouseOver ->
-            ( { model | overMenu = True }, Cmd.none, Nothing )
-        ContextMenu.MouseOut ->
-            ( { model | overMenu = False }, Cmd.none, Nothing )
-        ContextMenu.Remove ->
+        Just ContextMenu.Remove ->
             ( model, Cmd.none, Just Remove )
         _ ->
             ( model, Cmd.none, Nothing )
@@ -110,8 +120,9 @@ view model =
         ]
         [ MetaContent.view model.pos model.radius model.content
             |> Html.App.map ContentMsg
-        , if model.overBase || model.overMenu then 
-            ContextMenu.view |> Html.App.map ContextMenuMsg
+        , if model.mouseOver || model.contextMenu.mouseOver then 
+            ContextMenu.view model.contextMenu
+            |> Html.App.map ContextMenuMsg
           else
             Html.div [] []
         ]

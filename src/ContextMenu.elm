@@ -11,38 +11,65 @@ import Color
 import List.Extra
 
 
-type Msg
-    = Remove
-    | Edit
-    | MouseOver
-    | MouseOut
+-- MODEL
+
+type alias Model =
+    { options: List Option
+    , mouseOver: Bool
+    }
 
 type alias Option =
-    { msg: Msg
+    { msg: OutMsg
     , icon: Svg.Svg Msg
     }
 
-iconSize: Int
-iconSize = 30
+init: Model
+init =
+    Model
+        [ delete color iconSize |> Option Remove
+        , edit color iconSize |> Option Edit
+        ]
+        False
 
-color: Color.Color
-color = Color.rgb 19 56 125
 
-options: List Option
-options =
-    [ delete color iconSize |> Option Remove
-    , edit color iconSize |> Option Edit
-    ]
+-- UPDATE
 
-view: Html.Html Msg
-view =
-    List.map optionView options
+type Msg
+    = ToParent OutMsg
+    | MouseOver
+    | MouseOut
+
+type OutMsg
+    = Remove
+    | Edit
+
+update: Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
+update msg model =
+    case msg of
+        ToParent outMsg ->
+            ( model, Cmd.none, Just outMsg )
+        MouseOver ->
+            ( { model | mouseOver = True }, Cmd.none, Nothing )
+        MouseOut ->
+            ( { model | mouseOver = False }, Cmd.none, Nothing )
+
+
+-- VIEW
+
+view: Model -> Html.Html Msg
+view model =
+    List.map optionView model.options
     |> Html.div
         [ MyCss.class [ MyCss.ContextMenu ]
         , Events.onMouseOver MouseOver
         , Events.onMouseOut MouseOut
         ]
 
+iconSize: Int
+iconSize = 30
+
+color: Color.Color
+color = Color.rgb 19 56 125
 
 optionView: Option -> Html.Html Msg
 optionView option =
@@ -52,5 +79,5 @@ optionView option =
     |> List.Extra.singleton
     |> Html.div
         [ MyCss.class [ MyCss.MenuIcon ]
-        , Events.onClick option.msg
+        , ToParent option.msg |> Events.onClick
         ]
