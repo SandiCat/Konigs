@@ -8,6 +8,7 @@
     ],
     "exposed-modules": [],
     "dependencies": {
+        "debois/elm-mdl": "7.6.0 <= v < 8.0.0",
         "elm-community/elm-linear-algebra": "2.0.2 <= v < 3.0.0",
         "elm-community/elm-material-icons": "2.0.0 <= v < 3.0.0",
         "elm-community/graph": "1.0.0 <= v < 2.0.0",
