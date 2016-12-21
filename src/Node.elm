@@ -121,7 +121,7 @@ view model =
         [ MetaContent.view model.pos model.radius model.content
             |> Html.App.map ContentMsg
         , if model.mouseOver || model.contextMenu.mouseOver then 
-            ContextMenu.view model.contextMenu
+            ContextMenu.view [] model.contextMenu
             |> Html.App.map ContextMenuMsg
           else
             Html.div [] []
