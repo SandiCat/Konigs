@@ -4,6 +4,7 @@ import Css exposing (..)
 import Css.Elements exposing (body, li)
 import Css.Namespace exposing (namespace)
 import Html.CssHelpers
+import Material.Options
 
 
 namespaceName = "MyCss"
@@ -11,39 +12,34 @@ namespaceName = "MyCss"
 { id, class, classList } =
     Html.CssHelpers.withNamespace namespaceName
 
+mdlClass: CssClasses -> Material.Options.Property c m
+mdlClass =
+    toString >> (++) namespaceName >> Material.Options.cs
+
 type CssClasses
-    = TermText
-    | Node
+    = Node
     | NodeCont
-    | TermInput
     | TermDisplay
     | ContextMenu
     | MenuIcon
     | Content
+    | TermDescription
 
 type CssIds
     = NothingAtAllToBeSeenHere
 
 css =
     (stylesheet << namespace namespaceName)
-    [ (.) TermText
-        [ fontFamilies ["Verdana", "Arial", .value sansSerif]
-        , px 14 |> fontSize
-        ]
-    , (.) TermInput
-        [ borderColor transparent
-        , backgroundColor transparent
-        , focus
-            [ px 0 |> border
-            ]
-        ]
-    , (.) TermDisplay
-        [ displayFlex
-        , alignItems center
-        , property "justify-content" "center"
-        , height (pct 100)
+    [ (.) TermDisplay
+        [ height (pct 100)
         , width (pct 100)
-        , textAlign center
+        , textAlign center 
+        ]
+    , (.) TermDescription
+        [ width (px 200)
+        , padding (px 20)
+        , backgroundColor (hex "8CA8DA")
+        , position absolute
         ]
     , (.) Content
         [ 

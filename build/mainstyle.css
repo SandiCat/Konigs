@@ -1,24 +1,14 @@
-.MyCssTermText {
-    font-family: Verdana, Arial, sans-serif;
-    font-size: 14px;
-}
-
-.MyCssTermInput {
-    border-color: transparent;
-    background-color: transparent;
-}
-
-.MyCssTermInput:focus {
-    border: 0px;
-}
-
 .MyCssTermDisplay {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     height: 100%;
     width: 100%;
     text-align: center;
+}
+
+.MyCssTermDescription {
+    width: 200px;
+    padding: 20px;
+    background-color: #8CA8DA;
+    position: absolute;
 }
 
 .MyCssNode, .MyCssNodeCont {
