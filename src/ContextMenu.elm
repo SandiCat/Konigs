@@ -3,26 +3,23 @@ module ContextMenu exposing (..)
 import Html
 import Html.Events as Events
 import MyCss
-import Svg
-import SvgUtil
-import Material.Icons.Action exposing (delete)
-import Material.Icons.Image exposing (edit)
-import Color
-import List.Extra
 import MetaContent
 import Option exposing (Option)
-import Html.App
+import Material.Button as Button
+import Material.Icon as Icon
+import Material
 
 
 -- MODEL
 
 type alias Model =
-    { mouseOver: Bool
+    { mdl: Material.Model
+    , mouseOver: Bool
     }
 
 init: Model
 init =
-    Model False
+    Model Material.model False
 
 
 -- UPDATE
@@ -31,6 +28,7 @@ type Msg
     = ToParent OutMsg
     | MouseOver
     | MouseOut
+    | MdlMsg (Material.Msg Msg)
 
 type OutMsg
     = Remove
@@ -46,14 +44,19 @@ update msg model =
             ( { model | mouseOver = True }, Cmd.none, Nothing )
         MouseOut ->
             ( { model | mouseOver = False }, Cmd.none, Nothing )
+        MdlMsg msg' -> 
+            let
+                (model, cmd) = Material.update msg' model
+            in
+                (model, cmd, Nothing)
 
 
 -- VIEW
 
 baseOptions: List (Option OutMsg)
 baseOptions =
-    [ delete Option.color Option.iconSize |> Option Remove
-    , edit Option.color Option.iconSize |> Option Edit
+    [ Option Remove "delete"
+    , Option Edit "edit"
     ]
 
 view: List (Option MetaContent.MultiMsg) -> Model -> Html.Html Msg
@@ -62,20 +65,17 @@ view options model =
         options' =
             List.map (Option.map ContentMsg) options
     in
-        List.map optionView (options' ++ baseOptions)
+        List.map (optionView model) (options' ++ baseOptions)
         |> Html.div
             [ MyCss.class [ MyCss.ContextMenu ]
             , Events.onMouseOver MouseOver
             , Events.onMouseOut MouseOut
             ]
 
-optionView: Option OutMsg -> Html.Html Msg
-optionView option =
-    Svg.svg
-        (SvgUtil.size Option.iconSize Option.iconSize)
-        [ option.icon |> Html.App.map ToParent ]
-    |> List.Extra.singleton
-    |> Html.div
-        [ MyCss.class [ MyCss.MenuIcon ]
-        , ToParent option.msg |> Events.onClick
+optionView: Model -> Option OutMsg -> Html.Html Msg
+optionView model option =
+    Button.render MdlMsg [0] model.mdl
+        [ Button.icon
+        , Button.onClick (ToParent option.msg)
         ]
+        [ Icon.i option.icon ]
