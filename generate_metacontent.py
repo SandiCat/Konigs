@@ -16,6 +16,10 @@ def generate_part_union(template, indent):
 parts = [
     generate_part("import Content.{0} as {0}"),
     generate_part_union("Mdl{0} {0}.Model", "    "),
+    generate_part("""\
+        Mdl{0} model ->
+            {0}.menuOptions
+            |> List.map (Option.map Msg{0})"""),
     generate_part_union("Msg{0} {0}.Msg", "    "),
     generate_part("""\
         Msg{0} action ->
@@ -42,6 +46,7 @@ module MetaContent exposing (..)
 import Html
 import Html.App
 import MyCss
+import Option exposing (Option)
 
 {}
 
@@ -49,6 +54,11 @@ import MyCss
 -- MODEL
 
 type MultiModel
+{}
+
+menuOptions: MultiModel -> List (Option MultiMsg)
+menuOptions multiModel =
+    case multiModel of
 {}
 
 

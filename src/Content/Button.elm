@@ -18,6 +18,8 @@ init: Int -> (Model, Cmd Msg)
 init start =
     Model start |> CmdUtil.noCmd
 
+menuOptions = []
+
 
 -- UPDATE
 

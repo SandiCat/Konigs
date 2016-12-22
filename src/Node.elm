@@ -12,6 +12,7 @@ import CssUtil
 import Css
 import ContextMenu
 import Platform.Cmd as Cmd
+import CmdUtil
 
 
 -- MODEL
@@ -93,6 +94,16 @@ updateContextMenu msg model =
     case msg of
         Just ContextMenu.Remove ->
             ( model, Cmd.none, Just Remove )
+        Just (ContextMenu.ContentMsg msg) ->
+            let
+                (content, cmd) =
+                    MetaContent.update msg model.content
+                    |> Maybe.withDefault (model.content, Cmd.none)
+            in
+                ( { model | content = content }
+                , Cmd.map ContentMsg cmd 
+                , Nothing
+                )
         _ ->
             ( model, Cmd.none, Nothing )
 
@@ -121,7 +132,9 @@ view model =
         [ MetaContent.view model.pos model.radius model.content
             |> Html.App.map ContentMsg
         , if model.mouseOver || model.contextMenu.mouseOver then 
-            ContextMenu.view [] model.contextMenu
+            ContextMenu.view
+                (MetaContent.menuOptions model.content)
+                model.contextMenu
             |> Html.App.map ContextMenuMsg
           else
             Html.div [] []

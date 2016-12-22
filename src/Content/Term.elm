@@ -6,6 +6,8 @@ import Html.Events as Events
 import CmdUtil
 import Json.Decode
 import MyCss
+import Option exposing (Option)
+import Material.Icons.Action exposing (description)
 
 
 -- MODEL
@@ -22,6 +24,11 @@ type Mode
 init: String -> (Model, Cmd Msg)
 init text =
     Model text Display |> CmdUtil.noCmd
+
+menuOptions: List (Option Msg)
+menuOptions =
+    [ description Option.color Option.iconSize |> Option EnterInput
+    ]
 
 
 -- UPDATE

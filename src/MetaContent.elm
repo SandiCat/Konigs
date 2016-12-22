@@ -6,6 +6,7 @@ module MetaContent exposing (..)
 import Html
 import Html.App
 import MyCss
+import Option exposing (Option)
 
 import Content.Button as Button
 import Content.Term as Term
@@ -16,6 +17,16 @@ import Content.Term as Term
 type MultiModel
     = MdlButton Button.Model
     | MdlTerm Term.Model
+
+menuOptions: MultiModel -> List (Option MultiMsg)
+menuOptions multiModel =
+    case multiModel of
+        MdlButton model ->
+            Button.menuOptions
+            |> List.map (Option.map MsgButton)
+        MdlTerm model ->
+            Term.menuOptions
+            |> List.map (Option.map MsgTerm)
 
 
 -- UPDATE

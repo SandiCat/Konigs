@@ -23,7 +23,7 @@ type alias Model =
 init: Model
 init =
     Model False
-        
+
 
 -- UPDATE
 
