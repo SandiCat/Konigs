@@ -34,7 +34,7 @@ type Mode
 init: String -> (Model, Cmd Msg)
 init text =
     let
-        (desc, descCmd) = Description.init "hey"
+        (desc, descCmd) = Description.init "space in the container will be distributed equally to all children. If one of the children has a value of 2, the remaining space would take up twice as much space as the others (or it will try to, at least)."
     in
         Model text Display False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
 

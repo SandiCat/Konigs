@@ -9,6 +9,10 @@
     padding: 20px;
     background-color: #8CA8DA;
     position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-left: 20px;
+    transform: translateY(-50%);
 }
 
 .MyCssNode, .MyCssNodeCont {

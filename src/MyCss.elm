@@ -40,6 +40,10 @@ css =
         , padding (px 20)
         , backgroundColor (hex "8CA8DA")
         , position absolute
+        , top (pct 50)
+        , left (pct 100)
+        , marginLeft (px 20)
+        , transform (translateY (pct -50))
         ]
     , (.) Content
         [ 
