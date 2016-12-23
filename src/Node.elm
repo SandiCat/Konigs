@@ -30,7 +30,7 @@ init:
     -> (MetaContent.MultiModel, Cmd MetaContent.MultiMsg)
     -> (Model, Cmd Msg)
 init pos (content, contentCmd) =
-    Model pos 40 content False ContextMenu.init ! [ Cmd.map ContentMsg contentCmd ]
+    Model pos 60 content False ContextMenu.init ! [ Cmd.map ContentMsg contentCmd ]
 
 testNode: (Int, Int) -> (Model, Cmd Msg)
 testNode pos =
