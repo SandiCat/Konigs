@@ -31,3 +31,7 @@
     top: 50%;
     padding: 20px;
 }
+
+html {
+    overflow: hidden;
+}

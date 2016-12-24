@@ -1,7 +1,7 @@
 module MyCss exposing (..)
 
 import Css exposing (..)
-import Css.Elements exposing (body, li)
+import Css.Elements exposing (body, li, html)
 import Css.Namespace exposing (namespace)
 import Html.CssHelpers
 import Material.Options
@@ -64,5 +64,8 @@ css =
         ]
     , (.) MenuIcon
         [
+        ]
+    , html
+        [ overflow hidden
         ]
     ]
