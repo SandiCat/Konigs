@@ -111,6 +111,7 @@ updateGraphMapHelp model (graphMap, graphMapcmd, outMsg) =
         , Cmd.batch [ cmd, Cmd.map GraphMapMsg graphMapcmd ]
         )
 
+
 -- VIEW
 
 view: Model -> Html.Html Msg
@@ -127,6 +128,7 @@ view model =
             , Events.onMouseUp Release
             , Events.onMouseDown Hold
             , Events.onDoubleClick DoubleClick
+            , Events.onMouseLeave Release
             , CssUtil.style
                 [ Css.width (ipx model.size.width)
                 , Css.height (ipx model.size.height)
