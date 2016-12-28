@@ -52,6 +52,7 @@ css =
         ]
     , (.) NodeCont
         [ position absolute
+        , property "pointer-events" "none"
         ]
     , (.) Node
         [ width (pct 100)
@@ -59,6 +60,7 @@ css =
         , left (pct -50)
         , top (pct -50)
         , position relative
+        , property "pointer-events" "auto"
         ]
     , (.) ContextMenu
         [ displayFlex

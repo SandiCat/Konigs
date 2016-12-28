@@ -22,6 +22,7 @@
 
 .MyCssNodeCont {
     position: absolute;
+    pointer-events: none;
 }
 
 .MyCssNode {
@@ -30,6 +31,7 @@
     left: -50%;
     top: -50%;
     position: relative;
+    pointer-events: auto;
 }
 
 .MyCssContextMenu {
