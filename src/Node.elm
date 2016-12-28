@@ -13,6 +13,7 @@ import Css
 import ContextMenu
 import Platform.Cmd as Cmd
 import CmdUtil
+import List.Extra
 
 
 -- MODEL
@@ -116,28 +117,32 @@ width model =
 
 view: Model -> Html.Html Msg
 view model =
-    Html.div
-        [ MyCss.class [ MyCss.Node ]
-        , CssUtil.style
+    Html.div 
+        [ CssUtil.style
             [ fst model.pos |> CssUtil.ipx |> Css.left
             , snd model.pos |> CssUtil.ipx |> Css.top
             , width model |> CssUtil.ipx |> Css.width
             , width model |> CssUtil.ipx |> Css.height
             ]
-        , Events.onMouseOver MouseOver
-        , Events.onMouseOut MouseOut
-        , Events.onMouseDown (ToParent MouseDown)
-        , Events.onMouseUp (ToParent MouseUp)
+        , MyCss.class [ MyCss.NodeCont ]
         ]
-        [ MetaContent.view model.pos model.radius model.content
-            |> Html.App.map ContentMsg
-        , if model.mouseOver || model.contextMenu.mouseOver then 
-            ContextMenu.view
-                (MetaContent.menuOptions model.content)
-                model.contextMenu
-            |> Html.App.map ContextMenuMsg
-          else
-            Html.div [] []
+        [ Html.div
+            [ MyCss.class [ MyCss.Node ]
+            , Events.onMouseOver MouseOver
+            , Events.onMouseOut MouseOut
+            , Events.onMouseDown (ToParent MouseDown)
+            , Events.onMouseUp (ToParent MouseUp)
+            ]
+            [ MetaContent.view model.pos model.radius model.content
+                |> Html.App.map ContentMsg
+            , if model.mouseOver || model.contextMenu.mouseOver then 
+                ContextMenu.view
+                    (MetaContent.menuOptions model.content)
+                    model.contextMenu
+                |> Html.App.map ContextMenuMsg
+              else
+                Html.div [] []
+            ]
         ]
 
 baseView: Model -> Svg.Svg Msg

@@ -222,7 +222,7 @@ view size camera maybeConnectEdge {graph} =
                     (edges ++ connectEdge ++ nodes)
                 ]
             , Html.div 
-                [ MyCss.class [ MyCss.NodeCont ]
+                [ MyCss.class [ MyCss.Nodes ]
                 , CssUtil.position (camera.xo, camera.yo)
                 ]
                 ( Graph.nodes graph

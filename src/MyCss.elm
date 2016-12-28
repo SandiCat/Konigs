@@ -24,6 +24,7 @@ type CssClasses
     | MenuIcon
     | Content
     | TermDescription
+    | Nodes
 
 type CssIds
     = NothingAtAllToBeSeenHere
@@ -44,15 +45,20 @@ css =
         , left (pct 100)
         , marginLeft (px 20)
         , transform (translateY (pct -50))
+        , zIndex 100
         ]
-    , (.) Content
-        [ 
+    , (.) Nodes
+        [ position absolute
         ]
-    , each [(.) Node, (.) NodeCont]
+    , (.) NodeCont
         [ position absolute
         ]
     , (.) Node
-        [ translate2 (pct -50) (pct -50) |> transform
+        [ width (pct 100)
+        , height (pct 100)
+        , left (pct -50)
+        , top (pct -50)
+        , position relative
         ]
     , (.) ContextMenu
         [ displayFlex
@@ -62,10 +68,11 @@ css =
         , top (pct 50)
         , padding (px 20)
         ]
-    , (.) MenuIcon
-        [
-        ]
     , html
         [ overflow hidden
         ]
     ]
+
+zIndex : Int -> Mixin
+zIndex i =
+    property "z-index" <| toString i
