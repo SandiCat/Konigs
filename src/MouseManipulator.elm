@@ -94,7 +94,7 @@ updateGraphMapOutMsg msg model =
                     GraphMap.update 
                         (GraphMap.AddEdge id id' {})
                         model.graphMap
-                    |> updateGraphMapHelp model
+                    |> updateGraphMapHelp { model | state = NoOp }
                 _ -> CmdUtil.noCmd model
         Just (GraphMap.MouseDown id) ->
             CmdUtil.noCmd { model | state = Connecting id }
