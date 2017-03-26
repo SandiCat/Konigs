@@ -49,7 +49,7 @@ init =
     in
         Model graphMap NoOp ( 0, 0 ) { width = 0, height = 0 } { xo = 0, yo = 0 }
             ! [ gmCmd |> Cmd.map GraphMapMsg
-              , Task.perform (Resize { width = 1000, height = 500 } |> always) Resize Window.size
+              , Task.perform Resize Window.size
               ]
 
 

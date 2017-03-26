@@ -8,6 +8,7 @@ import Option exposing (Option)
 import Material.Button as Button
 import Material.Icon as Icon
 import Material
+import Material.Options as Options
 
 
 -- MODEL
@@ -55,10 +56,10 @@ update msg model =
 
         MdlMsg msg_ ->
             let
-                ( model, cmd ) =
-                    Material.update msg_ model
+                ( model_, cmd ) =
+                    Material.update MdlMsg msg_ model
             in
-                ( model, cmd, Nothing )
+                ( model_, cmd, Nothing )
 
 
 
@@ -92,6 +93,6 @@ optionView model option =
         [ 0 ]
         model.mdl
         [ Button.icon
-        , Button.onClick (ToParent option.msg)
+        , Options.onClick (ToParent option.msg)
         ]
         [ Icon.i option.icon ]

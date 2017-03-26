@@ -40,7 +40,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         MdlMsg msg_ ->
-            Material.update msg_ model
+            Material.update MdlMsg msg_ model
 
 
 
@@ -52,7 +52,7 @@ view model =
     Options.div
         [ Elevation.e4
         , MyCss.mdlClass MyCss.TermDescription
-        , Options.when Options.center (model.text == "")
+        , Options.when (model.text == "") Options.center
         , Typo.body1
         ]
         [ Html.text model.text ]

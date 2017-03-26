@@ -14,6 +14,7 @@ import CmdUtil
 import Html
 import CssUtil
 import MyCss
+import MiscUtil
 
 
 -- MODEL
@@ -185,7 +186,7 @@ update msg model =
 
                 focusUpdate ctx node =
                     Focus.update
-                        (Graph.node => Graph.label)
+                        (MiscUtil.nodeFocus => MiscUtil.labelFocus)
                         (always node)
                         ctx
 

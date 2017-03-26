@@ -7,6 +7,7 @@ import Focus exposing ((=>))
 import Node
 import Svg
 import Svg.Attributes as Att
+import MiscUtil
 
 
 c1 : Float
@@ -113,7 +114,10 @@ stepLayout graph =
             Focus.create .pos (\f rec -> { rec | pos = f rec.pos })
 
         update ctx =
-            Focus.update (Graph.node => Graph.label => pos) (stepPos ctx) ctx
+            Focus.update
+                (MiscUtil.nodeFocus => MiscUtil.labelFocus => pos)
+                (stepPos ctx)
+                ctx
     in
         Graph.mapContexts update graph
 

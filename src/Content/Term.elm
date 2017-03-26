@@ -66,7 +66,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         MdlMsg msg_ ->
-            Material.update msg_ model
+            Material.update MdlMsg msg_ model
 
         DescriptionMsg msg_ ->
             CmdUtil.update
@@ -125,10 +125,11 @@ view pos radius model =
             Textfield.render MdlMsg
                 [ 0 ]
                 model.mdl
-                [ Textfield.onInput InputChange
+                [ Options.onInput InputChange
                 , Textfield.value model.text
-                , Textfield.onBlur DeFocus
+                , Options.onBlur DeFocus
                 ]
+                []
 
         Display ->
             Html.div []

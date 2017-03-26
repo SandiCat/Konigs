@@ -1,9 +1,9 @@
 module Main exposing (..)
 
 import MouseManipulator
+import Html
 
 
-main : Program Never
 main =
     Html.program
         { init = MouseManipulator.init

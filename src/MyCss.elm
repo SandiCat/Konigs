@@ -35,6 +35,11 @@ type CssIds
     = NothingAtAllToBeSeenHere
 
 
+(.) =
+    -- to avoid a name conflict
+    Css.class
+
+
 css =
     (stylesheet << namespace namespaceName)
         [ (.) TermDisplay
