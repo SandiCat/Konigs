@@ -12,17 +12,21 @@ import Material
 
 -- MODEL
 
+
 type alias Model =
-    { mdl: Material.Model
-    , mouseOver: Bool
+    { mdl : Material.Model
+    , mouseOver : Bool
     }
 
-init: Model
+
+init : Model
 init =
     Model Material.model False
 
 
+
 -- UPDATE
+
 
 type Msg
     = ToParent OutMsg
@@ -30,51 +34,63 @@ type Msg
     | MouseOut
     | MdlMsg (Material.Msg Msg)
 
+
 type OutMsg
     = Remove
     | Edit
     | ContentMsg MetaContent.MultiMsg
 
-update: Msg -> Model -> (Model, Cmd Msg, Maybe OutMsg)
+
+update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update msg model =
     case msg of
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
+
         MouseOver ->
             ( { model | mouseOver = True }, Cmd.none, Nothing )
+
         MouseOut ->
             ( { model | mouseOver = False }, Cmd.none, Nothing )
-        MdlMsg msg' -> 
+
+        MdlMsg msg_ ->
             let
-                (model, cmd) = Material.update msg' model
+                ( model, cmd ) =
+                    Material.update msg_ model
             in
-                (model, cmd, Nothing)
+                ( model, cmd, Nothing )
+
 
 
 -- VIEW
 
-baseOptions: List (Option OutMsg)
+
+baseOptions : List (Option OutMsg)
 baseOptions =
     [ Option Remove "delete"
     , Option Edit "edit"
     ]
 
-view: List (Option MetaContent.MultiMsg) -> Model -> Html.Html Msg
+
+view : List (Option MetaContent.MultiMsg) -> Model -> Html.Html Msg
 view options model =
     let
-        options' =
+        options_ =
             List.map (Option.map ContentMsg) options
     in
-        List.map (optionView model) (options' ++ baseOptions)
-        |> Html.div
-            [ MyCss.class [ MyCss.ContextMenu ]
-            , Events.onMouseOver MouseOver
-            , Events.onMouseOut MouseOut
-            ]
+        List.map (optionView model) (options_ ++ baseOptions)
+            |> Html.div
+                [ MyCss.class [ MyCss.ContextMenu ]
+                , Events.onMouseOver MouseOver
+                , Events.onMouseOut MouseOut
+                ]
 
-optionView: Model -> Option OutMsg -> Html.Html Msg
+
+optionView : Model -> Option OutMsg -> Html.Html Msg
 optionView model option =
-    Button.render MdlMsg [0] model.mdl
+    Button.render MdlMsg
+        [ 0 ]
+        model.mdl
         [ Button.icon
         , Button.onClick (ToParent option.msg)
         ]

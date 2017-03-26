@@ -16,43 +16,52 @@ import Material.Elevation as Elevation
 
 -- MODEL
 
+
 type alias Model =
-    { mdl: Material.Model
-    , text: String
+    { mdl : Material.Model
+    , text : String
     }
 
-init: String -> (Model, Cmd Msg)
+
+init : String -> ( Model, Cmd Msg )
 init text =
     Model Material.model text |> CmdUtil.noCmd
 
 
+
 -- UPDATE
+
 
 type Msg
     = MdlMsg (Material.Msg Msg)
 
-update: Msg -> Model -> (Model, Cmd Msg)
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        MdlMsg msg' -> 
-            Material.update msg' model
+        MdlMsg msg_ ->
+            Material.update msg_ model
+
 
 
 -- VIEW
 
-view: Model -> Html.Html Msg
+
+view : Model -> Html.Html Msg
 view model =
     Options.div
-        [ Elevation.e4 
+        [ Elevation.e4
         , MyCss.mdlClass MyCss.TermDescription
-        , Options.when Options.center (model.text == "") 
+        , Options.when Options.center (model.text == "")
         , Typo.body1
         ]
         [ Html.text model.text ]
 
 
+
 -- SUBSCRIPTIONS
 
-subscriptions: Model -> Sub Msg
+
+subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none

@@ -1,13 +1,15 @@
-module CmdUtil exposing (..) 
+module CmdUtil exposing (..)
 
-noCmd: a -> (a, Cmd b)
+
+noCmd : a -> ( a, Cmd b )
 noCmd model =
-    (model, Cmd.none)
+    ( model, Cmd.none )
 
-update:
+
+update :
     (inModel -> outModel)
     -> (inMsg -> outMsg)
-    -> (inModel, Cmd inMsg)
-    -> (outModel, Cmd outMsg)
-update updateOutModel tagMsg (inModel, inCmd) =
-    (updateOutModel inModel, Cmd.map tagMsg inCmd)
+    -> ( inModel, Cmd inMsg )
+    -> ( outModel, Cmd outMsg )
+update updateOutModel tagMsg ( inModel, inCmd ) =
+    ( updateOutModel inModel, Cmd.map tagMsg inCmd )
