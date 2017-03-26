@@ -9,7 +9,6 @@ import Html.Events as Events
 import CmdUtil
 import Css exposing (px)
 import CssUtil exposing (ipx)
-import Html.App
 import Mouse
 import Window
 import Task
@@ -166,7 +165,7 @@ view model =
                 model.cameraPos
                 edge
                 model.graphMap
-                |> Html.App.map GraphMapMsg
+                |> Html.map GraphMapMsg
             ]
 
 

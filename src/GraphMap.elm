@@ -11,7 +11,6 @@ import AnimationFrame
 import Time
 import Focus exposing ((=>))
 import CmdUtil
-import Html.App
 import Html
 import CssUtil
 import MyCss
@@ -245,7 +244,7 @@ view size camera maybeConnectEdge { graph } =
 
         nodes =
             Graph.nodes graph
-                |> List.map (\{ id, label } -> Node.baseView label |> Html.App.map (NodeMsg id))
+                |> List.map (\{ id, label } -> Node.baseView label |> Html.map (NodeMsg id))
 
         connectEdge =
             case maybeConnectEdge of
@@ -267,7 +266,7 @@ view size camera maybeConnectEdge { graph } =
                 , CssUtil.position ( camera.xo, camera.yo )
                 ]
                 (Graph.nodes graph
-                    |> List.map (\{ id, label } -> Node.view label |> Html.App.map (NodeMsg id))
+                    |> List.map (\{ id, label } -> Node.view label |> Html.map (NodeMsg id))
                 )
             ]
 

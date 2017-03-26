@@ -13,7 +13,6 @@ import Material.Options as Options
 import Material.Textfield as Textfield
 import List.Extra
 import Content.Term.Description as Description
-import Html.App
 import Option exposing (Option)
 
 
@@ -141,7 +140,7 @@ view pos radius model =
                     [ Html.text model.text ]
                 , if model.showDescription then
                     Description.view model.description
-                        |> Html.App.map DescriptionMsg
+                        |> Html.map DescriptionMsg
                   else
                     Html.div [] []
                 ]

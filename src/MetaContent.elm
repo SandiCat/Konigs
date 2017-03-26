@@ -5,7 +5,6 @@
 module MetaContent exposing (..)
 
 import Html
-import Html.App
 import MyCss
 import Option exposing (Option)
 import Content.Button as Button
@@ -84,9 +83,9 @@ view pos radius multiModel =
         [ case multiModel of
             MdlButton model ->
                 Button.view pos radius model
-                    |> Html.App.map MsgButton
+                    |> Html.map MsgButton
 
             MdlTerm model ->
                 Term.view pos radius model
-                    |> Html.App.map MsgTerm
+                    |> Html.map MsgTerm
         ]

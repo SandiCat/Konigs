@@ -5,7 +5,6 @@ import SvgUtil
 import MetaContent
 import Content.Term as Term
 import Html.Events as Events
-import Html.App
 import Html
 import MyCss
 import CssUtil
@@ -153,12 +152,12 @@ view model =
             , Events.onMouseUp (ToParent MouseUp)
             ]
             [ MetaContent.view model.pos model.radius model.content
-                |> Html.App.map ContentMsg
+                |> Html.map ContentMsg
             , if model.mouseOver || model.contextMenu.mouseOver then
                 ContextMenu.view
                     (MetaContent.menuOptions model.content)
                     model.contextMenu
-                    |> Html.App.map ContextMenuMsg
+                    |> Html.map ContextMenuMsg
               else
                 Html.div [] []
             ]
