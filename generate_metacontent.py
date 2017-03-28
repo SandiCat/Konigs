@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python
 
 from os import listdir
 from os.path import isfile, join
@@ -26,15 +26,15 @@ parts = [
             case multiModel of
                 Mdl{0} model ->
                     let
-                        (model', cmd) = {0}.update action model
+                        (model_, cmd) = {0}.update action model
                     in
-                        Just (Mdl{0} model', Cmd.map Msg{0} cmd)
+                        Just (Mdl{0} model_, Cmd.map Msg{0} cmd)
                 _ ->
                     Debug.log mismatchError Nothing"""),
     generate_part("""\
             Mdl{0} model ->
                 {0}.view pos radius model
-                |> Html.App.map Msg{0}""")
+                |> Html.map Msg{0}""")
 ]
 
 base_code = """\
@@ -44,7 +44,6 @@ base_code = """\
 module MetaContent exposing (..) 
 
 import Html
-import Html.App
 import MyCss
 import Option exposing (Option)
 
