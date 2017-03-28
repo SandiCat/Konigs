@@ -1,21 +1,18 @@
 port module Stylesheets exposing (..)
 
-import Css.File exposing (..)
+import Css.File
 import MyCss
 import Html exposing (div)
 
 
-port files : CssFileStructure -> Cmd msg
+port files : Css.File.CssFileStructure -> Cmd msg
 
 
-cssFiles : CssFileStructure
-cssFiles =
-    toFileStructure [ ( "mainstyle.css", compile [ MyCss.css ] ) ]
+fileStructure : Css.File.CssFileStructure
+fileStructure =
+    Css.File.toFileStructure [ ( "mainstyle.css", Css.File.compile [ MyCss.css ] ) ]
 
 
+main : Css.File.CssCompilerProgram
 main =
-    Platform.program
-        { init = ( (), files cssFiles )
-        , update = \_ _ -> ( (), Cmd.none )
-        , subscriptions = \_ -> Sub.none
-        }
+    Css.File.compiler files fileStructure
