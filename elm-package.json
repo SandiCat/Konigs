@@ -24,11 +24,11 @@
         "rtfeldman/elm-css": "8.2.0 <= v < 9.0.0",
         "rtfeldman/elm-css-helpers": "2.0.1 <= v < 3.0.0"
     },
-    "sublime-build": { 
-        "main": "src/Main.elm", 
-        "output": { 
-            "path": "build/elm.js" 
-        } 
-    },
-    "elm-version": "0.18.0 <= v < 0.19.0"
+    "elm-version": "0.18.0 <= v < 0.19.0",
+    "sublime-build": {
+        "output": {
+            "path": "build/elm.js"
+        },
+        "main": "src/Main.elm"
+    }
 }
