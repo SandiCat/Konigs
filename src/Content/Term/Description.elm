@@ -12,6 +12,7 @@ import Material.Typography as Typo
 import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Elevation as Elevation
+import EventsUtil
 
 
 -- MODEL
@@ -34,6 +35,7 @@ init text =
 
 type Msg
     = MdlMsg (Material.Msg Msg)
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -41,6 +43,9 @@ update msg model =
     case msg of
         MdlMsg msg_ ->
             Material.update MdlMsg msg_ model
+
+        NoOp ->
+            model ! []
 
 
 
@@ -54,6 +59,8 @@ view model =
         , MyCss.mdlClass MyCss.TermDescription
         , Options.when (model.text == "") Options.center
         , Typo.body1
+        , EventsUtil.onMouseDownMdlNoProp NoOp
+        , EventsUtil.onMouseOverMdlNoProp NoOp
         ]
         [ Html.text model.text ]
 

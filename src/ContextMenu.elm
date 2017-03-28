@@ -9,6 +9,7 @@ import Material.Button as Button
 import Material.Icon as Icon
 import Material
 import Material.Options as Options
+import EventsUtil
 
 
 -- MODEL
@@ -33,6 +34,7 @@ type Msg
     = ToParent OutMsg
     | MouseOver
     | MouseOut
+    | NoOp
     | MdlMsg (Material.Msg Msg)
 
 
@@ -61,6 +63,9 @@ update msg model =
             in
                 ( model_, cmd, Nothing )
 
+        NoOp ->
+            ( model, Cmd.none, Nothing )
+
 
 
 -- VIEW
@@ -82,8 +87,8 @@ view options model =
         List.map (optionView model) (options_ ++ baseOptions)
             |> Html.div
                 [ MyCss.class [ MyCss.ContextMenu ]
-                , Events.onMouseOver MouseOver
-                , Events.onMouseOut MouseOut
+                , Events.onMouseEnter MouseOver
+                , Events.onMouseLeave MouseOut
                 ]
 
 
@@ -93,6 +98,8 @@ optionView model option =
         [ 0 ]
         model.mdl
         [ Button.icon
-        , Options.onClick (ToParent option.msg)
+        , EventsUtil.onClickMdlNoProp (ToParent option.msg)
+        , EventsUtil.onMouseDownMdlNoProp NoOp
+        , EventsUtil.doubleClickMdlNoProp NoOp
         ]
         [ Icon.i option.icon ]
