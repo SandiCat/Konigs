@@ -60,7 +60,6 @@ init =
 type Msg
     = Move ( Int, Int )
     | GraphMapMsg GraphMap.Msg
-    | DoubleClick
     | Hold
     | Release
     | Resize { width : Int, height : Int }
@@ -80,12 +79,6 @@ update msg model =
 
                 _ ->
                     CmdUtil.noCmd { model | mousePos = ( x, y ) }
-
-        DoubleClick ->
-            GraphMap.update
-                (offsetMouse model |> Node.testNode |> GraphMap.AddNode)
-                model.graphMap
-                |> updateGraphMapHelp model
 
         Hold ->
             case model.state of
@@ -118,6 +111,12 @@ updateGraphMapOutMsg msg model =
 
         Just (GraphMap.MouseDown id) ->
             CmdUtil.noCmd { model | state = Connecting id }
+
+        Just (GraphMap.BackgroundDoubleclick) ->
+            GraphMap.update
+                (offsetMouse model |> Node.testNode |> GraphMap.AddNode)
+                model.graphMap
+                |> updateGraphMapHelp model
 
         Nothing ->
             ( model, Cmd.none )
@@ -153,7 +152,6 @@ view model =
             [ unselectableStyle
             , Events.onMouseUp Release
             , Events.onMouseDown Hold
-            , Events.onDoubleClick DoubleClick
             , Events.onMouseLeave Release
             , CssUtil.style
                 [ Css.width (ipx model.size.width)

@@ -12,6 +12,7 @@ import Time
 import Focus exposing ((=>))
 import CmdUtil
 import Html
+import Html.Events as Events
 import CssUtil
 import MyCss
 import MiscUtil
@@ -136,18 +137,21 @@ type Msg
     | AddEdge Graph.NodeId Graph.NodeId Edge
     | StepLayout Time.Time
     | NodeMsg Graph.NodeId Node.Msg
+    | ToParent OutMsg
 
 
-type
-    OutMsg
-    -- there's no ToParent like in Node, it's not needed
+type OutMsg
     = MouseUp Graph.NodeId
     | MouseDown Graph.NodeId
+    | BackgroundDoubleclick
 
 
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update msg model =
     case msg of
+        ToParent outMsg ->
+            ( model, Cmd.none, Just outMsg )
+
         AddNode ( node, cmd ) ->
             let
                 ( graph, id ) =
@@ -258,7 +262,9 @@ view size camera maybeConnectEdge { graph } =
         CssUtil.layers 0
             []
             [ Svg.svg
-                (SvgUtil.size size.width size.height)
+                ((SvgUtil.size size.width size.height)
+                    ++ [ Events.onDoubleClick (ToParent BackgroundDoubleclick) ]
+                )
                 [ Svg.g [ SvgUtil.translate camera.xo camera.yo ]
                     (edges ++ connectEdge ++ nodes)
                 ]

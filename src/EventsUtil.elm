@@ -30,10 +30,6 @@ onMouseUpNoProp =
     noPropagation "mouseup"
 
 
-doubleClickMdlNoProp =
-    noPropagationMdl "dblclick"
-
-
 onClickMdlNoProp =
     noPropagationMdl "click"
 

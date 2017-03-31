@@ -100,6 +100,5 @@ optionView model option =
         [ Button.icon
         , EventsUtil.onClickMdlNoProp (ToParent option.msg)
         , EventsUtil.onMouseDownMdlNoProp NoOp
-        , EventsUtil.doubleClickMdlNoProp NoOp
         ]
         [ Icon.i option.icon ]
