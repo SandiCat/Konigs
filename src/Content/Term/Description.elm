@@ -12,6 +12,7 @@ import Material.Typography as Typo
 import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Elevation as Elevation
+import Material.Icon as Icon
 import EventsUtil
 
 
@@ -21,12 +22,14 @@ import EventsUtil
 type alias Model =
     { mdl : Material.Model
     , text : String
+    , mouseIn : Bool
+    , editing : Bool
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init text =
-    Model Material.model text |> CmdUtil.noCmd
+    Model Material.model text False False |> CmdUtil.noCmd
 
 
 
@@ -35,14 +38,30 @@ init text =
 
 type Msg
     = MdlMsg (Material.Msg Msg)
+    | MouseEnter
+    | MouseLeave
+    | Edit
+    | TextChange String
     | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        MouseEnter ->
+            { model | mouseIn = True } ! []
+
+        MouseLeave ->
+            { model | mouseIn = False } ! []
+
         MdlMsg msg_ ->
             Material.update MdlMsg msg_ model
+
+        Edit ->
+            { model | editing = not model.editing } ! []
+
+        TextChange text ->
+            { model | text = text } ! []
 
         NoOp ->
             model ! []
@@ -52,17 +71,60 @@ update msg model =
 -- VIEW
 
 
+emptyText =
+    "No description"
+
+
 view : Model -> Html.Html Msg
 view model =
     Options.div
         [ Elevation.e4
         , MyCss.mdlClass MyCss.TermDescription
-        , Options.when (model.text == "") Options.center
-        , Typo.body1
         , EventsUtil.onMouseDownMdlNoProp NoOp
-        , EventsUtil.onMouseOverMdlNoProp NoOp
+        , EventsUtil.onMouseOverMdlNoProp MouseEnter
+        , EventsUtil.onMouseOutMdlNoProp MouseLeave
         ]
-        [ Html.text model.text ]
+        [ Options.div [ MyCss.mdlClass MyCss.DescriptionText ]
+            [ if model.editing then
+                Textfield.render MdlMsg
+                    [ 1 ]
+                    model.mdl
+                    [ Typo.body1
+                    , Textfield.label emptyText
+                    , Textfield.textarea
+                    , Textfield.value model.text
+                    , Options.onInput TextChange
+                    , Textfield.rows 10
+                    ]
+                    []
+              else if model.text == "" then
+                Options.div
+                    [ Typo.caption
+                    , MyCss.mdlClass MyCss.DescriptionEmpty
+                    ]
+                    [ Html.i [] [ Html.text emptyText ] ]
+              else
+                Options.div [ Typo.body1 ] [ Html.text model.text ]
+            ]
+        , if model.mouseIn then
+            Options.div
+                [ MyCss.mdlClass MyCss.DescriptionToolbar ]
+                [ Button.render MdlMsg
+                    [ 0 ]
+                    model.mdl
+                    [ Button.fab
+                    , Button.colored
+                    , Options.onClick Edit
+                    ]
+                    [ if model.editing then
+                        Icon.i "done"
+                      else
+                        Icon.i "edit"
+                    ]
+                ]
+          else
+            Html.div [] []
+        ]
 
 
 

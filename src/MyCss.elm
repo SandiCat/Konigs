@@ -29,6 +29,9 @@ type CssClasses
     | Content
     | TermDescription
     | Nodes
+    | DescriptionToolbar
+    | DescriptionText
+    | DescriptionEmpty
 
 
 type CssIds
@@ -48,15 +51,29 @@ css =
             , textAlign center
             ]
         , (.) TermDescription
-            [ width (px 200)
+            [ minHeight (px 100)
             , padding (px 20)
-            , backgroundColor (hex "8CA8DA")
+            , backgroundColor (rgba 140 168 218 0.8)
             , position absolute
             , top (pct 50)
             , left (pct 100)
             , marginLeft (px 20)
             , transform (translateY (pct -50))
             , zIndex 100
+            , displayFlex
+            , flexDirection row
+            ]
+        , (.) DescriptionToolbar
+            [ paddingLeft (px 20)
+            , float right
+            ]
+        , (.) DescriptionText
+            [ width (px 200) ]
+        , (.) DescriptionEmpty
+            [ width (px 200)
+            , height (pct 100)
+            , verticalAlign middle
+            , textAlign center
             ]
         , (.) Nodes
             [ position absolute
@@ -83,6 +100,7 @@ css =
             ]
         , html
             [ overflow hidden
+            , position absolute
             ]
         ]
 
