@@ -46,7 +46,7 @@ userSelect selectable =
     let
         value =
             if selectable then
-                "auto"
+                "text"
             else
                 "none"
     in
