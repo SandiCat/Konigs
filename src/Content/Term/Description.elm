@@ -78,7 +78,11 @@ emptyText =
 view : Model -> Html.Html Msg
 view model =
     Options.div
-        [ Elevation.e4
+        [ if model.mouseIn then
+            Elevation.e8
+          else
+            Elevation.e4
+        , Elevation.transition 250
         , MyCss.mdlClass MyCss.TermDescription
         , EventsUtil.onMouseDownMdlNoProp NoOp
         , EventsUtil.onMouseOverMdlNoProp MouseEnter
