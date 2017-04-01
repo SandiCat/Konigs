@@ -112,7 +112,7 @@ view model =
               else
                 Options.div [ Typo.body1 ] [ Html.text model.text ]
             ]
-        , if model.mouseIn then
+        , if model.mouseIn || model.editing then
             Options.div
                 [ MyCss.mdlClass MyCss.DescriptionToolbar ]
                 [ Button.render MdlMsg
