@@ -1,12 +1,31 @@
-.MyCssTermDisplay {
+.MyCssTerm {
     height: 100%;
     width: 100%;
+}
+
+.MyCssTermDisplay {
     text-align: center;
+    height: 100%;
+}
+
+.MyCssTermInput {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 200px;
+    background-color: rgba(140, 168, 218, 0.8);
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 50px;
+    margin-top: 20px;
+    position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
 }
 
 .MyCssTermDescription {
     min-height: 100px;
-    padding: 20px;
+    padding: 10px;
     background-color: rgba(140, 168, 218, 0.8);
     position: absolute;
     top: 50%;

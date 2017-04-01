@@ -44,3 +44,7 @@ onMouseOverMdlNoProp =
 
 onMouseOutMdlNoProp =
     noPropagationMdl "mouseout"
+
+
+onMouseOutNoProp =
+    noPropagation "mouseout"

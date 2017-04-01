@@ -11,9 +11,13 @@ import Material.Button as Button
 import Material.Typography as Typo
 import Material.Options as Options
 import Material.Textfield as Textfield
+import Material.Icon as Icon
+import Material.Elevation as Elevation
 import List.Extra
 import Content.Term.Description as Description
 import Option exposing (Option)
+import CssUtil
+import EventsUtil
 
 
 -- MODEL
@@ -21,16 +25,11 @@ import Option exposing (Option)
 
 type alias Model =
     { text : String
-    , mode : Mode
+    , editing : Bool
     , showDescription : Bool
     , description : Description.Model
     , mdl : Material.Model
     }
-
-
-type Mode
-    = Display
-    | Input
 
 
 init : String -> ( Model, Cmd Msg )
@@ -39,7 +38,7 @@ init text =
         ( desc, descCmd ) =
             Description.init ""
     in
-        Model text Display False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
+        Model text False False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
 
 
 menuOptions : List (Option Msg)
@@ -61,6 +60,7 @@ type Msg
     | DeFocus
     | DescriptionMsg Description.Msg
     | ToggleDescription
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,41 +78,33 @@ update msg model =
         ToggleDescription ->
             { model | showDescription = not model.showDescription } ! []
 
-        _ ->
-            case model.mode of
-                Display ->
-                    case msg of
-                        Edit ->
-                            CmdUtil.noCmd { model | mode = Input }
+        Edit ->
+            { model | editing = not model.editing } ! []
 
-                        _ ->
-                            CmdUtil.noCmd model
+        InputChange newText ->
+            { model | text = newText } ! []
 
-                Input ->
-                    case msg of
-                        InputChange newText ->
-                            CmdUtil.noCmd { model | text = newText }
+        KeyPress code ->
+            if code == 13 then
+                -- 13 is Enter
+                { model
+                    | editing = False
+                    , text =
+                        if model.text == "" then
+                            "enter text"
+                        else
+                            model.text
+                }
+                    |> CmdUtil.noCmd
+            else
+                model ! []
 
-                        KeyPress code ->
-                            if code == 13 then
-                                -- 13 is Enter
-                                { model
-                                    | mode = Display
-                                    , text =
-                                        if model.text == "" then
-                                            "enter text"
-                                        else
-                                            model.text
-                                }
-                                    |> CmdUtil.noCmd
-                            else
-                                CmdUtil.noCmd model
+        DeFocus ->
+            --{ model | editing = False } ! []
+            model ! []
 
-                        DeFocus ->
-                            CmdUtil.noCmd { model | mode = Display }
-
-                        _ ->
-                            CmdUtil.noCmd model
+        NoOp ->
+            model ! []
 
 
 
@@ -121,44 +113,42 @@ update msg model =
 
 view : ( Int, Int ) -> Int -> Model -> Html.Html Msg
 view pos radius model =
-    case model.mode of
-        Input ->
-            Textfield.render MdlMsg
-                [ 0 ]
-                model.mdl
-                [ Options.onInput InputChange
-                , Textfield.value model.text
-                , Options.onBlur DeFocus
+    Options.div [ MyCss.mdlClass MyCss.Term ]
+        [ Options.div
+            [ Typo.title
+            , Options.center
+            , MyCss.mdlClass MyCss.TermDisplay
+            , Options.onDoubleClick Edit
+            ]
+            [ Html.text model.text ]
+        , if model.editing then
+            Options.div
+                [ MyCss.mdlClass MyCss.TermInput
+                , Elevation.e4
                 ]
-                []
-
-        Display ->
-            Html.div []
-                [ Options.div
-                    [ Typo.title
-                    , Options.center
-                    , MyCss.mdlClass MyCss.TermDisplay
+                [ Textfield.render MdlMsg
+                    [ 0 ]
+                    model.mdl
+                    [ Options.onInput InputChange
+                    , Textfield.value model.text
+                    , Options.attribute <| CssUtil.userSelect True
+                    , EventsUtil.onMouseDownMdlNoProp NoOp
+                    , Textfield.autofocus
                     ]
-                    [ Html.text model.text ]
-                , if model.showDescription then
-                    Description.view model.description
-                        |> Html.map DescriptionMsg
-                  else
-                    Html.div [] []
+                    []
+                , Button.render MdlMsg
+                    [ 1 ]
+                    model.mdl
+                    [ Button.icon
+                    , Options.onClick Edit
+                    ]
+                    [ Icon.i "done" ]
                 ]
-
-
-onKeyPress : (Int -> msg) -> Html.Attribute msg
-onKeyPress tagger =
-    Json.Decode.map tagger Events.keyCode
-        |> Events.on "onkeypress"
-
-
-onDoubleClick : msg -> Html.Attribute msg
-onDoubleClick msg =
-    Events.onWithOptions
-        "ondblclick"
-        { stopPropagation = False
-        , preventDefault = False
-        }
-        (Json.Decode.succeed msg)
+          else
+            Html.div [] []
+        , if model.showDescription then
+            Description.view model.description
+                |> Html.map DescriptionMsg
+          else
+            Html.div [] []
+        ]

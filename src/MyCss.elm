@@ -23,7 +23,9 @@ mdlClass =
 type CssClasses
     = Node
     | NodeCont
+    | Term
     | TermDisplay
+    | TermInput
     | ContextMenu
     | MenuIcon
     | Content
@@ -45,14 +47,31 @@ type CssIds
 
 css =
     (stylesheet << namespace namespaceName)
-        [ (.) TermDisplay
+        [ (.) Term
             [ height (pct 100)
             , width (pct 100)
-            , textAlign center
+            ]
+        , (.) TermDisplay
+            [ textAlign center
+            , height (pct 100)
+            ]
+        , (.) TermInput
+            [ displayFlex
+            , flexDirection row
+            , alignItems center
+            , width (px 200)
+            , backgroundColor (rgba 140 168 218 0.8)
+            , paddingLeft (px 10)
+            , paddingRight (px 10)
+            , height (px 50)
+            , marginTop (px 20)
+            , position absolute
+            , transform (translateX (pct -50))
+            , left (pct 50)
             ]
         , (.) TermDescription
             [ minHeight (px 100)
-            , padding (px 20)
+            , padding (px 10)
             , backgroundColor (rgba 140 168 218 0.8)
             , position absolute
             , top (pct 50)
