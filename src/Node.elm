@@ -120,7 +120,7 @@ updateContextMenu msg model =
                 , Nothing
                 )
 
-        _ ->
+        Nothing ->
             ( model, Cmd.none, Nothing )
 
 

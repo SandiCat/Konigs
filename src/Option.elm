@@ -10,3 +10,8 @@ type alias Option msg =
 map : (a -> b) -> Option a -> Option b
 map f old =
     Option (f old.msg) old.icon
+
+
+edit : msg -> Option msg
+edit msg =
+    Option msg "edit"

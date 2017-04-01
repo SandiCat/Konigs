@@ -40,7 +40,6 @@ type Msg
 
 type OutMsg
     = Remove
-    | Edit
     | ContentMsg MetaContent.MultiMsg
 
 
@@ -74,7 +73,6 @@ update msg model =
 baseOptions : List (Option OutMsg)
 baseOptions =
     [ Option Remove "delete"
-    , Option Edit "edit"
     ]
 
 

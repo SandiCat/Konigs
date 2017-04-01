@@ -45,6 +45,7 @@ init text =
 menuOptions : List (Option Msg)
 menuOptions =
     [ Option ToggleDescription "description"
+    , Option.edit Edit
     ]
 
 
@@ -55,7 +56,7 @@ menuOptions =
 type Msg
     = MdlMsg (Material.Msg Msg)
     | InputChange String
-    | EnterInput
+    | Edit
     | KeyPress Int
     | DeFocus
     | DescriptionMsg Description.Msg
@@ -81,7 +82,7 @@ update msg model =
             case model.mode of
                 Display ->
                     case msg of
-                        EnterInput ->
+                        Edit ->
                             CmdUtil.noCmd { model | mode = Input }
 
                         _ ->
