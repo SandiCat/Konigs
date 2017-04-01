@@ -167,3 +167,12 @@ view model =
 baseView : Model -> Svg.Svg Msg
 baseView model =
     SvgUtil.circle 7 "#5E81C1" "white" model.pos model.radius
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.map ContentMsg (MetaContent.subscriptions model.content)

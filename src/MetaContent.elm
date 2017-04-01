@@ -73,3 +73,16 @@ view pos radius multiModel =
                 Term.view pos radius model
                 |> Html.map MsgTerm
         ]
+
+
+-- SUBSCRIPTIONS
+
+subscriptions : MultiModel -> Sub MultiMsg
+subscriptions multiModel =
+    case multiModel of
+        MdlButton model ->
+            Button.subscriptions model
+                |> Sub.map MsgButton
+        MdlTerm model ->
+            Term.subscriptions model
+                |> Sub.map MsgTerm

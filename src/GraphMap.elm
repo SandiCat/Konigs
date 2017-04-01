@@ -289,4 +289,9 @@ edgeView =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    AnimationFrame.diffs StepLayout
+    Sub.batch
+        (AnimationFrame.diffs StepLayout
+            :: List.map
+                (\{ id, label } -> Sub.map (NodeMsg id) (Node.subscriptions label))
+                (Graph.nodes model.graph)
+        )

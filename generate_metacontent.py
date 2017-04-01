@@ -34,7 +34,11 @@ parts = [
     generate_part("""\
             Mdl{0} model ->
                 {0}.view pos radius model
-                |> Html.map Msg{0}""")
+                |> Html.map Msg{0}"""),
+    generate_part("""\
+        Mdl{0} model ->
+            {0}.subscriptions model
+                |> Sub.map Msg{0}""")
 ]
 
 base_code = """\
@@ -83,6 +87,14 @@ view pos radius multiModel =
         [ case multiModel of
 {}
         ]
+
+
+-- SUBSCRIPTIONS
+
+subscriptions : MultiModel -> Sub MultiMsg
+subscriptions multiModel =
+    case multiModel of
+{}
 """
 
 f = open(join("src", "MetaContent.elm"), "w")

@@ -56,3 +56,12 @@ view pos radius model =
             [ Events.onClick Increment ]
             [ toString model.counter |> Html.text ]
         ]
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none

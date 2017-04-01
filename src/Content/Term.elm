@@ -152,3 +152,12 @@ view pos radius model =
           else
             Html.div [] []
         ]
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Keyboard.presses KeyPress
