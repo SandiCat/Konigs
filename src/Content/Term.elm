@@ -93,8 +93,7 @@ update msg model =
                 model ! []
 
         DeFocus ->
-            --{ model | editing = False } ! []
-            model ! []
+            { model | editing = False } ! []
 
         NoOp ->
             model ! []
@@ -123,6 +122,7 @@ view pos radius model =
                     [ 0 ]
                     model.mdl
                     [ Options.onInput InputChange
+                    , Options.onBlur DeFocus
                     , Textfield.value model.text
                     , Options.attribute <| CssUtil.userSelect True
                     , EventsUtil.onMouseDownMdlNoProp NoOp
