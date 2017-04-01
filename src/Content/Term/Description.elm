@@ -14,6 +14,7 @@ import Material.Textfield as Textfield
 import Material.Elevation as Elevation
 import Material.Icon as Icon
 import EventsUtil
+import CssUtil
 
 
 -- MODEL
@@ -87,6 +88,7 @@ view model =
         , EventsUtil.onMouseDownMdlNoProp NoOp
         , EventsUtil.onMouseOverMdlNoProp MouseEnter
         , EventsUtil.onMouseOutMdlNoProp MouseLeave
+        , Options.attribute <| CssUtil.userSelect True
         ]
         [ Options.div [ MyCss.mdlClass MyCss.DescriptionText ]
             [ if model.editing then

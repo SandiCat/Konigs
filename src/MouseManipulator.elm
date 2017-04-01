@@ -149,10 +149,10 @@ view model =
                     Nothing
     in
         Html.div
-            [ unselectableStyle
-            , Events.onMouseUp Release
+            [ Events.onMouseUp Release
             , Events.onMouseDown Hold
             , Events.onMouseLeave Release
+            , CssUtil.userSelect False
             , CssUtil.style
                 [ Css.width (ipx model.size.width)
                 , Css.height (ipx model.size.height)
@@ -165,15 +165,6 @@ view model =
                 model.graphMap
                 |> Html.map GraphMapMsg
             ]
-
-
-unselectableStyle : Html.Attribute msg
-unselectableStyle =
-    Html.Attributes.style
-        [ ( "-moz-user-select", "none" )
-        , ( "-webkit-user-select", "none" )
-        , ( "-ms-user-select", "none" )
-        ]
 
 
 

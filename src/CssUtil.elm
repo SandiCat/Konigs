@@ -29,10 +29,6 @@ layers startIndex attrs list =
         |> Html.div attrs
 
 
-
--- ipx: Int -> Css.ExplicitLength Css.PxUnits
-
-
 ipx =
     toFloat >> Css.px
 
@@ -43,3 +39,19 @@ position ( x, y ) =
         [ ipx x |> Css.left
         , ipx y |> Css.top
         ]
+
+
+userSelect : Bool -> Html.Attribute msg
+userSelect selectable =
+    let
+        value =
+            if selectable then
+                "auto"
+            else
+                "none"
+    in
+        Html.Attributes.style
+            [ ( "-moz-user-select", value )
+            , ( "-webkit-user-select", value )
+            , ( "-ms-user-select", value )
+            ]
