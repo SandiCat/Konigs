@@ -34,6 +34,14 @@
     text-align: center;
 }
 
+::selection {
+    background: #ee7883 !important;
+}
+
+::-moz-selection {
+    background: #ee7883 !important;
+}
+
 .MyCssNodes {
     position: absolute;
 }

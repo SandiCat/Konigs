@@ -75,6 +75,8 @@ css =
             , verticalAlign middle
             , textAlign center
             ]
+        , selector "::selection" [ property "background" "#ee7883" |> important ]
+        , selector "::-moz-selection" [ property "background" "#ee7883" |> important ]
         , (.) Nodes
             [ position absolute
             ]
