@@ -18,6 +18,7 @@ import Content.Term.Description as Description
 import Option exposing (Option)
 import CssUtil
 import EventsUtil
+import Keyboard
 
 
 -- MODEL
@@ -56,7 +57,7 @@ type Msg
     = MdlMsg (Material.Msg Msg)
     | InputChange String
     | Edit
-    | KeyPress Int
+    | KeyPress Keyboard.KeyCode
     | DeFocus
     | DescriptionMsg Description.Msg
     | ToggleDescription
@@ -87,15 +88,7 @@ update msg model =
         KeyPress code ->
             if code == 13 then
                 -- 13 is Enter
-                { model
-                    | editing = False
-                    , text =
-                        if model.text == "" then
-                            "enter text"
-                        else
-                            model.text
-                }
-                    |> CmdUtil.noCmd
+                { model | editing = False } ! []
             else
                 model ! []
 
