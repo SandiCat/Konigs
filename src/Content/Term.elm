@@ -107,12 +107,19 @@ view : ( Int, Int ) -> Int -> Model -> Html.Html Msg
 view pos radius model =
     Options.div [ MyCss.mdlClass MyCss.Term ]
         [ Options.div
-            [ Typo.title
+            [ if model.text == "" then
+                Typo.caption
+              else
+                Typo.title
             , Options.center
             , MyCss.mdlClass MyCss.TermDisplay
             , Options.onDoubleClick Edit
             ]
-            [ Html.text model.text ]
+            [ if model.text == "" then
+                Html.i [] [ Html.text "empty" ]
+              else
+                Html.text model.text
+            ]
         , if model.editing then
             Options.div
                 [ MyCss.mdlClass MyCss.TermInput
