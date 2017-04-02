@@ -2,6 +2,7 @@ module ContextMenu exposing (..)
 
 import Html
 import Html.Events as Events
+import Html.Attributes
 import MyCss
 import MetaContent
 import Option exposing (Option)
@@ -98,5 +99,6 @@ optionView model option =
         [ Button.icon
         , EventsUtil.onClickMdlNoProp (ToParent option.msg)
         , EventsUtil.onMouseDownMdlNoProp NoOp
+        , Options.attribute <| Html.Attributes.title option.tooltip
         ]
         [ Icon.i option.icon ]
