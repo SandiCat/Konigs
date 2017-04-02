@@ -81,9 +81,11 @@ view : List (Option MetaContent.MultiMsg) -> Model -> Html.Html Msg
 view options model =
     let
         options_ =
-            List.map (Option.map ContentMsg) options
+            List.map (Option.map ContentMsg) options ++ baseOptions
     in
-        List.map (optionView model) (options_ ++ baseOptions)
+        List.map2 (optionView model)
+            (List.range 0 <| List.length options_ - 1)
+            options_
             |> Html.div
                 [ MyCss.class [ MyCss.ContextMenu ]
                 , Events.onMouseEnter MouseOver
@@ -91,10 +93,10 @@ view options model =
                 ]
 
 
-optionView : Model -> Option OutMsg -> Html.Html Msg
-optionView model option =
+optionView : Model -> Int -> Option OutMsg -> Html.Html Msg
+optionView model id option =
     Button.render MdlMsg
-        [ 0 ]
+        [ id ]
         model.mdl
         [ Button.icon
         , EventsUtil.onClickMdlNoProp (ToParent option.msg)
