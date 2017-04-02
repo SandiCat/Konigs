@@ -52,8 +52,14 @@ css =
             , width (pct 100)
             ]
         , (.) TermDisplay
-            [ textAlign center
-            , height (pct 100)
+            [ height (pct 100)
+            , width (pct 100)
+            , children
+                [ Css.Elements.div
+                    [ textAlign center
+                    , width (pct 80)
+                    ]
+                ]
             ]
         , (.) TermInput
             [ displayFlex

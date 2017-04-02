@@ -113,12 +113,15 @@ view pos radius model =
                 Typo.title
             , Options.center
             , MyCss.mdlClass MyCss.TermDisplay
-            , Options.onDoubleClick Edit
             ]
-            [ if model.text == "" then
-                Html.i [] [ Html.text "empty" ]
-              else
-                Html.text model.text
+            [ Options.div
+                [ Options.onDoubleClick Edit
+                ]
+                [ if model.text == "" then
+                    Html.i [] [ Html.text "empty" ]
+                  else
+                    Html.text model.text
+                ]
             ]
         , if model.editing then
             Options.div

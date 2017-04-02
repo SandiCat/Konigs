@@ -4,8 +4,13 @@
 }
 
 .MyCssTermDisplay {
-    text-align: center;
     height: 100%;
+    width: 100%;
+}
+
+.MyCssTermDisplay > div {
+    text-align: center;
+    width: 80%;
 }
 
 .MyCssTermInput {
