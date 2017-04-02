@@ -13,7 +13,6 @@ import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Icon as Icon
 import Material.Elevation as Elevation
-import List.Extra
 import Content.Term.Description as Description
 import Option exposing (Option)
 import CssUtil

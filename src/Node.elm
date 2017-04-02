@@ -12,7 +12,6 @@ import Css
 import ContextMenu
 import Platform.Cmd as Cmd
 import CmdUtil
-import List.Extra
 
 
 -- MODEL
