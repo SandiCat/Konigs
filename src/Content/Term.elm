@@ -135,7 +135,6 @@ view pos radius model =
                     , Textfield.value model.text
                     , Options.attribute <| CssUtil.userSelect True
                     , EventsUtil.onMouseDownMdlNoProp NoOp
-                    , Textfield.autofocus
                     ]
                     []
                 , Button.render MdlMsg
