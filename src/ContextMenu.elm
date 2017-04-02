@@ -72,7 +72,7 @@ update msg model =
 
 baseOptions : List (Option OutMsg)
 baseOptions =
-    [ Option Remove "delete"
+    [ Option Remove "delete" "Delete"
     ]
 
 

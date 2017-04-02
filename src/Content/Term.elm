@@ -43,7 +43,7 @@ init text =
 
 menuOptions : List (Option Msg)
 menuOptions =
-    [ Option ToggleDescription "description"
+    [ Option ToggleDescription "description" "Toggle description"
     , Option.edit Edit
     ]
 
