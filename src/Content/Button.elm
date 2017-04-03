@@ -18,7 +18,7 @@ type alias Model =
 
 init : Int -> ( Model, Cmd Msg )
 init start =
-    Model start |> CmdUtil.noCmd
+    Model start ! []
 
 
 menuOptions =
@@ -37,7 +37,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            CmdUtil.noCmd { model | counter = model.counter + 1 }
+            { model | counter = model.counter + 1 } ! []
 
 
 

@@ -1,11 +1,6 @@
 module CmdUtil exposing (..)
 
 
-noCmd : a -> ( a, Cmd b )
-noCmd model =
-    ( model, Cmd.none )
-
-
 update :
     (inModel -> outModel)
     -> (inMsg -> outMsg)

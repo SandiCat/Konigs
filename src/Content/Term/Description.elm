@@ -30,7 +30,7 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init text =
-    Model Material.model text False False |> CmdUtil.noCmd
+    Model Material.model text False False ! []
 
 
 

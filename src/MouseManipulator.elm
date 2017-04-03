@@ -74,16 +74,16 @@ update msg model =
         Move ( x, y ) ->
             case model.state of
                 MovingCamera ( xm, ym ) { xo, yo } ->
-                    CmdUtil.noCmd { model | cameraPos = { xo = xo + x - xm, yo = yo + y - ym } }
+                    { model | cameraPos = { xo = xo + x - xm, yo = yo + y - ym } } ! []
 
                 _ ->
-                    CmdUtil.noCmd { model | mousePos = ( x, y ) }
+                    { model | mousePos = ( x, y ) } ! []
 
         Resize size ->
-            CmdUtil.noCmd { model | size = size }
+            { model | size = size } ! []
 
         LeaveWindow ->
-            CmdUtil.noCmd { model | state = NoOp }
+            { model | state = NoOp } ! []
 
 
 updateGraphMapOutMsg : Maybe GraphMap.OutMsg -> Model -> ( Model, Cmd Msg )
@@ -98,10 +98,10 @@ updateGraphMapOutMsg msg model =
                         |> updateGraphMapHelp { model | state = NoOp }
 
                 _ ->
-                    CmdUtil.noCmd model
+                    model ! []
 
         Just (GraphMap.MouseDown id) ->
-            CmdUtil.noCmd { model | state = Connecting id }
+            { model | state = Connecting id } ! []
 
         Just (GraphMap.Doubleclick) ->
             GraphMap.update
@@ -112,13 +112,13 @@ updateGraphMapOutMsg msg model =
         Just (GraphMap.Hold) ->
             case model.state of
                 NoOp ->
-                    CmdUtil.noCmd { model | state = MovingCamera model.mousePos model.cameraPos }
+                    { model | state = MovingCamera model.mousePos model.cameraPos } ! []
 
                 _ ->
-                    CmdUtil.noCmd model
+                    model ! []
 
         Just (GraphMap.Release) ->
-            CmdUtil.noCmd { model | state = NoOp }
+            { model | state = NoOp } ! []
 
         Nothing ->
             ( model, Cmd.none )

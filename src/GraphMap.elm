@@ -75,7 +75,7 @@ init =
 
 empty : ( Model, Cmd Msg )
 empty =
-    Model Graph.empty |> CmdUtil.noCmd
+    Model Graph.empty ! []
 
 
 getNodePos : Graph.NodeId -> Graph -> ( Int, Int )
