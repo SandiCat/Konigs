@@ -60,9 +60,8 @@ init =
 type Msg
     = Move ( Int, Int )
     | GraphMapMsg GraphMap.Msg
-    | Hold
-    | Release
     | Resize { width : Int, height : Int }
+    | LeaveWindow
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,19 +79,11 @@ update msg model =
                 _ ->
                     CmdUtil.noCmd { model | mousePos = ( x, y ) }
 
-        Hold ->
-            case model.state of
-                NoOp ->
-                    CmdUtil.noCmd { model | state = MovingCamera model.mousePos model.cameraPos }
-
-                _ ->
-                    CmdUtil.noCmd model
-
-        Release ->
-            CmdUtil.noCmd { model | state = NoOp }
-
         Resize size ->
             CmdUtil.noCmd { model | size = size }
+
+        LeaveWindow ->
+            CmdUtil.noCmd { model | state = NoOp }
 
 
 updateGraphMapOutMsg : Maybe GraphMap.OutMsg -> Model -> ( Model, Cmd Msg )
@@ -112,11 +103,22 @@ updateGraphMapOutMsg msg model =
         Just (GraphMap.MouseDown id) ->
             CmdUtil.noCmd { model | state = Connecting id }
 
-        Just (GraphMap.BackgroundDoubleclick) ->
+        Just (GraphMap.Doubleclick) ->
             GraphMap.update
                 (offsetMouse model |> Node.testNode |> GraphMap.AddNode)
                 model.graphMap
                 |> updateGraphMapHelp model
+
+        Just (GraphMap.Hold) ->
+            case model.state of
+                NoOp ->
+                    CmdUtil.noCmd { model | state = MovingCamera model.mousePos model.cameraPos }
+
+                _ ->
+                    CmdUtil.noCmd model
+
+        Just (GraphMap.Release) ->
+            CmdUtil.noCmd { model | state = NoOp }
 
         Nothing ->
             ( model, Cmd.none )
@@ -149,14 +151,8 @@ view model =
                     Nothing
     in
         Html.div
-            [ Events.onMouseUp Release
-            , Events.onMouseDown Hold
-            , Events.onMouseLeave Release
-            , CssUtil.userSelect False
-            , CssUtil.style
-                [ Css.width (ipx model.size.width)
-                , Css.height (ipx model.size.height)
-                ]
+            [ CssUtil.userSelect False
+            , Events.onMouseLeave LeaveWindow
             ]
             [ GraphMap.view
                 model.size

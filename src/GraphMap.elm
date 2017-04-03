@@ -143,7 +143,9 @@ type Msg
 type OutMsg
     = MouseUp Graph.NodeId
     | MouseDown Graph.NodeId
-    | BackgroundDoubleclick
+    | Doubleclick
+    | Hold
+    | Release
 
 
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
@@ -263,7 +265,10 @@ view size camera maybeConnectEdge { graph } =
             []
             [ Svg.svg
                 ((SvgUtil.size size.width size.height)
-                    ++ [ Events.onDoubleClick (ToParent BackgroundDoubleclick) ]
+                    ++ [ Events.onDoubleClick (ToParent Doubleclick)
+                       , Events.onMouseUp (ToParent Release)
+                       , Events.onMouseDown (ToParent Hold)
+                       ]
                 )
                 [ Svg.g [ SvgUtil.translate camera.xo camera.yo ]
                     (edges ++ connectEdge ++ nodes)
