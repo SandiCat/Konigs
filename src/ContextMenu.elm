@@ -10,7 +10,6 @@ import Material.Button as Button
 import Material.Icon as Icon
 import Material
 import Material.Options as Options
-import EventsUtil
 
 
 -- MODEL
@@ -35,7 +34,6 @@ type Msg
     = ToParent OutMsg
     | MouseOver
     | MouseOut
-    | NoOp
     | MdlMsg (Material.Msg Msg)
 
 
@@ -62,9 +60,6 @@ update msg model =
                     Material.update MdlMsg msg_ model
             in
                 ( model_, cmd, Nothing )
-
-        NoOp ->
-            ( model, Cmd.none, Nothing )
 
 
 
@@ -99,8 +94,7 @@ optionView model id option =
         [ id ]
         model.mdl
         [ Button.icon
-        , EventsUtil.onClickMdlNoProp (ToParent option.msg)
-        , EventsUtil.onMouseDownMdlNoProp NoOp
+        , Options.onClick (ToParent option.msg)
         , Options.attribute <| Html.Attributes.title option.tooltip
         ]
         [ Icon.i option.icon ]

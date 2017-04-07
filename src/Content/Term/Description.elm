@@ -13,7 +13,6 @@ import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Elevation as Elevation
 import Material.Icon as Icon
-import EventsUtil
 import CssUtil
 
 
@@ -43,7 +42,6 @@ type Msg
     | MouseLeave
     | Edit
     | TextChange String
-    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -64,9 +62,6 @@ update msg model =
         TextChange text ->
             { model | text = text } ! []
 
-        NoOp ->
-            model ! []
-
 
 
 -- VIEW
@@ -85,9 +80,8 @@ view model =
             Elevation.e4
         , Elevation.transition 250
         , MyCss.mdlClass MyCss.TermDescription
-        , EventsUtil.onMouseDownMdlNoProp NoOp
-        , EventsUtil.onMouseOverMdlNoProp MouseEnter
-        , EventsUtil.onMouseOutMdlNoProp MouseLeave
+        , Options.onMouseOver MouseEnter
+        , Options.onMouseOut MouseLeave
         , Options.attribute <| CssUtil.userSelect True
         ]
         [ Options.div [ MyCss.mdlClass MyCss.DescriptionText ]

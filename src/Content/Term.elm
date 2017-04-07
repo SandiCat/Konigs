@@ -16,7 +16,6 @@ import Material.Elevation as Elevation
 import Content.Term.Description as Description
 import Option exposing (Option)
 import CssUtil
-import EventsUtil
 import Keyboard
 
 
@@ -60,7 +59,6 @@ type Msg
     | DeFocus
     | DescriptionMsg Description.Msg
     | ToggleDescription
-    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -93,9 +91,6 @@ update msg model =
 
         DeFocus ->
             { model | editing = False } ! []
-
-        NoOp ->
-            model ! []
 
 
 
@@ -145,7 +140,6 @@ viewOutside model =
                     , Options.onBlur DeFocus
                     , Textfield.value model.text
                     , Options.attribute <| CssUtil.userSelect True
-                    , EventsUtil.onMouseDownMdlNoProp NoOp
                     ]
                     []
                 , Button.render MdlMsg
