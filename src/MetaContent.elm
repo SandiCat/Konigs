@@ -64,27 +64,23 @@ update multiMsg multiModel =
 
 viewInside: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
 viewInside pos radius multiModel =
-    Html.div [ MyCss.class [ MyCss.Content ] ]
-        [ case multiModel of
-            MdlButton model ->
-                Button.viewInside pos radius model
-                |> Html.map MsgButton
-            MdlTerm model ->
-                Term.viewInside pos radius model
-                |> Html.map MsgTerm
-        ]
+    case multiModel of
+        MdlButton model ->
+            Button.viewInside pos radius model
+            |> Html.map MsgButton
+        MdlTerm model ->
+            Term.viewInside pos radius model
+            |> Html.map MsgTerm
 
 viewOutside: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
 viewOutside pos radius multiModel =
-    Html.div [ MyCss.class [ MyCss.Content ] ]
-        [ case multiModel of
-            MdlButton model ->
-                Button.viewOutside pos radius model
-                |> Html.map MsgButton
-            MdlTerm model ->
-                Term.viewOutside pos radius model
-                |> Html.map MsgTerm
-        ]
+    case multiModel of
+        MdlButton model ->
+            Button.viewOutside pos radius model
+            |> Html.map MsgButton
+        MdlTerm model ->
+            Term.viewOutside pos radius model
+            |> Html.map MsgTerm
 
 
 -- SUBSCRIPTIONS

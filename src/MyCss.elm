@@ -28,7 +28,6 @@ type CssClasses
     | TermInput
     | ContextMenu
     | MenuIcon
-    | Content
     | TermDescription
     | Nodes
     | DescriptionToolbar
