@@ -33,7 +33,11 @@ parts = [
                     Debug.log mismatchError Nothing"""),
     generate_part("""\
             Mdl{0} model ->
-                {0}.view pos radius model
+                {0}.viewInside pos radius model
+                |> Html.map Msg{0}"""),
+    generate_part("""\
+            Mdl{0} model ->
+                {0}.viewOutside pos radius model
                 |> Html.map Msg{0}"""),
     generate_part("""\
         Mdl{0} model ->
@@ -81,8 +85,15 @@ update multiMsg multiModel =
 
 -- VIEW
 
-view: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
-view pos radius multiModel =
+viewInside: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
+viewInside pos radius multiModel =
+    Html.div [ MyCss.class [ MyCss.Content ] ]
+        [ case multiModel of
+{}
+        ]
+
+viewOutside: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
+viewOutside pos radius multiModel =
     Html.div [ MyCss.class [ MyCss.Content ] ]
         [ case multiModel of
 {}

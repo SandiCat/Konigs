@@ -44,8 +44,8 @@ update msg model =
 -- VIEW
 
 
-view : ( Int, Int ) -> Int -> Model -> Svg.Svg Msg
-view pos radius model =
+viewInside : ( Int, Int ) -> Int -> Model -> Svg.Svg Msg
+viewInside pos radius model =
     Svg.foreignObject
         [ Att.width "50"
         , Att.height "50"
@@ -56,6 +56,11 @@ view pos radius model =
             [ Events.onClick Increment ]
             [ toString model.counter |> Html.text ]
         ]
+
+
+viewOutside : ( Int, Int ) -> Int -> Model -> Svg.Svg Msg
+viewOutside pos radius model =
+    Svg.g [] []
 
 
 

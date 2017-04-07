@@ -102,9 +102,9 @@ update msg model =
 -- VIEW
 
 
-view : ( Int, Int ) -> Int -> Model -> Html.Html Msg
-view pos radius model =
-    Options.div [ MyCss.mdlClass MyCss.Term ]
+viewInside : ( Int, Int ) -> Int -> Model -> Html.Html Msg
+viewInside pos radius model =
+    Options.div [ MyCss.mdlClass MyCss.MaxSize ]
         [ Options.div
             [ if model.text == "" then
                 Typo.caption
@@ -122,6 +122,17 @@ view pos radius model =
                     Html.text model.text
                 ]
             ]
+        ]
+
+
+viewOutside : ( Int, Int ) -> Int -> Model -> Html.Html Msg
+viewOutside pos radius model =
+    Options.div [ MyCss.mdlClass MyCss.MaxSize ]
+        [ if model.showDescription then
+            Description.view model.description
+                |> Html.map DescriptionMsg
+          else
+            Html.div [] []
         , if model.editing then
             Options.div
                 [ MyCss.mdlClass MyCss.TermInput
@@ -145,11 +156,6 @@ view pos radius model =
                     ]
                     [ Icon.i "done" ]
                 ]
-          else
-            Html.div [] []
-        , if model.showDescription then
-            Description.view model.description
-                |> Html.map DescriptionMsg
           else
             Html.div [] []
         ]

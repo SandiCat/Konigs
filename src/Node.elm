@@ -135,22 +135,9 @@ width model =
 view : Model -> Html.Html Msg
 view model =
     Html.div
-        [ CssUtil.style
-            [ Tuple.first model.pos |> CssUtil.ipx |> Css.left
-            , Tuple.second model.pos |> CssUtil.ipx |> Css.top
-            , width model |> CssUtil.ipx |> Css.width
-            , width model |> CssUtil.ipx |> Css.height
-            ]
-        , MyCss.class [ MyCss.NodeCont ]
-        ]
-        [ Html.div
-            [ MyCss.class [ MyCss.Node ]
-            , Events.onMouseOver MouseOver
-            , Events.onMouseOut MouseOut
-            , Events.onMouseDown (ToParent MouseDown)
-            , Events.onMouseUp (ToParent MouseUp)
-            ]
-            [ MetaContent.view model.pos model.radius model.content
+        [ MyCss.class [ MyCss.Node ] ]
+        [ Html.div []
+            [ MetaContent.viewOutside model.pos model.radius model.content
                 |> Html.map ContentMsg
             , if model.mouseOver || model.contextMenu.mouseOver then
                 ContextMenu.view
@@ -160,7 +147,26 @@ view model =
               else
                 Html.div [] []
             ]
+        , Html.div
+            [ Events.onMouseOver MouseOver
+            , Events.onMouseOut MouseOut
+            , Events.onMouseDown (ToParent MouseDown)
+            , Events.onMouseUp (ToParent MouseUp)
+            ]
+            [ MetaContent.viewInside model.pos model.radius model.content
+                |> Html.map ContentMsg
+            ]
         ]
+        |> List.singleton
+        |> Html.div
+            [ CssUtil.style
+                [ Tuple.first model.pos |> CssUtil.ipx |> Css.left
+                , Tuple.second model.pos |> CssUtil.ipx |> Css.top
+                , width model |> CssUtil.ipx |> Css.width
+                , width model |> CssUtil.ipx |> Css.height
+                ]
+            , MyCss.class [ MyCss.NodeCont ]
+            ]
 
 
 baseView : Model -> Svg.Svg Msg

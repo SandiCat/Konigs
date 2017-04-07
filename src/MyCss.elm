@@ -23,7 +23,7 @@ mdlClass =
 type CssClasses
     = Node
     | NodeCont
-    | Term
+    | MaxSize
     | TermDisplay
     | TermInput
     | ContextMenu
@@ -47,7 +47,7 @@ type CssIds
 
 css =
     (stylesheet << namespace namespaceName)
-        [ (.) Term
+        [ (.) MaxSize
             [ height (pct 100)
             , width (pct 100)
             ]
@@ -114,8 +114,15 @@ css =
             , height (pct 100)
             , left (pct -50)
             , top (pct -50)
-            , position relative
+            , position absolute
             , property "pointer-events" "auto"
+            , children
+                [ Css.Elements.div
+                    [ width (pct 100)
+                    , height (pct 100)
+                    , position absolute
+                    ]
+                ]
             ]
         , (.) ContextMenu
             [ displayFlex
