@@ -49,8 +49,6 @@ viewInside model =
     Svg.foreignObject
         [ Att.width "50"
         , Att.height "50"
-        , Tuple.first pos |> toString |> Att.x
-        , Tuple.second pos |> toString |> Att.y
         ]
         [ Html.button
             [ Events.onClick Increment ]

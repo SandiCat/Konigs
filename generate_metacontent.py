@@ -33,11 +33,11 @@ parts = [
                     Debug.log mismatchError Nothing"""),
     generate_part("""\
         Mdl{0} model ->
-            {0}.viewInside pos radius model
+            {0}.viewInside model
             |> Html.map Msg{0}"""),
     generate_part("""\
         Mdl{0} model ->
-            {0}.viewOutside pos radius model
+            {0}.viewOutside model
             |> Html.map Msg{0}"""),
     generate_part("""\
         Mdl{0} model ->

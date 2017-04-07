@@ -73,20 +73,20 @@ viewInside: MultiModel -> Html.Html MultiMsg
 viewInside multiModel =
     case multiModel of
         MdlButton model ->
-            Button.viewInside pos radius model
+            Button.viewInside model
             |> Html.map MsgButton
         MdlTerm model ->
-            Term.viewInside pos radius model
+            Term.viewInside model
             |> Html.map MsgTerm
 
 viewOutside: MultiModel -> Html.Html MultiMsg
 viewOutside multiModel =
     case multiModel of
         MdlButton model ->
-            Button.viewOutside pos radius model
+            Button.viewOutside model
             |> Html.map MsgButton
         MdlTerm model ->
-            Term.viewOutside pos radius model
+            Term.viewOutside model
             |> Html.map MsgTerm
 
 
