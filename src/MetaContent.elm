@@ -62,6 +62,13 @@ update multiMsg multiModel =
 
 -- VIEW
 
+{-  It's important to differentiate the part of the Content's view that are
+    inside or outside of the Node (that's what the view names refer to). This
+    is because the inside part will have to react to the Node's mouse events
+    (like clicking the title and dragging should work), but the outside parts
+    (the things that 'pop out' of the content) shouldn't.
+-}
+
 viewInside: MultiModel -> Html.Html MultiMsg
 viewInside multiModel =
     case multiModel of
