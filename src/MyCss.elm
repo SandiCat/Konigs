@@ -106,6 +106,12 @@ css =
             [ position absolute
             ]
         , (.) NodeCont
+            {- Two things. First, this exists so that Node could properly center against
+               the width and height of it's parent. Node and NodeCont cannot be merged.
+               Second, pointer-events is here so that the NodeCont div doesn't interfere
+               with background clicks or node clicks, since it's a box with width and height
+               position on top of the node.
+            -}
             [ position absolute
             , property "pointer-events" "none"
             ]

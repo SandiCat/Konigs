@@ -166,6 +166,10 @@ view model =
                 , width model |> CssUtil.ipx |> Css.height
                 ]
             , MyCss.class [ MyCss.NodeCont ]
+              {- Node and NodeCont cannot be merged. Node has to have a parent with
+                 it's width and height so that it can be centered using `top: 50%` and
+                 `left: 50%`, without `transform`.
+              -}
             ]
 
 
