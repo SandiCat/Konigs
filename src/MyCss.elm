@@ -71,8 +71,9 @@ css =
             , height (px 50)
             , marginTop (px 20)
             , position absolute
-            , transform (translateX (pct -50))
+            , transform (translate2 (pct -50) (pct 100))
             , left (pct 50)
+            , top (pct 50)
             ]
         , (.) TermDescription
             [ minHeight (px 100)
