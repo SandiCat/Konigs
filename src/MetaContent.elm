@@ -62,8 +62,8 @@ update multiMsg multiModel =
 
 -- VIEW
 
-viewInside: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
-viewInside pos radius multiModel =
+viewInside: MultiModel -> Html.Html MultiMsg
+viewInside multiModel =
     case multiModel of
         MdlButton model ->
             Button.viewInside pos radius model
@@ -72,8 +72,8 @@ viewInside pos radius multiModel =
             Term.viewInside pos radius model
             |> Html.map MsgTerm
 
-viewOutside: (Int, Int) -> Int -> MultiModel -> Html.Html MultiMsg
-viewOutside pos radius multiModel =
+viewOutside: MultiModel -> Html.Html MultiMsg
+viewOutside multiModel =
     case multiModel of
         MdlButton model ->
             Button.viewOutside pos radius model

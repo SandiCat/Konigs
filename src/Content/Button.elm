@@ -44,8 +44,8 @@ update msg model =
 -- VIEW
 
 
-viewInside : ( Int, Int ) -> Int -> Model -> Svg.Svg Msg
-viewInside pos radius model =
+viewInside : Model -> Svg.Svg Msg
+viewInside model =
     Svg.foreignObject
         [ Att.width "50"
         , Att.height "50"
@@ -58,8 +58,8 @@ viewInside pos radius model =
         ]
 
 
-viewOutside : ( Int, Int ) -> Int -> Model -> Svg.Svg Msg
-viewOutside pos radius model =
+viewOutside : Model -> Svg.Svg Msg
+viewOutside model =
     Svg.g [] []
 
 

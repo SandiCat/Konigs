@@ -102,8 +102,8 @@ update msg model =
 -- VIEW
 
 
-viewInside : ( Int, Int ) -> Int -> Model -> Html.Html Msg
-viewInside pos radius model =
+viewInside : Model -> Html.Html Msg
+viewInside model =
     Options.div [ MyCss.mdlClass MyCss.MaxSize ]
         [ Options.div
             [ if model.text == "" then
@@ -125,8 +125,8 @@ viewInside pos radius model =
         ]
 
 
-viewOutside : ( Int, Int ) -> Int -> Model -> Html.Html Msg
-viewOutside pos radius model =
+viewOutside : Model -> Html.Html Msg
+viewOutside model =
     Options.div [ MyCss.mdlClass MyCss.MaxSize ]
         [ if model.showDescription then
             Description.view model.description

@@ -137,7 +137,7 @@ view model =
     Html.div
         [ MyCss.class [ MyCss.Node ] ]
         [ Html.div []
-            [ MetaContent.viewOutside model.pos model.radius model.content
+            [ MetaContent.viewOutside model.content
                 |> Html.map ContentMsg
             , if model.mouseOver || model.contextMenu.mouseOver then
                 ContextMenu.view
@@ -153,7 +153,7 @@ view model =
             , Events.onMouseDown (ToParent MouseDown)
             , Events.onMouseUp (ToParent MouseUp)
             ]
-            [ MetaContent.viewInside model.pos model.radius model.content
+            [ MetaContent.viewInside model.content
                 |> Html.map ContentMsg
             ]
         ]
