@@ -105,7 +105,7 @@ update msg model =
 updateContextMenu : Maybe ContextMenu.OutMsg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 updateContextMenu msg model =
     case msg of
-        Just (ContextMenu.Remove) ->
+        Just ContextMenu.Remove ->
             ( model, Cmd.none, Just Remove )
 
         Just (ContextMenu.ContentMsg msg) ->
@@ -166,10 +166,11 @@ view model =
                 , width model |> CssUtil.ipx |> Css.height
                 ]
             , MyCss.class [ MyCss.NodeCont ]
-              {- Node and NodeCont cannot be merged. Node has to have a parent with
-                 it's width and height so that it can be centered using `top: 50%` and
-                 `left: 50%`, without `transform`.
-              -}
+
+            {- Node and NodeCont cannot be merged. Node has to have a parent with
+               it's width and height so that it can be centered using `top: 50%` and
+               `left: 50%`, without `transform`.
+            -}
             ]
 
 
