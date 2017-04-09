@@ -15,7 +15,9 @@ import Html
 import Html.Events as Events
 import CssUtil
 import MyCss
+import Css
 import MiscUtil
+import Math.Vector2 as Vec2 exposing (Vec2)
 
 
 -- MODEL
@@ -43,7 +45,8 @@ init =
         ( nodes, nodeCmds ) =
             List.map
                 (\i ->
-                    Node.testNode ( 500 + 30 * i, 300 + (-1) ^ i * 30 * i )
+                    Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
+                        |> Node.testNode
                 )
                 range
                 |> List.unzip
@@ -78,14 +81,15 @@ empty =
     Model Graph.empty ! []
 
 
-getNodePos : Graph.NodeId -> Graph -> ( Int, Int )
+getNodePos : Graph.NodeId -> Graph -> Vec2
 getNodePos id graph =
     case Graph.get id graph of
         Just { node, incoming, outgoing } ->
             node.label.pos
 
         Nothing ->
-            Debug.log "getNodePos got nonexisting id!" ( 0, 0 )
+            Vec2.vec2 0 0
+                |> Debug.log "getNodePos got nonexisting id!"
 
 
 addEdge : Graph.NodeId -> Graph.NodeId -> Edge -> Graph -> Graph
@@ -236,8 +240,8 @@ updateNodeOutMsg id msg model =
 
 view :
     { width : Int, height : Int }
-    -> { xo : Int, yo : Int }
-    -> Maybe { mousePos : ( Int, Int ), originNode : Graph.NodeId }
+    -> Vec2
+    -> Maybe { mousePos : Vec2, originNode : Graph.NodeId }
     -> Model
     -> Html.Html Msg
 view size camera maybeConnectEdge { graph } =
@@ -270,12 +274,15 @@ view size camera maybeConnectEdge { graph } =
                        , Events.onMouseDown (ToParent Hold)
                        ]
                 )
-                [ Svg.g [ SvgUtil.translate camera.xo camera.yo ]
+                [ Svg.g [ SvgUtil.translate (Vec2.getX camera) (Vec2.getY camera) ]
                     (edges ++ connectEdge ++ nodes)
                 ]
             , Html.div
                 [ MyCss.class [ MyCss.Nodes ]
-                , CssUtil.position ( camera.xo, camera.yo )
+                , CssUtil.style
+                    [ Vec2.getX camera |> Css.px |> Css.left
+                    , Vec2.getY camera |> Css.px |> Css.top
+                    ]
                 ]
                 (Graph.nodes graph
                     |> List.map (\{ id, label } -> Node.view label |> Html.map (NodeMsg id))
@@ -283,7 +290,7 @@ view size camera maybeConnectEdge { graph } =
             ]
 
 
-edgeView : ( Int, Int ) -> ( Int, Int ) -> Svg.Svg msg
+edgeView : Vec2 -> Vec2 -> Svg.Svg msg
 edgeView =
     SvgUtil.line 5 "#244F9F"
 

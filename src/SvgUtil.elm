@@ -2,13 +2,14 @@ module SvgUtil exposing (..)
 
 import Svg
 import Svg.Attributes as Att
+import Math.Vector2 as Vec2 exposing (Vec2)
 
 
-circle : Int -> String -> String -> ( Int, Int ) -> Int -> Svg.Svg msg
-circle thickness stroke fill ( x, y ) radius =
+circle : number -> String -> String -> Vec2 -> number -> Svg.Svg msg
+circle thickness stroke fill pos radius =
     Svg.circle
-        [ toString x |> Att.cx
-        , toString y |> Att.cy
+        [ Vec2.getX pos |> toString |> Att.cx
+        , Vec2.getY pos |> toString |> Att.cy
         , toString radius |> Att.r
         , Att.fill fill
         , Att.stroke stroke
@@ -17,13 +18,13 @@ circle thickness stroke fill ( x, y ) radius =
         []
 
 
-line : Int -> String -> ( Int, Int ) -> ( Int, Int ) -> Svg.Svg msg
-line thickness stroke ( x, y ) ( x_, y_ ) =
+line : number -> String -> Vec2 -> Vec2 -> Svg.Svg msg
+line thickness stroke pos1 pos2 =
     Svg.line
-        [ toString x |> Att.x1
-        , toString y |> Att.y1
-        , toString x_ |> Att.x2
-        , toString y_ |> Att.y2
+        [ Vec2.getX pos1 |> toString |> Att.x1
+        , Vec2.getY pos1 |> toString |> Att.y1
+        , Vec2.getX pos2 |> toString |> Att.x2
+        , Vec2.getY pos2 |> toString |> Att.y2
         , Att.stroke stroke
         , Att.fill "transparent"
         , toString thickness |> Att.strokeWidth
@@ -31,21 +32,21 @@ line thickness stroke ( x, y ) ( x_, y_ ) =
         []
 
 
-position : ( Int, Int ) -> List (Svg.Attribute msg)
+position : ( number, number ) -> List (Svg.Attribute msg)
 position ( x, y ) =
     [ toString x |> Att.x
     , toString y |> Att.y
     ]
 
 
-size : Int -> Int -> List (Svg.Attribute msg)
+size : number -> number -> List (Svg.Attribute msg)
 size width height =
     [ toString width |> Att.width
     , toString height |> Att.height
     ]
 
 
-translate : Int -> Int -> Svg.Attribute msg
+translate : number -> number -> Svg.Attribute msg
 translate x y =
     "translate("
         ++ toString x

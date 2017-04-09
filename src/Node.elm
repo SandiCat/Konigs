@@ -12,13 +12,14 @@ import Css
 import ContextMenu
 import Platform.Cmd as Cmd
 import CmdUtil
+import Math.Vector2 as Vec2 exposing (Vec2)
 
 
 -- MODEL
 
 
 type alias Model =
-    { pos : ( Int, Int )
+    { pos : Vec2
     , radius : Int
     , content : MetaContent.MultiModel
     , mouseOver : Bool
@@ -27,14 +28,14 @@ type alias Model =
 
 
 init :
-    ( Int, Int )
+    Vec2
     -> ( MetaContent.MultiModel, Cmd MetaContent.MultiMsg )
     -> ( Model, Cmd Msg )
 init pos ( content, contentCmd ) =
     Model pos 60 content False ContextMenu.init ! [ Cmd.map ContentMsg contentCmd ]
 
 
-testNode : ( Int, Int ) -> ( Model, Cmd Msg )
+testNode : Vec2 -> ( Model, Cmd Msg )
 testNode pos =
     let
         ( content, cmd ) =
@@ -160,8 +161,8 @@ view model =
         |> List.singleton
         |> Html.div
             [ CssUtil.style
-                [ Tuple.first model.pos |> CssUtil.ipx |> Css.left
-                , Tuple.second model.pos |> CssUtil.ipx |> Css.top
+                [ Vec2.getX model.pos |> Css.px |> Css.left
+                , Vec2.getY model.pos |> Css.px |> Css.top
                 , width model |> CssUtil.ipx |> Css.width
                 , width model |> CssUtil.ipx |> Css.height
                 ]

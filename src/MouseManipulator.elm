@@ -12,6 +12,7 @@ import CssUtil exposing (ipx)
 import Mouse
 import Window
 import Task
+import Math.Vector2 as Vec2 exposing (Vec2)
 
 
 -- MODEL
@@ -20,25 +21,21 @@ import Task
 type alias Model =
     { graphMap : GraphMap.Model
     , state : State
-    , mousePos : ( Int, Int )
+    , mousePos : Vec2
     , size : { width : Int, height : Int }
-    , cameraPos :
-        { xo : Int, yo : Int }
-        -- camera position
+    , cameraPos : Vec2
     }
 
 
 type State
     = NoOp
     | Connecting Graph.NodeId
-    | MovingCamera ( Int, Int ) { xo : Int, yo : Int }
+    | MovingCamera Vec2 Vec2
 
 
-offsetMouse : Model -> ( Int, Int )
+offsetMouse : Model -> Vec2
 offsetMouse model =
-    ( Tuple.first model.mousePos - model.cameraPos.xo
-    , Tuple.second model.mousePos - model.cameraPos.yo
-    )
+    Vec2.sub model.mousePos model.cameraPos
 
 
 init : ( Model, Cmd Msg )
@@ -47,7 +44,7 @@ init =
         ( graphMap, gmCmd ) =
             GraphMap.init
     in
-        Model graphMap NoOp ( 0, 0 ) { width = 0, height = 0 } { xo = 0, yo = 0 }
+        Model graphMap NoOp (Vec2.vec2 0 0) { width = 0, height = 0 } (Vec2.vec2 0 0)
             ! [ gmCmd |> Cmd.map GraphMapMsg
               , Task.perform Resize Window.size
               ]
@@ -58,7 +55,7 @@ init =
 
 
 type Msg
-    = Move ( Int, Int )
+    = Move Vec2
     | GraphMapMsg GraphMap.Msg
     | Resize { width : Int, height : Int }
     | LeaveWindow
@@ -71,13 +68,13 @@ update msg model =
             GraphMap.update graphMapMsg model.graphMap
                 |> updateGraphMapHelp model
 
-        Move ( x, y ) ->
+        Move newMousePos ->
             case model.state of
-                MovingCamera ( xm, ym ) { xo, yo } ->
-                    { model | cameraPos = { xo = xo + x - xm, yo = yo + y - ym } } ! []
+                MovingCamera mousePos cameraPos ->
+                    { model | cameraPos = Vec2.sub (Vec2.add cameraPos newMousePos) mousePos } ! []
 
                 _ ->
-                    { model | mousePos = ( x, y ) } ! []
+                    { model | mousePos = newMousePos } ! []
 
         Resize size ->
             { model | size = size } ! []
@@ -170,7 +167,7 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Mouse.moves (\{ x, y } -> Move ( x, y ))
+        [ Mouse.moves (\{ x, y } -> Move <| Vec2.vec2 (toFloat x) (toFloat y))
         , Window.resizes Resize
         , GraphMap.subscriptions model.graphMap |> Sub.map GraphMapMsg
         ]
