@@ -65,8 +65,7 @@ init =
                 nodes
                 (edges ++ (List.map (\( a, b ) -> ( b, a )) edges))
                 -- undirected graph
-                |>
-                    Graph.mapEdges (always {})
+                |> Graph.mapEdges (always {})
                 |> Model
 
         cmds =
@@ -218,13 +217,13 @@ update msg model =
 updateNodeOutMsg : Graph.NodeId -> Maybe Node.OutMsg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 updateNodeOutMsg id msg model =
     case msg of
-        Just (Node.MouseDown) ->
+        Just Node.MouseDown ->
             ( model, Cmd.none, MouseDown id |> Just )
 
-        Just (Node.MouseUp) ->
+        Just Node.MouseUp ->
             ( model, Cmd.none, MouseUp id |> Just )
 
-        Just (Node.Remove) ->
+        Just Node.Remove ->
             ( { model | graph = Graph.remove id model.graph }
             , Cmd.none
             , Nothing

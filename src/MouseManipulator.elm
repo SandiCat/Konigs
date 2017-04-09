@@ -100,13 +100,13 @@ updateGraphMapOutMsg msg model =
         Just (GraphMap.MouseDown id) ->
             { model | state = Connecting id } ! []
 
-        Just (GraphMap.Doubleclick) ->
+        Just GraphMap.Doubleclick ->
             GraphMap.update
                 (offsetMouse model |> Node.testNode |> GraphMap.AddNode)
                 model.graphMap
                 |> updateGraphMapHelp model
 
-        Just (GraphMap.Hold) ->
+        Just GraphMap.Hold ->
             case model.state of
                 NoOp ->
                     { model | state = MovingCamera model.mousePos model.cameraPos } ! []
@@ -114,7 +114,7 @@ updateGraphMapOutMsg msg model =
                 _ ->
                     model ! []
 
-        Just (GraphMap.Release) ->
+        Just GraphMap.Release ->
             { model | state = NoOp } ! []
 
         Nothing ->
