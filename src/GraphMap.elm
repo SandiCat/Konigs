@@ -273,7 +273,7 @@ view size camera maybeConnectEdge { graph } =
                        , Events.onMouseDown (ToParent Hold)
                        ]
                 )
-                [ Svg.g [ SvgUtil.translate (Vec2.getX camera) (Vec2.getY camera) ]
+                [ Svg.g [ SvgUtil.translate camera ]
                     (edges ++ connectEdge ++ nodes)
                 ]
             , Html.div

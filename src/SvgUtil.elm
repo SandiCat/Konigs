@@ -32,10 +32,10 @@ line thickness stroke pos1 pos2 =
         []
 
 
-position : ( number, number ) -> List (Svg.Attribute msg)
-position ( x, y ) =
-    [ toString x |> Att.x
-    , toString y |> Att.y
+position : Vec2 -> List (Svg.Attribute msg)
+position pos =
+    [ Vec2.getX pos |> toString |> Att.x
+    , Vec2.getY pos |> toString |> Att.y
     ]
 
 
@@ -46,11 +46,11 @@ size width height =
     ]
 
 
-translate : number -> number -> Svg.Attribute msg
-translate x y =
+translate : Vec2 -> Svg.Attribute msg
+translate pos =
     "translate("
-        ++ toString x
+        ++ (Vec2.getX pos |> toString)
         ++ ","
-        ++ toString y
+        ++ (Vec2.getY pos |> toString)
         ++ ")"
         |> Att.transform

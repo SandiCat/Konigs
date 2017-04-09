@@ -33,14 +33,6 @@ ipx =
     toFloat >> Css.px
 
 
-position : ( Int, Int ) -> Html.Attribute msg
-position ( x, y ) =
-    style
-        [ ipx x |> Css.left
-        , ipx y |> Css.top
-        ]
-
-
 userSelect : Bool -> Html.Attribute msg
 userSelect selectable =
     let
