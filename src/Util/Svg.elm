@@ -1,4 +1,4 @@
-module SvgUtil exposing (..)
+module Util.Svg exposing (..)
 
 import Svg
 import Svg.Attributes as Att

@@ -1,17 +1,17 @@
 module Node exposing (..)
 
 import Svg
-import SvgUtil
+import Util.Svg
 import MetaContent
 import Content.Term as Term
 import Html.Events as Events
 import Html
 import MyCss
-import CssUtil
+import Util.Css
 import Css
 import ContextMenu
 import Platform.Cmd as Cmd
-import CmdUtil
+import Util.Cmd
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
@@ -160,11 +160,11 @@ view model =
         ]
         |> List.singleton
         |> Html.div
-            [ CssUtil.style
+            [ Util.Css.style
                 [ Vec2.getX model.pos |> Css.px |> Css.left
                 , Vec2.getY model.pos |> Css.px |> Css.top
-                , width model |> CssUtil.ipx |> Css.width
-                , width model |> CssUtil.ipx |> Css.height
+                , width model |> Util.Css.ipx |> Css.width
+                , width model |> Util.Css.ipx |> Css.height
                 ]
             , MyCss.class [ MyCss.NodeCont ]
 
@@ -177,7 +177,7 @@ view model =
 
 baseView : Model -> Svg.Svg Msg
 baseView model =
-    SvgUtil.circle 7 "#5E81C1" "white" model.pos model.radius
+    Util.Svg.circle 7 "#5E81C1" "white" model.pos model.radius
 
 
 

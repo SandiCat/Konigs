@@ -5,7 +5,7 @@ import Svg.Attributes as Att
 import Html
 import Html.Attributes as HtmlAtt
 import Html.Events as Events
-import CmdUtil
+import Util.Cmd
 
 
 -- MODEL

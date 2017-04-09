@@ -5,18 +5,18 @@ import IntDict
 import Node
 import Svg
 import Svg.Attributes as Att
-import SvgUtil
+import Util.Svg
 import Layout
 import AnimationFrame
 import Time
 import Focus exposing ((=>))
-import CmdUtil
+import Util.Cmd
 import Html
 import Html.Events as Events
-import CssUtil
+import Util.Css
 import MyCss
 import Css
-import MiscUtil
+import Util.Misc
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
@@ -195,7 +195,7 @@ update msg model =
 
                 focusUpdate ctx node =
                     Focus.update
-                        (MiscUtil.nodeFocus => MiscUtil.labelFocus)
+                        (Util.Misc.nodeFocus => Util.Misc.labelFocus)
                         (always node)
                         ctx
 
@@ -264,21 +264,21 @@ view size camera maybeConnectEdge { graph } =
                 Nothing ->
                     []
     in
-        CssUtil.layers 0
+        Util.Css.layers 0
             []
             [ Svg.svg
-                ((SvgUtil.size size.width size.height)
+                ((Util.Svg.size size.width size.height)
                     ++ [ Events.onDoubleClick (ToParent Doubleclick)
                        , Events.onMouseUp (ToParent Release)
                        , Events.onMouseDown (ToParent Hold)
                        ]
                 )
-                [ Svg.g [ SvgUtil.translate camera ]
+                [ Svg.g [ Util.Svg.translate camera ]
                     (edges ++ connectEdge ++ nodes)
                 ]
             , Html.div
                 [ MyCss.class [ MyCss.Nodes ]
-                , CssUtil.style
+                , Util.Css.style
                     [ Vec2.getX camera |> Css.px |> Css.left
                     , Vec2.getY camera |> Css.px |> Css.top
                     ]
@@ -291,7 +291,7 @@ view size camera maybeConnectEdge { graph } =
 
 edgeView : Vec2 -> Vec2 -> Svg.Svg msg
 edgeView =
-    SvgUtil.line 5 "#244F9F"
+    Util.Svg.line 5 "#244F9F"
 
 
 

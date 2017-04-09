@@ -6,7 +6,7 @@ import Focus exposing ((=>))
 import Node
 import Svg
 import Svg.Attributes as Att
-import MiscUtil
+import Util.Misc
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
@@ -104,7 +104,7 @@ stepLayout graph =
 
         update ctx =
             Focus.update
-                (MiscUtil.nodeFocus => MiscUtil.labelFocus => pos)
+                (Util.Misc.nodeFocus => Util.Misc.labelFocus => pos)
                 (stepPos ctx)
                 ctx
     in

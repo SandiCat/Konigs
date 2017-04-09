@@ -1,4 +1,4 @@
-module CmdUtil exposing (..)
+module Util.Cmd exposing (..)
 
 
 update :

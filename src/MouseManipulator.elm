@@ -6,9 +6,9 @@ import Graph
 import Html.Attributes
 import Html
 import Html.Events as Events
-import CmdUtil
+import Util.Cmd
 import Css exposing (px)
-import CssUtil exposing (ipx)
+import Util.Css exposing (ipx)
 import Mouse
 import Window
 import Task
@@ -148,7 +148,7 @@ view model =
                     Nothing
     in
         Html.div
-            [ CssUtil.userSelect False
+            [ Util.Css.userSelect False
             , Events.onMouseLeave LeaveWindow
             ]
             [ GraphMap.view

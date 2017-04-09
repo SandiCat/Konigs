@@ -1,4 +1,4 @@
-module MiscUtil exposing (..)
+module Util.Misc exposing (..)
 
 import Focus exposing (Focus)
 

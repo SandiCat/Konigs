@@ -3,7 +3,7 @@ module Content.Term exposing (..)
 import Html
 import Html.Attributes as Att
 import Html.Events as Events
-import CmdUtil
+import Util.Cmd
 import Json.Decode
 import MyCss
 import Material
@@ -15,7 +15,7 @@ import Material.Icon as Icon
 import Material.Elevation as Elevation
 import Content.Term.Description as Description
 import Option exposing (Option)
-import CssUtil
+import Util.Css
 import Keyboard
 
 
@@ -68,7 +68,7 @@ update msg model =
             Material.update MdlMsg msg_ model
 
         DescriptionMsg msg_ ->
-            CmdUtil.update
+            Util.Cmd.update
                 (\x -> { model | description = x })
                 DescriptionMsg
                 (Description.update msg_ model.description)
@@ -139,7 +139,7 @@ viewOutside model =
                     [ Options.onInput InputChange
                     , Options.onBlur DeFocus
                     , Textfield.value model.text
-                    , Options.attribute <| CssUtil.userSelect True
+                    , Options.attribute <| Util.Css.userSelect True
                     ]
                     []
                 , Button.render MdlMsg
