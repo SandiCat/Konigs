@@ -71,7 +71,7 @@ update msg model =
         Move newMousePos ->
             case model.state of
                 MovingCamera mousePos cameraPos ->
-                    { model | cameraPos = Vec2.sub (Vec2.add cameraPos newMousePos) mousePos } ! []
+                    { model | cameraPos = Vec2.add cameraPos (Vec2.sub newMousePos mousePos) } ! []
 
                 _ ->
                     { model | mousePos = newMousePos } ! []
