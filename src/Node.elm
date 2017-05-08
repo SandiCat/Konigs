@@ -23,7 +23,7 @@ import Math.Vector2 as Vec2 exposing (Vec2)
 
 type alias Model =
     { pos : Vec2
-    , radius : Int
+    , radius : Float
     , content : MetaContent.MultiModel
     , mouseOver : Bool
     , contextMenu : ContextMenu.Model
@@ -131,7 +131,7 @@ updateContextMenu msg model =
 -- VIEW
 
 
-width : Model -> Int
+width : Model -> Float
 width model =
     model.radius * 2 + 7
 
@@ -166,8 +166,8 @@ view model =
             [ Util.Css.style
                 [ Vec2.getX model.pos |> Css.px |> Css.left
                 , Vec2.getY model.pos |> Css.px |> Css.top
-                , width model |> Util.Css.ipx |> Css.width
-                , width model |> Util.Css.ipx |> Css.height
+                , width model |> Css.px |> Css.width
+                , width model |> Css.px |> Css.height
                 ]
             , MyCss.class [ MyCss.NodeCont ]
 
@@ -183,7 +183,7 @@ baseView model =
     Svg.circle
         [ SvgAttPx.cx <| Vec2.getX model.pos
         , SvgAttPx.cy <| Vec2.getY model.pos
-        , SvgAttPx.r <| toFloat model.radius
+        , SvgAttPx.r model.radius
         , SvgAtt.fill Color.white
         , SvgAtt.stroke <| Color.rgb 94 129 193
         , SvgAttPx.strokeWidth 7

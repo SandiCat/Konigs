@@ -29,10 +29,6 @@ layers startIndex attrs list =
         |> Html.div attrs
 
 
-ipx =
-    toFloat >> Css.px
-
-
 userSelect : Bool -> Html.Attribute msg
 userSelect selectable =
     let

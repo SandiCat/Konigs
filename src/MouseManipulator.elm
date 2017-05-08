@@ -8,7 +8,7 @@ import Html
 import Html.Events as Events
 import Util.Cmd
 import Css exposing (px)
-import Util.Css exposing (ipx)
+import Util.Css
 import Mouse
 import Window
 import Task
