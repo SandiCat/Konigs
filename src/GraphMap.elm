@@ -1,11 +1,16 @@
 module GraphMap exposing (..)
 
+import TypedSvg as Svg
+import TypedSvg.Attributes.InPx as SvgAttPx
+import TypedSvg.Attributes as SvgAtt
+import TypedSvg.Events as SvgEvents
+import TypedSvg.Types as SvgTypes
+import TypedSvg.Core as SvgCore exposing (Svg)
 import Graph
 import IntDict
 import Node
-import Svg
-import Svg.Attributes as Att
-import Util.Svg
+import Json.Decode
+import Color
 import Layout
 import AnimationFrame
 import Time
@@ -267,13 +272,14 @@ view size camera maybeConnectEdge { graph } =
         Util.Css.layers 0
             []
             [ Svg.svg
-                ((Util.Svg.size size.width size.height)
-                    ++ [ Events.onDoubleClick (ToParent Doubleclick)
-                       , Events.onMouseUp (ToParent Release)
-                       , Events.onMouseDown (ToParent Hold)
-                       ]
-                )
-                [ Svg.g [ Util.Svg.translate camera ]
+                [ onDoubleClick (ToParent Doubleclick)
+                , SvgAttPx.width <| toFloat size.width
+                , SvgAttPx.height <| toFloat size.height
+                , SvgEvents.onMouseUp (ToParent Release)
+                , SvgEvents.onMouseDown (ToParent Hold)
+                ]
+                [ Svg.g
+                    [ SvgAtt.transform [ SvgTypes.Translate (Vec2.getX camera) (Vec2.getY camera) ] ]
                     (edges ++ connectEdge ++ nodes)
                 ]
             , Html.div
@@ -289,9 +295,23 @@ view size camera maybeConnectEdge { graph } =
             ]
 
 
-edgeView : Vec2 -> Vec2 -> Svg.Svg msg
-edgeView =
-    Util.Svg.line 5 "#244F9F"
+onDoubleClick : Msg -> SvgCore.Attribute Msg
+onDoubleClick msg =
+    SvgEvents.on "dblclick" <| Json.Decode.succeed msg
+
+
+edgeView : Vec2 -> Vec2 -> Svg msg
+edgeView pos1 pos2 =
+    Svg.line
+        [ SvgAttPx.x1 <| Vec2.getX pos1
+        , SvgAttPx.y1 <| Vec2.getY pos1
+        , SvgAttPx.x2 <| Vec2.getX pos2
+        , SvgAttPx.y2 <| Vec2.getY pos2
+        , SvgAtt.stroke <| Color.rgb 36 79 159
+        , SvgAtt.fillOpacity <| SvgTypes.Opacity 0
+        , SvgAttPx.strokeWidth 5
+        ]
+        []
 
 
 

@@ -1,7 +1,10 @@
 module Node exposing (..)
 
-import Svg
-import Util.Svg
+import TypedSvg as Svg
+import TypedSvg.Attributes.InPx as SvgAttPx
+import TypedSvg.Attributes as SvgAtt
+import TypedSvg.Core as SvgCore exposing (Svg)
+import Color
 import MetaContent
 import Content.Term as Term
 import Html.Events as Events
@@ -175,9 +178,17 @@ view model =
             ]
 
 
-baseView : Model -> Svg.Svg Msg
+baseView : Model -> Svg Msg
 baseView model =
-    Util.Svg.circle 7 "#5E81C1" "white" model.pos model.radius
+    Svg.circle
+        [ SvgAttPx.cx <| Vec2.getX model.pos
+        , SvgAttPx.cy <| Vec2.getY model.pos
+        , SvgAttPx.r <| toFloat model.radius
+        , SvgAtt.fill Color.white
+        , SvgAtt.stroke <| Color.rgb 94 129 193
+        , SvgAttPx.strokeWidth 7
+        ]
+        []
 
 
 

@@ -1,11 +1,14 @@
 module Layout exposing (stepLayout, drawForces)
 
+import TypedSvg as Svg
+import TypedSvg.Attributes.InPx as SvgAttPx
+import TypedSvg.Attributes as SvgAtt
+import TypedSvg.Core as SvgCore exposing (Svg)
+import Color
 import Graph
 import IntDict
 import Focus exposing ((=>))
 import Node
-import Svg
-import Svg.Attributes as Att
 import Util.Misc
 import Math.Vector2 as Vec2 exposing (Vec2)
 
@@ -111,17 +114,17 @@ stepLayout graph =
         Graph.mapContexts update graph
 
 
-drawForces : Graph_ e -> Svg.Svg msg
+drawForces : Graph_ e -> Svg msg
 drawForces graph =
     let
         singleForce pos vec color =
             Svg.line
-                [ Vec2.getX pos |> toString |> Att.x1
-                , Vec2.getY pos |> toString |> Att.y1
-                , Vec2.getX vec |> (+) (Vec2.getX pos) |> toString |> Att.x2
-                , Vec2.getY vec |> (+) (Vec2.getY pos) |> toString |> Att.y2
-                , Att.stroke color
-                , Att.strokeWidth "3"
+                [ Vec2.getX pos |> SvgAttPx.x1
+                , Vec2.getY pos |> SvgAttPx.y1
+                , Vec2.getX vec |> (+) (Vec2.getX pos) |> SvgAttPx.x2
+                , Vec2.getY vec |> (+) (Vec2.getY pos) |> SvgAttPx.y2
+                , SvgAtt.stroke color
+                , SvgAttPx.strokeWidth 3
                 ]
                 []
 
@@ -132,8 +135,8 @@ drawForces graph =
     in
         Graph.fold
             (\ctx acc ->
-                singleNode ctx "yellow" nodeAttract
-                    :: singleNode ctx "red" nodeRepulse
+                singleNode ctx Color.green nodeAttract
+                    :: singleNode ctx Color.red nodeRepulse
                     :: acc
             )
             []
