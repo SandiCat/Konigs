@@ -121,8 +121,8 @@ drawForces graph =
             Svg.line
                 [ Vec2.getX pos |> SvgAttPx.x1
                 , Vec2.getY pos |> SvgAttPx.y1
-                , Vec2.getX vec |> (+) (Vec2.getX pos) |> SvgAttPx.x2
-                , Vec2.getY vec |> (+) (Vec2.getY pos) |> SvgAttPx.y2
+                , Vec2.getX vec + Vec2.getX pos |> SvgAttPx.x2
+                , Vec2.getY vec + Vec2.getY pos |> SvgAttPx.y2
                 , SvgAtt.stroke color
                 , SvgAttPx.strokeWidth 3
                 ]
