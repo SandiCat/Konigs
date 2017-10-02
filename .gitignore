@@ -2,3 +2,7 @@ elm-stuff/
 build/elm.js
 Test.elm
 snippets.txt
+
+*.sublime-project
+
+sublime\.sublime-workspace
