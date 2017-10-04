@@ -18,11 +18,25 @@ import Util.Css
 
 
 type alias Model =
-    { text : String
+    { text : Maybe String
+
+    {- Text is Nothing when it's purposefully empty. Placeholder text will be
+       displayed in the view with proper styling. However, text can also be `Just ""`.
+       This is used when a previously empty Term is being edited. In this case, TermText
+       should be in focus. If a still-empty TermText blurs, text should become Nothing.
+    -}
     , showDescription : Bool
     , description : Description.Model
     , mdl : Material.Model
     }
+
+
+convertText : String -> Maybe String
+convertText text =
+    if text == "" then
+        Nothing
+    else
+        Just text
 
 
 init : String -> ( Model, Cmd Msg )
@@ -31,7 +45,7 @@ init text =
         ( desc, descCmd ) =
             Description.init ""
     in
-        Model text False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
+        Model (convertText text) False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
 
 
 menuOptions : List (Option Msg)
@@ -50,6 +64,7 @@ type Msg
     | DescriptionMsg Description.Msg
     | ToggleDescription
     | OnEnter
+    | BeginEditing
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -68,10 +83,13 @@ update msg model =
             { model | showDescription = not model.showDescription } ! []
 
         InputChange newText ->
-            { model | text = newText } ! []
+            { model | text = convertText newText } ! []
 
         OnEnter ->
             model ! []
+
+        BeginEditing ->
+            { model | text = Just "" } ! []
 
 
 
@@ -104,23 +122,29 @@ onEnter msg =
 viewInside : Model -> Html.Html Msg
 viewInside model =
     Options.div
-        [ if model.text == "" then
-            Typo.caption
-          else
-            Typo.title
+        [ case model.text of
+            Nothing ->
+                Typo.caption
+
+            Just _ ->
+                Typo.title
         , Options.center
         , MyCss.mdlClass MyCss.MaxSize
         ]
-        [ if model.text == "" then
-            Html.i [] [ Html.text "empty" ]
-          else
-            Html.div
-                [ Att.contenteditable True
-                , MyCss.class [ MyCss.TermText ]
-                , onDivBlur InputChange
-                , onEnter OnEnter
-                ]
-                [ Html.text model.text ]
+        [ case model.text of
+            Nothing ->
+                Html.i
+                    [ Events.onClick BeginEditing ]
+                    [ Html.text "empty" ]
+
+            Just text ->
+                Html.div
+                    [ Att.contenteditable True
+                    , MyCss.class [ MyCss.TermText ]
+                    , onDivBlur InputChange
+                    , onEnter OnEnter
+                    ]
+                    [ Html.text text ]
         ]
 
 
