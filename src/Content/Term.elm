@@ -59,6 +59,7 @@ type Msg
     | DeFocus
     | DescriptionMsg Description.Msg
     | ToggleDescription
+    | OnEnter
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -92,6 +93,9 @@ update msg model =
         DeFocus ->
             { model | editing = False } ! []
 
+        OnEnter ->
+            model ! []
+
 
 
 -- VIEW
@@ -103,6 +107,21 @@ onDivBlur msg =
     Json.at [ "target", "textContent" ] Json.string
         |> Json.map msg
         |> Events.on "blur"
+
+
+onEnter : msg -> Html.Attribute msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Json.succeed msg
+            else
+                Json.fail "not ENTER"
+    in
+        Events.onWithOptions
+            "keydown"
+            { stopPropagation = False, preventDefault = True }
+            (Json.andThen isEnter Events.keyCode)
 
 
 viewInside : Model -> Html.Html Msg
@@ -124,6 +143,7 @@ viewInside model =
                     [ Att.contenteditable True
                     , MyCss.class [ MyCss.TermText ]
                     , onDivBlur InputChange
+                    , onEnter OnEnter
                     ]
                     [ Html.text model.text ]
             ]
