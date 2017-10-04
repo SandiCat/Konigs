@@ -55,7 +55,6 @@ type Msg
     = MdlMsg (Material.Msg Msg)
     | InputChange String
     | Edit
-    | KeyPress Keyboard.KeyCode
     | DeFocus
     | DescriptionMsg Description.Msg
     | ToggleDescription
@@ -82,13 +81,6 @@ update msg model =
 
         InputChange newText ->
             { model | text = newText } ! []
-
-        KeyPress code ->
-            if code == 13 then
-                -- 13 is Enter
-                { model | editing = False } ! []
-            else
-                model ! []
 
         DeFocus ->
             { model | editing = False } ! []
@@ -191,4 +183,4 @@ viewOutside model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Keyboard.presses KeyPress
+    Sub.none
