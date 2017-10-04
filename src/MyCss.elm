@@ -24,11 +24,10 @@ type CssClasses
     = Node
     | NodeCont
     | MaxSize
-    | TermDisplay
     | TermText
+    | TermDescription
     | ContextMenu
     | MenuIcon
-    | TermDescription
     | Nodes
     | DescriptionToolbar
     | DescriptionText
@@ -47,10 +46,6 @@ type CssIds
 css =
     (stylesheet << namespace namespaceName)
         [ (.) MaxSize
-            [ height (pct 100)
-            , width (pct 100)
-            ]
-        , (.) TermDisplay
             [ height (pct 100)
             , width (pct 100)
             ]

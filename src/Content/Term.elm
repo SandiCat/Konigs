@@ -103,26 +103,24 @@ onEnter msg =
 
 viewInside : Model -> Html.Html Msg
 viewInside model =
-    Options.div [ MyCss.mdlClass MyCss.MaxSize ]
-        [ Options.div
-            [ if model.text == "" then
-                Typo.caption
-              else
-                Typo.title
-            , Options.center
-            , MyCss.mdlClass MyCss.TermDisplay
-            ]
-            [ if model.text == "" then
-                Html.i [] [ Html.text "empty" ]
-              else
-                Html.div
-                    [ Att.contenteditable True
-                    , MyCss.class [ MyCss.TermText ]
-                    , onDivBlur InputChange
-                    , onEnter OnEnter
-                    ]
-                    [ Html.text model.text ]
-            ]
+    Options.div
+        [ if model.text == "" then
+            Typo.caption
+          else
+            Typo.title
+        , Options.center
+        , MyCss.mdlClass MyCss.MaxSize
+        ]
+        [ if model.text == "" then
+            Html.i [] [ Html.text "empty" ]
+          else
+            Html.div
+                [ Att.contenteditable True
+                , MyCss.class [ MyCss.TermText ]
+                , onDivBlur InputChange
+                , onEnter OnEnter
+                ]
+                [ Html.text model.text ]
         ]
 
 
