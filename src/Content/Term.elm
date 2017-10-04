@@ -4,7 +4,7 @@ import Html
 import Html.Attributes as Att
 import Html.Events as Events
 import Util.Cmd
-import Json.Decode
+import Json.Decode as Json
 import MyCss
 import Material
 import Material.Button as Button
@@ -97,6 +97,14 @@ update msg model =
 -- VIEW
 
 
+onDivBlur : (String -> msg) -> Html.Attribute msg
+onDivBlur msg =
+    -- activates when a contenteditable element has finished editing
+    Json.at [ "target", "textContent" ] Json.string
+        |> Json.map msg
+        |> Events.on "blur"
+
+
 viewInside : Model -> Html.Html Msg
 viewInside model =
     Options.div [ MyCss.mdlClass MyCss.MaxSize ]
@@ -107,15 +115,17 @@ viewInside model =
                 Typo.title
             , Options.center
             , MyCss.mdlClass MyCss.TermDisplay
+            , Options.onDoubleClick Edit
             ]
-            [ Options.div
-                [ Options.onDoubleClick Edit
-                ]
-                [ if model.text == "" then
-                    Html.i [] [ Html.text "empty" ]
-                  else
-                    Html.text model.text
-                ]
+            [ if model.text == "" then
+                Html.i [] [ Html.text "empty" ]
+              else
+                Html.div
+                    [ Att.contenteditable True
+                    , MyCss.class [ MyCss.TermText ]
+                    , onDivBlur InputChange
+                    ]
+                    [ Html.text model.text ]
             ]
         ]
 

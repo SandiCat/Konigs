@@ -25,6 +25,7 @@ type CssClasses
     | NodeCont
     | MaxSize
     | TermDisplay
+    | TermText
     | TermInput
     | ContextMenu
     | MenuIcon
@@ -53,12 +54,11 @@ css =
         , (.) TermDisplay
             [ height (pct 100)
             , width (pct 100)
-            , children
-                [ Css.Elements.div
-                    [ textAlign center
-                    , width (pct 80)
-                    ]
-                ]
+            ]
+        , (.) TermText
+            [ textAlign center
+            , width (pct 80)
+            , focus [ outline none ]
             ]
         , (.) TermInput
             [ displayFlex
