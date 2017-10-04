@@ -7,16 +7,11 @@ import Util.Cmd
 import Json.Decode as Json
 import MyCss
 import Material
-import Material.Button as Button
 import Material.Typography as Typo
 import Material.Options as Options
-import Material.Textfield as Textfield
-import Material.Icon as Icon
-import Material.Elevation as Elevation
 import Content.Term.Description as Description
 import Option exposing (Option)
 import Util.Css
-import Keyboard
 
 
 -- MODEL
@@ -24,7 +19,6 @@ import Keyboard
 
 type alias Model =
     { text : String
-    , editing : Bool
     , showDescription : Bool
     , description : Description.Model
     , mdl : Material.Model
@@ -37,13 +31,12 @@ init text =
         ( desc, descCmd ) =
             Description.init ""
     in
-        Model text False False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
+        Model text False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
 
 
 menuOptions : List (Option Msg)
 menuOptions =
     [ Option ToggleDescription "description" "Toggle description"
-    , Option.edit Edit
     ]
 
 
@@ -54,8 +47,6 @@ menuOptions =
 type Msg
     = MdlMsg (Material.Msg Msg)
     | InputChange String
-    | Edit
-    | DeFocus
     | DescriptionMsg Description.Msg
     | ToggleDescription
     | OnEnter
@@ -76,14 +67,8 @@ update msg model =
         ToggleDescription ->
             { model | showDescription = not model.showDescription } ! []
 
-        Edit ->
-            { model | editing = not model.editing } ! []
-
         InputChange newText ->
             { model | text = newText } ! []
-
-        DeFocus ->
-            { model | editing = False } ! []
 
         OnEnter ->
             model ! []
@@ -126,7 +111,6 @@ viewInside model =
                 Typo.title
             , Options.center
             , MyCss.mdlClass MyCss.TermDisplay
-            , Options.onDoubleClick Edit
             ]
             [ if model.text == "" then
                 Html.i [] [ Html.text "empty" ]
@@ -148,30 +132,6 @@ viewOutside model =
         [ if model.showDescription then
             Description.view model.description
                 |> Html.map DescriptionMsg
-          else
-            Html.div [] []
-        , if model.editing then
-            Options.div
-                [ MyCss.mdlClass MyCss.TermInput
-                , Elevation.e4
-                ]
-                [ Textfield.render MdlMsg
-                    [ 0 ]
-                    model.mdl
-                    [ Options.onInput InputChange
-                    , Options.onBlur DeFocus
-                    , Textfield.value model.text
-                    , Options.attribute <| Util.Css.userSelect True
-                    ]
-                    []
-                , Button.render MdlMsg
-                    [ 1 ]
-                    model.mdl
-                    [ Button.icon
-                    , Options.onClick Edit
-                    ]
-                    [ Icon.i "done" ]
-                ]
           else
             Html.div [] []
         ]

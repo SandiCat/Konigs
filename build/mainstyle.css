@@ -17,22 +17,6 @@
     outline: none;
 }
 
-.MyCssTermInput {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 200px;
-    background-color: rgba(140, 168, 218, 0.8);
-    padding-left: 10px;
-    padding-right: 10px;
-    height: 50px;
-    margin-top: 20px;
-    position: absolute;
-    transform: translate(-50%, 100%);
-    left: 50%;
-    top: 50%;
-}
-
 .MyCssTermDescription {
     min-height: 100px;
     padding: 10px;

@@ -26,7 +26,6 @@ type CssClasses
     | MaxSize
     | TermDisplay
     | TermText
-    | TermInput
     | ContextMenu
     | MenuIcon
     | TermDescription
@@ -59,21 +58,6 @@ css =
             [ textAlign center
             , width (pct 80)
             , focus [ outline none ]
-            ]
-        , (.) TermInput
-            [ displayFlex
-            , flexDirection row
-            , alignItems center
-            , width (px 200)
-            , backgroundColor (rgba 140 168 218 0.8)
-            , paddingLeft (px 10)
-            , paddingRight (px 10)
-            , height (px 50)
-            , marginTop (px 20)
-            , position absolute
-            , transform (translate2 (pct -50) (pct 100))
-            , left (pct 50)
-            , top (pct 50)
             ]
         , (.) TermDescription
             [ minHeight (px 100)
