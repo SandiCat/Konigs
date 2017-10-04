@@ -273,6 +273,7 @@ view size camera maybeConnectEdge { graph } =
             []
             [ Svg.svg
                 [ onDoubleClick (ToParent Doubleclick)
+                , Util.Css.userSelect True
                 , SvgAttPx.width <| toFloat size.width
                 , SvgAttPx.height <| toFloat size.height
                 , SvgEvents.onMouseUp (ToParent Release)
