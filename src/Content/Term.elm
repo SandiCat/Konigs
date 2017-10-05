@@ -12,13 +12,15 @@ import Material.Options as Options
 import Content.Term.Description as Description
 import Option exposing (Option)
 import Util.Css
+import Dom
+import Task
 
 
 -- MODEL
 
 
 type alias Model =
-    { id : Int
+    { inputId : String
     , text : Maybe String
 
     {- Text is Nothing when it's purposefully empty. Placeholder text will be
@@ -46,7 +48,7 @@ init id text =
         ( desc, descCmd ) =
             Description.init ""
     in
-        Model id (convertText text) False desc Material.model
+        Model ("term-input-" ++ toString id) (convertText text) False desc Material.model
             ! [ Cmd.map DescriptionMsg descCmd ]
 
 
@@ -67,6 +69,7 @@ type Msg
     | ToggleDescription
     | OnEnter
     | BeginEditing
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -91,7 +94,13 @@ update msg model =
             model ! []
 
         BeginEditing ->
-            { model | text = Just "" } ! []
+            { model | text = Just "" }
+                ! [ Dom.focus model.inputId
+                        |> Task.attempt (\_ -> NoOp)
+                  ]
+
+        NoOp ->
+            model ! []
 
 
 
@@ -145,6 +154,7 @@ viewInside model =
                     , MyCss.class [ MyCss.TermText ]
                     , onDivBlur InputChange
                     , onEnter OnEnter
+                    , Att.id model.inputId
                     ]
                     [ Html.text text ]
         ]
