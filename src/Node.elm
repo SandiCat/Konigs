@@ -38,11 +38,11 @@ init pos ( content, contentCmd ) =
     Model pos 60 content False ContextMenu.init ! [ Cmd.map ContentMsg contentCmd ]
 
 
-testNode : Vec2 -> ( Model, Cmd Msg )
-testNode pos =
+testNode : Int -> Vec2 -> ( Model, Cmd Msg )
+testNode id pos =
     let
         ( content, cmd ) =
-            Term.init "Test Term"
+            Term.init id "Test Term"
     in
         ( content |> MetaContent.MdlTerm, Cmd.map MetaContent.MsgTerm cmd )
             |> init pos

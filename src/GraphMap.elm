@@ -51,7 +51,7 @@ init =
             List.map
                 (\i ->
                     Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
-                        |> Node.testNode
+                        |> Node.testNode i
                 )
                 range
                 |> List.unzip
@@ -119,19 +119,27 @@ addEdge a b edge graph =
             graph
 
 
+newNodeId : Graph -> Graph.NodeId
+newNodeId graph =
+    case Graph.nodeIdRange graph of
+        Just ( a, b ) ->
+            b + 1
+
+        Nothing ->
+            1
+
+
 addUnconnectedNode : Node.Model -> Graph -> ( Graph, Graph.NodeId )
 addUnconnectedNode node graph =
     let
         id =
-            case Graph.nodeIdRange graph of
-                Just ( a, b ) ->
-                    b + 1
-
-                Nothing ->
-                    1
+            newNodeId graph
 
         newNode =
-            { node = Graph.Node id node, incoming = IntDict.empty, outgoing = IntDict.empty }
+            { node = Graph.Node id node
+            , incoming = IntDict.empty
+            , outgoing = IntDict.empty
+            }
     in
         ( Graph.insert newNode graph, id )
 

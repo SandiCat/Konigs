@@ -102,7 +102,10 @@ updateGraphMapOutMsg msg model =
 
         Just GraphMap.Doubleclick ->
             GraphMap.update
-                (offsetMouse model |> Node.testNode |> GraphMap.AddNode)
+                (offsetMouse model
+                    |> Node.testNode (GraphMap.newNodeId model.graphMap.graph)
+                    |> GraphMap.AddNode
+                )
                 model.graphMap
                 |> updateGraphMapHelp model
 

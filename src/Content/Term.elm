@@ -18,7 +18,8 @@ import Util.Css
 
 
 type alias Model =
-    { text : Maybe String
+    { id : Int
+    , text : Maybe String
 
     {- Text is Nothing when it's purposefully empty. Placeholder text will be
        displayed in the view with proper styling. However, text can also be `Just ""`.
@@ -39,13 +40,14 @@ convertText text =
         Just text
 
 
-init : String -> ( Model, Cmd Msg )
-init text =
+init : Int -> String -> ( Model, Cmd Msg )
+init id text =
     let
         ( desc, descCmd ) =
             Description.init ""
     in
-        Model (convertText text) False desc Material.model ! [ Cmd.map DescriptionMsg descCmd ]
+        Model id (convertText text) False desc Material.model
+            ! [ Cmd.map DescriptionMsg descCmd ]
 
 
 menuOptions : List (Option Msg)
