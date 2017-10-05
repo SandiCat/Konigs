@@ -91,7 +91,10 @@ update msg model =
             { model | text = convertText newText } ! []
 
         OnEnter ->
-            model ! []
+            model
+                ! [ Dom.blur model.inputId
+                        |> Task.attempt (\_ -> NoOp)
+                  ]
 
         BeginEditing ->
             { model | text = Just "" }
