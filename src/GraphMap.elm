@@ -51,7 +51,7 @@ init =
             List.map
                 (\i ->
                     Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
-                        |> Node.testNode i
+                        |> Node.termNode i ("Test node " ++ toString i)
                 )
                 range
                 |> List.unzip
