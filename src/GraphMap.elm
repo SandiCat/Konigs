@@ -23,6 +23,7 @@ import MyCss
 import Css
 import Util.Misc
 import Math.Vector2 as Vec2 exposing (Vec2)
+import Util.Misc as Util
 
 
 -- MODEL
@@ -251,7 +252,7 @@ updateNodeOutMsg id msg model =
 
 
 view :
-    { width : Int, height : Int }
+    Util.Size
     -> Vec2
     -> Maybe { mousePos : Vec2, originNode : Graph.NodeId }
     -> Model

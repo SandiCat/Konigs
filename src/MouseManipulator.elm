@@ -1,4 +1,4 @@
-module MouseManipulator exposing (init, update, view, subscriptions)
+module MouseManipulator exposing (..)
 
 import GraphMap
 import Node
@@ -13,6 +13,7 @@ import Mouse
 import Window
 import Task
 import Math.Vector2 as Vec2 exposing (Vec2)
+import Util.Misc as Util
 
 
 -- MODEL
@@ -22,7 +23,6 @@ type alias Model =
     { graphMap : GraphMap.Model
     , state : State
     , mousePos : Vec2
-    , size : { width : Int, height : Int }
     , cameraPos : Vec2
     }
 
@@ -44,10 +44,8 @@ init =
         ( graphMap, gmCmd ) =
             GraphMap.init
     in
-        Model graphMap NoOp (Vec2.vec2 0 0) { width = 0, height = 0 } (Vec2.vec2 0 0)
-            ! [ gmCmd |> Cmd.map GraphMapMsg
-              , Task.perform Resize Window.size
-              ]
+        Model graphMap NoOp (Vec2.vec2 0 0) (Vec2.vec2 0 0)
+            ! [ gmCmd |> Cmd.map GraphMapMsg ]
 
 
 
@@ -57,7 +55,6 @@ init =
 type Msg
     = Move Vec2
     | GraphMapMsg GraphMap.Msg
-    | Resize { width : Int, height : Int }
     | LeaveWindow
 
 
@@ -75,9 +72,6 @@ update msg model =
 
                 _ ->
                     { model | mousePos = newMousePos } ! []
-
-        Resize size ->
-            { model | size = size } ! []
 
         LeaveWindow ->
             { model | state = NoOp } ! []
@@ -139,8 +133,8 @@ updateGraphMapHelp model ( graphMap, graphMapcmd, outMsg ) =
 -- VIEW
 
 
-view : Model -> Html.Html Msg
-view model =
+view : Util.Size -> Model -> Html.Html Msg
+view size model =
     let
         edge =
             case model.state of
@@ -155,7 +149,7 @@ view model =
             , Events.onMouseLeave LeaveWindow
             ]
             [ GraphMap.view
-                model.size
+                size
                 model.cameraPos
                 edge
                 model.graphMap
@@ -171,6 +165,5 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Mouse.moves (\{ x, y } -> Move <| Vec2.vec2 (toFloat x) (toFloat y))
-        , Window.resizes Resize
         , GraphMap.subscriptions model.graphMap |> Sub.map GraphMapMsg
         ]

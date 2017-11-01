@@ -11,3 +11,7 @@ nodeFocus =
 labelFocus : Focus { record | label : field } field
 labelFocus =
     Focus.create .label (\update record -> { record | label = update record.label })
+
+
+type alias Size =
+    { width : Int, height : Int }
