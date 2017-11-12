@@ -4,7 +4,7 @@ import Task
 import Html
 import Util.Misc as Util
 import Window
-import MouseManipulator
+import GraphMap
 import Util.Cmd
 
 
@@ -13,19 +13,19 @@ import Util.Cmd
 
 type alias Model =
     { size : Util.Size
-    , mouseManipulator : MouseManipulator.Model
+    , mouseManipulator : GraphMap.Model
     }
 
 
 init : ( Model, Cmd Msg )
 init =
     let
-        ( mm, mmCmd ) =
-            MouseManipulator.init
+        ( child, childCmd ) =
+            GraphMap.init
     in
-        Model (Util.Size 0 0) mm
+        Model (Util.Size 0 0) child
             ! [ Task.perform Resize Window.size
-              , mmCmd |> Cmd.map MouseManipulatorMsg
+              , mmCmd |> Cmd.map GraphMapMsg
               ]
 
 
@@ -35,7 +35,7 @@ init =
 
 type Msg
     = Resize Util.Size
-    | MouseManipulatorMsg MouseManipulator.Msg
+    | GraphMapMsg GraphMap.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -44,11 +44,11 @@ update msg model =
         Resize size ->
             { model | size = size } ! []
 
-        MouseManipulatorMsg msg_ ->
+        GraphMapMsg msg_ ->
             Util.Cmd.update
                 (\x -> { model | mouseManipulator = x })
-                MouseManipulatorMsg
-                (MouseManipulator.update msg_ model.mouseManipulator)
+                GraphMapMsg
+                (GraphMap.update msg_ model.mouseManipulator)
 
 
 
@@ -57,8 +57,8 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    MouseManipulator.view model.size model.mouseManipulator
-        |> Html.map MouseManipulatorMsg
+    GraphMap.view model.size model.mouseManipulator
+        |> Html.map GraphMapMsg
 
 
 
@@ -69,8 +69,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Window.resizes Resize
-        , MouseManipulator.subscriptions model.mouseManipulator
-            |> Sub.map MouseManipulatorMsg
+        , GraphMap.subscriptions model.mouseManipulator
+            |> Sub.map GraphMapMsg
         ]
 
 
