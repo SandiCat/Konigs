@@ -25,7 +25,7 @@ init =
     in
         Model (Util.Size 0 0) child
             ! [ Task.perform Resize Window.size
-              , mmCmd |> Cmd.map GraphMapMsg
+              , childCmd |> Cmd.map GraphMapMsg
               ]
 
 
