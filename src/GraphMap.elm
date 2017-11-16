@@ -40,7 +40,7 @@ type alias Model =
 
 
 type State
-    = NoOp
+    = None
     | Connecting Graph.NodeId
     | MovingCamera Vec2 Vec2
 
@@ -92,7 +92,7 @@ init =
                 |> List.unzip
     in
         { graph = Graph.fromNodesAndEdges nodes edges
-        , state = NoOp
+        , state = None
         , mousePos = Vec2.vec2 0 0
         , cameraPos = Vec2.vec2 0 0
         }
@@ -120,7 +120,8 @@ offsetMouse model =
 
 
 type Msg
-    = StepLayout Time.Time
+    = NoOp
+    | StepLayout Time.Time
     | NodeMsg Graph.NodeId Node.Msg
     | EdgeMsg UndirectedEdgeId Edge.Msg
     | Doubleclick
@@ -133,6 +134,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            model ! []
+
         StepLayout dt ->
             { model | graph = Layout.stepLayout model.graph } ! []
 
@@ -199,14 +203,14 @@ update msg model =
 
         Hold ->
             case model.state of
-                NoOp ->
+                None ->
                     { model | state = MovingCamera model.mousePos model.cameraPos } ! []
 
                 _ ->
                     model ! []
 
         Release ->
-            { model | state = NoOp } ! []
+            { model | state = None } ! []
 
         Move newMousePos ->
             case model.state of
@@ -217,7 +221,7 @@ update msg model =
                     { model | mousePos = newMousePos } ! []
 
         LeaveWindow ->
-            { model | state = NoOp } ! []
+            { model | state = None } ! []
 
 
 updateNodeOutMsg : Graph.NodeId -> Maybe Node.OutMsg -> Model -> ( Model, Cmd Msg )
@@ -238,7 +242,7 @@ updateNodeOutMsg id msg model =
                     in
                         { model
                             | graph = Util.Graph.addEdge (toDirectedEdgeId edgeId) edge model.graph
-                            , state = NoOp
+                            , state = None
                         }
                             ! [ edgeCmd |> Cmd.map (EdgeMsg edgeId) ]
 
@@ -259,25 +263,28 @@ updateNodeOutMsg id msg model =
 view : Util.Misc.Size -> Model -> Html.Html Msg
 view size model =
     let
-        edgeView { from, to, label } =
-            Edge.svgView (getNodePos from model.graph) (getNodePos to model.graph) label
+        singleEdge view { from, to, label } =
+            view (getNodePos from model.graph) (getNodePos to model.graph) label
                 |> Html.map (EdgeMsg <| toUndirectedEdgeId from to)
 
-        edges =
+        edges view =
             Graph.edges model.graph
-                |> List.map edgeView
-
-        nodes =
-            Graph.nodes model.graph
-                |> List.map (\{ id, label } -> Node.baseView label |> Html.map (NodeMsg id))
+                |> List.map (singleEdge view)
 
         connectEdge =
             case model.state of
                 Connecting id ->
-                    [ Edge.line model.mousePos (getNodePos id model.graph) ]
+                    [ Edge.svgView model.mousePos (getNodePos id model.graph) connectEdgeModel
+                        -- the connecting edge doesn't need to handle messages
+                        |> Html.map (always NoOp)
+                    ]
 
                 _ ->
                     []
+
+        nodes view =
+            Graph.nodes model.graph
+                |> List.map (\{ id, label } -> view label |> Html.map (NodeMsg id))
     in
         Util.Css.layers 0
             [ Util.Css.userSelect False
@@ -298,7 +305,7 @@ view size model =
                             (Vec2.getY model.cameraPos)
                         ]
                     ]
-                    (edges ++ connectEdge ++ nodes)
+                    (edges Edge.svgView ++ connectEdge ++ nodes Node.svgView)
                 ]
             , Html.div
                 [ MyCss.class [ MyCss.Nodes ]
@@ -307,10 +314,17 @@ view size model =
                     , Vec2.getY model.cameraPos |> Css.px |> Css.top
                     ]
                 ]
-                (Graph.nodes model.graph
-                    |> List.map (\{ id, label } -> Node.view label |> Html.map (NodeMsg id))
-                )
+                (edges Edge.view ++ nodes Node.view)
             ]
+
+
+connectEdgeModel : Edge.Model
+connectEdgeModel =
+    let
+        ( model, _ ) =
+            Edge.init
+    in
+        model
 
 
 onDoubleClick : Msg -> SvgCore.Attribute Msg
