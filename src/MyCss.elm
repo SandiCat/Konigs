@@ -63,7 +63,7 @@ css =
             , left (pct 100)
             , marginLeft (px 20)
             , transform (translateY (pct -50))
-            , zIndex 100
+            , zIndex (int 100)
             , displayFlex
             , flexDirection row
             ]
@@ -92,7 +92,7 @@ css =
                position on top of the node.
             -}
             [ position absolute
-            , property "pointer-events" "none"
+            , pointerEvents None
             ]
         , (.) Node
             [ width (pct 100)
@@ -100,7 +100,7 @@ css =
             , left (pct -50)
             , top (pct -50)
             , position absolute
-            , property "pointer-events" "auto"
+            , pointerEvents Auto
             , children
                 [ Css.Elements.div
                     [ width (pct 100)
@@ -124,6 +124,18 @@ css =
         ]
 
 
-zIndex : Int -> Mixin
-zIndex i =
-    property "z-index" <| toString i
+pointerEvents : PointerEventsSetting -> Css.Mixin
+pointerEvents setting =
+    (case setting of
+        Auto ->
+            "auto"
+
+        None ->
+            "none"
+    )
+        |> property "pointer-events"
+
+
+type PointerEventsSetting
+    = Auto
+    | None
