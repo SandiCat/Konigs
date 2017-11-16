@@ -4,6 +4,7 @@ import TypedSvg as Svg
 import TypedSvg.Attributes.InPx as SvgAttPx
 import TypedSvg.Attributes as SvgAtt
 import TypedSvg.Core as SvgCore exposing (Svg)
+import TypedSvg.Types as SvgTypes
 import Color
 import MetaContent
 import Content.Term as Term
@@ -178,13 +179,13 @@ view model =
             ]
 
 
-baseView : Model -> Svg Msg
-baseView model =
+svgView : Model -> Svg Msg
+svgView model =
     Svg.circle
         [ SvgAttPx.cx <| Vec2.getX model.pos
         , SvgAttPx.cy <| Vec2.getY model.pos
         , SvgAttPx.r model.radius
-        , SvgAtt.fill Color.white
+        , SvgAtt.fill (SvgTypes.Fill Color.white)
         , SvgAtt.stroke <| Color.rgb 94 129 193
         , SvgAttPx.strokeWidth 7
         ]
