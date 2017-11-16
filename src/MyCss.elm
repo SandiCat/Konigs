@@ -32,6 +32,8 @@ type CssClasses
     | DescriptionToolbar
     | DescriptionText
     | DescriptionEmpty
+    | Edge
+    | EdgeContent
 
 
 type CssIds
@@ -117,6 +119,15 @@ css =
             , top (pct 50)
             , padding (px 20)
             ]
+        , (.) Edge
+            [ position absolute
+            , displayFlex
+            , alignItems center
+            , justifyContent center
+            , pointerEvents None
+            ]
+        , (.) EdgeContent
+            [ pointerEvents Auto ]
         , html
             [ overflow hidden
             , position absolute

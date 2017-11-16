@@ -83,6 +83,18 @@
     padding: 20px;
 }
 
+.MyCssEdge {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.MyCssEdgeContent {
+    pointer-events: auto;
+}
+
 html {
     overflow: hidden;
     position: absolute;
