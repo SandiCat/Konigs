@@ -33,7 +33,7 @@ type CssClasses
     | DescriptionText
     | DescriptionEmpty
     | Edge
-    | EdgeContent
+    | EdgeCont
 
 
 type CssIds
@@ -119,15 +119,14 @@ css =
             , top (pct 50)
             , padding (px 20)
             ]
-        , (.) Edge
+        , (.) EdgeCont
             [ position absolute
-            , displayFlex
-            , alignItems center
-            , justifyContent center
             , pointerEvents None
             ]
-        , (.) EdgeContent
-            [ pointerEvents Auto ]
+        , (.) Edge
+            [ translate2 (pct -50) (pct -50) |> transform
+            , pointerEvents Auto
+            ]
         , html
             [ overflow hidden
             , position absolute

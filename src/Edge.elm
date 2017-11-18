@@ -19,6 +19,7 @@ import Material.Button as Button
 import Material.Icon as Icon
 import Material
 import Material.Options as Options
+import Array exposing (Array)
 
 
 -- MODEL
@@ -26,13 +27,19 @@ import Material.Options as Options
 
 type alias Model =
     { mdl : Material.Model
-    , mouseOver : Bool
+    , mouseOver : Array Bool
+
+    {- Both the Edge content (the buttons that appear) and the whole edge (the SVG background)
+       have to listen for mouse over/out events and if either of them is mouseovered, the
+       content has to be displayed. Hence an array (length 2) with one Bool for the content
+       and one for the line, keeping the state of "mouse-overing".
+    -}
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    Model Material.model False ! []
+    Model Material.model (Array.repeat 2 False) ! []
 
 
 
@@ -42,8 +49,7 @@ init =
 type Msg
     = MdlMsg (Material.Msg Msg)
     | NoOp
-    | MouseOver
-    | MouseOut
+    | MouseOver Int Bool -- id (index) of which state to change and what to change it to
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -53,15 +59,10 @@ update msg model =
             Material.update MdlMsg msg_ model
 
         NoOp ->
-            model
-                ! []
-                |> Debug.log "x click"
+            model ! []
 
-        MouseOver ->
-            { model | mouseOver = True } ! []
-
-        MouseOut ->
-            { model | mouseOver = False } ! []
+        MouseOver id newState ->
+            { model | mouseOver = Array.set id newState model.mouseOver } ! []
 
 
 
@@ -70,44 +71,38 @@ update msg model =
 
 view : Vec2 -> Vec2 -> Model -> Html.Html Msg
 view pos1 pos2 model =
-    let
-        ( x1, y1 ) =
-            Vec2.toTuple pos1
-
-        ( x2, y2 ) =
-            Vec2.toTuple pos2
-
-        ( x, y ) =
-            -- top left corner
-            [ ( x1, y1 ), ( x2, y2 ), ( x1, y2 ), ( x2, y1 ) ]
-                |> List.sortBy Tuple.first
-                |> List.sortBy Tuple.second
-                |> List.head
-                |> Maybe.withDefault ( 0, 0 )
-    in
-        Html.div
-            [ MyCss.class [ MyCss.Edge ]
-            , Util.Css.style
-                [ x |> Css.px |> Css.left
-                , y |> Css.px |> Css.top
-                , Vec2.sub pos1 pos2 |> Vec2.getX |> abs |> Css.px |> Css.width
-                , Vec2.sub pos1 pos2 |> Vec2.getY |> abs |> Css.px |> Css.height
+    if Array.foldl (||) False model.mouseOver then
+        let
+            ( x, y ) =
+                -- the middle of the edge
+                Vec2.add pos1 pos2
+                    |> Vec2.scale 0.5
+                    |> Vec2.toTuple
+        in
+            Html.div
+                [ MyCss.class [ MyCss.Edge ]
+                , SvgEvents.onMouseOver (MouseOver 1 True)
+                , SvgEvents.onMouseOut (MouseOver 1 False)
                 ]
-            ]
-            [ if model.mouseOver then
-                Html.div [ MyCss.class [ MyCss.EdgeContent ] ]
-                    [ Button.render
-                        MdlMsg
-                        [ 0 ]
-                        model.mdl
-                        [ Button.icon
-                        , Options.onClick NoOp
-                        ]
-                        [ Icon.i "clear" ]
+                [ Button.render
+                    MdlMsg
+                    [ 0 ]
+                    model.mdl
+                    [ Button.icon
+                    , Options.onClick NoOp
                     ]
-              else
-                Html.div [] []
-            ]
+                    [ Icon.i "clear" ]
+                ]
+                |> List.singleton
+                |> Html.div
+                    [ MyCss.class [ MyCss.EdgeCont ]
+                    , Util.Css.style
+                        [ x |> Css.px |> Css.left
+                        , y |> Css.px |> Css.top
+                        ]
+                    ]
+    else
+        Html.div [] []
 
 
 svgView : Vec2 -> Vec2 -> Model -> Svg Msg
@@ -130,8 +125,8 @@ svgView pos1 pos2 model =
             , SvgAtt.stroke Color.black
             , SvgAtt.strokeOpacity (SvgTypes.Opacity 0)
             , SvgAttPx.strokeWidth 40
-            , SvgEvents.onMouseOver MouseOver
-            , SvgEvents.onMouseOut MouseOut
+            , SvgEvents.onMouseOver (MouseOver 0 True)
+            , SvgEvents.onMouseOut (MouseOver 0 False)
             ]
             []
         ]
