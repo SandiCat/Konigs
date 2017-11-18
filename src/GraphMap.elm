@@ -274,7 +274,7 @@ view size model =
         connectEdge =
             case model.state of
                 Connecting id ->
-                    [ Edge.svgView model.mousePos (getNodePos id model.graph) connectEdgeModel
+                    [ Edge.svgView (offsetMouse model) (getNodePos id model.graph) connectEdgeModel
                         -- the connecting edge doesn't need to handle messages
                         |> Html.map (always NoOp)
                     ]
