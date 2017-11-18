@@ -9,7 +9,7 @@ import Graph
 import IntDict
 import Focus exposing ((=>))
 import Node
-import Util.Misc
+import Util
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
@@ -107,7 +107,7 @@ stepLayout graph =
 
         update ctx =
             Focus.update
-                (Util.Misc.nodeFocus => Util.Misc.labelFocus => pos)
+                (Util.nodeFocus => Util.labelFocus => pos)
                 (stepPos ctx)
                 ctx
     in

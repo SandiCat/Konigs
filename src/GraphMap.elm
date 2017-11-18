@@ -21,7 +21,7 @@ import Html.Events as Events
 import Util.Css
 import MyCss
 import Css
-import Util.Misc
+import Util
 import Math.Vector2 as Vec2 exposing (Vec2)
 import Edge
 import Util.Graph exposing (EdgeId)
@@ -156,7 +156,7 @@ update msg model =
 
                 focusUpdate ctx node =
                     Focus.update
-                        (Util.Misc.nodeFocus => Util.Misc.labelFocus)
+                        (Util.nodeFocus => Util.labelFocus)
                         (always node)
                         ctx
 
@@ -260,7 +260,7 @@ updateNodeOutMsg id msg model =
 -- VIEW
 
 
-view : Util.Misc.Size -> Model -> Html.Html Msg
+view : Util.Size -> Model -> Html.Html Msg
 view size model =
     let
         singleEdge view { from, to, label } =

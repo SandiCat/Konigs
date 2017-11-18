@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Task
 import Html
-import Util.Misc as Util
+import Util
 import Window
 import GraphMap
 import Util.Cmd
