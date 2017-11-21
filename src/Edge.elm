@@ -20,6 +20,7 @@ import Material.Icon as Icon
 import Material
 import Material.Options as Options
 import Array exposing (Array)
+import Util
 
 
 -- MODEL
@@ -50,19 +51,34 @@ type Msg
     = MdlMsg (Material.Msg Msg)
     | NoOp
     | MouseOver Int Bool -- id (index) of which state to change and what to change it to
+    | ToParent OutMsg
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+type OutMsg
+    = Remove
+
+
+update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update msg model =
     case msg of
         MdlMsg msg_ ->
-            Material.update MdlMsg msg_ model
+            let
+                ( model_, cmd ) =
+                    Material.update MdlMsg msg_ model
+            in
+                ( model_, cmd, Nothing )
 
         NoOp ->
-            model ! []
+            ( model, Cmd.none, Nothing )
 
         MouseOver id newState ->
-            { model | mouseOver = Array.set id newState model.mouseOver } ! []
+            ( { model | mouseOver = Array.set id newState model.mouseOver }
+            , Cmd.none
+            , Nothing
+            )
+
+        ToParent outMsg ->
+            ( model, Cmd.none, Just outMsg )
 
 
 

@@ -26,6 +26,7 @@ import Math.Vector2 as Vec2 exposing (Vec2)
 import Edge
 import Util.Graph exposing (EdgeId)
 import Mouse
+import OutMessage
 
 
 -- MODEL
@@ -172,23 +173,24 @@ update msg model =
                 model3 ! [ Cmd.map (NodeMsg id) cmd, outMsgCmd ]
 
         EdgeMsg id edgeMsg ->
-            case
-                Util.Graph.getEdge (toDirectedEdgeId id) model.graph
-                    |> Maybe.map (Edge.update edgeMsg)
-            of
-                Just ( edge, edgeCmd ) ->
-                    let
-                        { from, to } =
-                            toDirectedEdgeId id
+            let
+                dirId =
+                    toDirectedEdgeId id
 
-                        updateCtx ctx =
-                            { ctx | outgoing = IntDict.update to (always <| Just edge) ctx.outgoing }
-                    in
-                        { model | graph = Graph.update from (Maybe.map updateCtx) model.graph }
-                            ! [ Cmd.map (EdgeMsg id) edgeCmd ]
-
-                Nothing ->
-                    model ! []
+                update_ edge =
+                    Edge.update edgeMsg edge
+                        |> OutMessage.mapComponent
+                            (\newEdge ->
+                                { model
+                                    | graph = Util.Graph.updateEdge dirId (always newEdge) model.graph
+                                }
+                            )
+                        |> OutMessage.mapCmd (EdgeMsg id)
+                        |> OutMessage.evaluateMaybe (updateEdgeOutMsg dirId) Cmd.none
+            in
+                Util.Graph.getEdge dirId model.graph
+                    |> Maybe.map update_
+                    |> Maybe.withDefault (model ! [])
 
         Doubleclick ->
             let
@@ -254,6 +256,13 @@ updateNodeOutMsg id msg model =
 
         Nothing ->
             model ! []
+
+
+updateEdgeOutMsg : Util.Graph.EdgeId -> Edge.OutMsg -> Model -> ( Model, Cmd Msg )
+updateEdgeOutMsg id outMsg model =
+    case outMsg of
+        Edge.Remove ->
+            { model | graph = Util.Graph.removeEdge id model.graph } ! []
 
 
 
