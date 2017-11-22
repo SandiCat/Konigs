@@ -177,14 +177,14 @@ update msg model =
                 dirId =
                     toDirectedEdgeId id
 
+                setEdge newEdge =
+                    { model
+                        | graph = Util.Graph.updateEdge dirId (always newEdge) model.graph
+                    }
+
                 update_ edge =
                     Edge.update edgeMsg edge
-                        |> OutMessage.mapComponent
-                            (\newEdge ->
-                                { model
-                                    | graph = Util.Graph.updateEdge dirId (always newEdge) model.graph
-                                }
-                            )
+                        |> OutMessage.mapComponent setEdge
                         |> OutMessage.mapCmd (EdgeMsg id)
                         |> OutMessage.evaluateMaybe (updateEdgeOutMsg dirId) Cmd.none
             in
