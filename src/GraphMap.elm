@@ -283,7 +283,8 @@ view size model =
         connectEdge =
             case model.state of
                 Connecting id ->
-                    [ Edge.svgView (offsetMouse model) (getNodePos id model.graph) connectEdgeModel
+                    [ Tuple.first Edge.init
+                        |> Edge.svgView (offsetMouse model) (getNodePos id model.graph)
                         -- the connecting edge doesn't need to handle messages
                         |> Html.map (always NoOp)
                     ]
@@ -325,15 +326,6 @@ view size model =
                 ]
                 (edges Edge.view ++ nodes Node.view)
             ]
-
-
-connectEdgeModel : Edge.Model
-connectEdgeModel =
-    let
-        ( model, _ ) =
-            Edge.init
-    in
-        model
 
 
 onDoubleClick : Msg -> SvgCore.Attribute Msg
