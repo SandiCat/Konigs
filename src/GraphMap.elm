@@ -143,34 +143,26 @@ update msg model =
 
         NodeMsg id nodeMsg ->
             let
-                ( maybeNode, cmd, nodeOutMsg ) =
-                    case Graph.get id model.graph of
-                        Nothing ->
-                            ( Nothing, Cmd.none, Nothing )
-
-                        Just ctx ->
-                            let
-                                ( node, cmd, outMsg ) =
-                                    Node.update nodeMsg ctx.node.label
-                            in
-                                ( Just node, cmd, outMsg )
-
-                focusUpdate ctx node =
+                focusUpdate node ctx =
                     Focus.update
                         (Util.nodeFocus => Util.labelFocus)
                         (always node)
                         ctx
 
-                updateCtx maybeCtx =
-                    Maybe.map2 focusUpdate maybeCtx maybeNode
+                setNode newNode =
+                    { model
+                        | graph = Graph.update id (focusUpdate newNode |> Maybe.map) model.graph
+                    }
 
-                model2 =
-                    { model | graph = Graph.update id updateCtx model.graph }
-
-                ( model3, outMsgCmd ) =
-                    updateNodeOutMsg id nodeOutMsg model2
+                update_ ctx =
+                    Node.update nodeMsg ctx.node.label
+                        |> OutMessage.mapComponent setNode
+                        |> OutMessage.mapCmd (NodeMsg id)
+                        |> OutMessage.evaluateMaybe (updateNodeOutMsg id) Cmd.none
             in
-                model3 ! [ Cmd.map (NodeMsg id) cmd, outMsgCmd ]
+                Graph.get id model.graph
+                    |> Maybe.map update_
+                    |> Maybe.withDefault (model ! [])
 
         EdgeMsg id edgeMsg ->
             let
@@ -226,13 +218,13 @@ update msg model =
             { model | state = None } ! []
 
 
-updateNodeOutMsg : Graph.NodeId -> Maybe Node.OutMsg -> Model -> ( Model, Cmd Msg )
+updateNodeOutMsg : Graph.NodeId -> Node.OutMsg -> Model -> ( Model, Cmd Msg )
 updateNodeOutMsg id msg model =
     case msg of
-        Just Node.MouseDown ->
+        Node.MouseDown ->
             { model | state = Connecting id } ! []
 
-        Just Node.MouseUp ->
+        Node.MouseUp ->
             case model.state of
                 Connecting id_ ->
                     let
@@ -251,11 +243,8 @@ updateNodeOutMsg id msg model =
                 _ ->
                     model ! []
 
-        Just Node.Remove ->
+        Node.Remove ->
             { model | graph = Graph.remove id model.graph } ! []
-
-        Nothing ->
-            model ! []
 
 
 updateEdgeOutMsg : Util.Graph.EdgeId -> Edge.OutMsg -> Model -> ( Model, Cmd Msg )
