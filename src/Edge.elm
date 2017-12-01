@@ -105,7 +105,7 @@ view pos1 pos2 model =
                     [ 0 ]
                     model.mdl
                     [ Button.icon
-                    , Options.onClick NoOp
+                    , Options.onClick (ToParent Remove)
                     ]
                     [ Icon.i "clear" ]
                 ]
