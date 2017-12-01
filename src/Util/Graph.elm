@@ -63,13 +63,17 @@ removeEdge { from, to } graph =
         Graph.update from (Maybe.map updateCtx) graph
 
 
+existsEdge : EdgeId -> Graph n e -> Bool
+existsEdge { from, to } graph =
+    Graph.get from graph
+        |> Maybe.andThen (.outgoing >> IntDict.member to >> Just)
+        |> Maybe.withDefault False
+
+
 updateEdge : EdgeId -> (e -> e) -> Graph n e -> Graph n e
 updateEdge id update graph =
     let
-        maybeEdge =
-            getEdge id graph |> Maybe.map update
-
         updateCtx ctx =
-            { ctx | outgoing = IntDict.update id.to (always maybeEdge) ctx.outgoing }
+            { ctx | outgoing = IntDict.update id.to (Maybe.map update) ctx.outgoing }
     in
         Graph.update id.from (Maybe.map updateCtx) graph
