@@ -10,7 +10,7 @@ import Material
 import Material.Typography as Typo
 import Material.Options as Options
 import Content.Term.Description as Description
-import Option exposing (Option)
+import Util
 import Util.Css
 import Dom
 import Task
@@ -52,9 +52,9 @@ init id text =
             ! [ Cmd.map DescriptionMsg descCmd ]
 
 
-menuOptions : List (Option Msg)
+menuOptions : List (Util.Option Msg)
 menuOptions =
-    [ Option ToggleDescription "description" "Toggle description"
+    [ Util.Option ToggleDescription "description" "Toggle description"
     ]
 
 

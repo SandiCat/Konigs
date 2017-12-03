@@ -19,7 +19,7 @@ parts = [
     generate_part("""\
         Mdl{0} model ->
             {0}.menuOptions
-            |> List.map (Option.map Msg{0})"""),
+            |> List.map (Util.optionMap Msg{0})"""),
     generate_part_union("Msg{0} {0}.Msg", "    "),
     generate_part("""\
         Msg{0} action ->
@@ -53,7 +53,7 @@ module MetaContent exposing (..)
 
 import Html
 import MyCss
-import Option exposing (Option)
+import Util
 
 {}
 
@@ -63,7 +63,7 @@ import Option exposing (Option)
 type MultiModel
 {}
 
-menuOptions: MultiModel -> List (Option MultiMsg)
+menuOptions: MultiModel -> List (Misc.Option MultiMsg)
 menuOptions multiModel =
     case multiModel of
 {}

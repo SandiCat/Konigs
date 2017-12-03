@@ -15,3 +15,15 @@ labelFocus =
 
 type alias Size =
     { width : Int, height : Int }
+
+
+type alias Option msg =
+    { msg : msg
+    , icon : String
+    , tooltip : String
+    }
+
+
+optionMap : (a -> b) -> Option a -> Option b
+optionMap f old =
+    { old | msg = f old.msg }

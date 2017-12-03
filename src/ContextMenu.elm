@@ -5,7 +5,7 @@ import Html.Events as Events
 import Html.Attributes
 import MyCss
 import MetaContent
-import Option exposing (Option)
+import Util
 import Material.Button as Button
 import Material.Icon as Icon
 import Material
@@ -66,17 +66,17 @@ update msg model =
 -- VIEW
 
 
-baseOptions : List (Option OutMsg)
+baseOptions : List (Util.Option OutMsg)
 baseOptions =
-    [ Option Remove "delete" "Delete"
+    [ Util.Option Remove "delete" "Delete"
     ]
 
 
-view : List (Option MetaContent.MultiMsg) -> Model -> Html.Html Msg
+view : List (Util.Option MetaContent.MultiMsg) -> Model -> Html.Html Msg
 view options model =
     let
         options_ =
-            List.map (Option.map ContentMsg) options ++ baseOptions
+            List.map (Util.optionMap ContentMsg) options ++ baseOptions
     in
         List.map2 (optionView model)
             (List.range 0 <| List.length options_ - 1)
@@ -88,7 +88,7 @@ view options model =
                 ]
 
 
-optionView : Model -> Int -> Option OutMsg -> Html.Html Msg
+optionView : Model -> Int -> Util.Option OutMsg -> Html.Html Msg
 optionView model id option =
     Button.render MdlMsg
         [ id ]
