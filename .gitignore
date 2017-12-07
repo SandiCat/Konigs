@@ -2,6 +2,7 @@ elm-stuff/
 build/elm.js
 Test.elm
 snippets.txt
+debugging/
 
 *.sublime-project
 
