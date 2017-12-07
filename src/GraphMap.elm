@@ -330,6 +330,11 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         (Mouse.moves (\{ x, y } -> Move <| Vec2.vec2 (toFloat x) (toFloat y))
+            :: Mouse.ups (always Release)
+            {- This stops the connecting edge from randomly hanging in the air,
+               but it's extremly questionable. What if this Msg comes before
+               Node.MouseUp? It doesn't ever happen, but it's hacky.
+            -}
             :: AnimationFrame.diffs StepLayout
             :: List.map
                 (\{ id, label } -> Sub.map (NodeMsg id) (Node.subscriptions label))
