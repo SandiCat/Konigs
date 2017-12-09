@@ -307,7 +307,7 @@ view size model =
                     (edges Edge.svgView ++ connectEdge ++ nodes Node.svgView)
                 ]
             , Html.div
-                [ MyCss.class [ MyCss.Nodes ]
+                [ MyCss.class [ MyCss.GraphMap ]
                 , Util.Css.style
                     [ Vec2.getX model.cameraPos |> Css.px |> Css.left
                     , Vec2.getY model.cameraPos |> Css.px |> Css.top

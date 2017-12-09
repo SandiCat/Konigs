@@ -28,7 +28,7 @@ type CssClasses
     | TermDescription
     | ContextMenu
     | MenuIcon
-    | Nodes
+    | GraphMap
     | DescriptionToolbar
     | DescriptionText
     | DescriptionEmpty
@@ -83,7 +83,7 @@ css =
             ]
         , selector "::selection" [ property "background" "#ee7883" |> important ]
         , selector "::-moz-selection" [ property "background" "#ee7883" |> important ]
-        , (.) Nodes
+        , (.) GraphMap
             [ position absolute
             ]
         , (.) NodeCont
