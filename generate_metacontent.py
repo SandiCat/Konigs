@@ -63,7 +63,7 @@ import Util
 type MultiModel
 {}
 
-menuOptions: MultiModel -> List (Misc.Option MultiMsg)
+menuOptions: MultiModel -> List (Util.Option MultiMsg)
 menuOptions multiModel =
     case multiModel of
 {}
