@@ -153,8 +153,8 @@ view model =
                 Html.div [] []
             ]
         , Html.div
-            [ Events.onMouseOver MouseOver
-            , Events.onMouseOut MouseOut
+            [ Events.onMouseEnter MouseOver
+            , Events.onMouseLeave MouseOut
             , Events.onMouseDown (ToParent MouseDown)
             , Events.onMouseUp (ToParent MouseUp)
             ]
