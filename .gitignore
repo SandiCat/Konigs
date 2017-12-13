@@ -3,6 +3,7 @@ build/elm.js
 Test.elm
 snippets.txt
 debugging/
+.fuse_hidden*
 
 *.sublime-project
 
