@@ -10,6 +10,7 @@ import IntDict
 import Focus exposing ((=>))
 import Node
 import Util
+import Util.Graph
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
@@ -75,22 +76,13 @@ nodeRepulse ctx graph =
             Vec2.direction thisVec vec
                 |> Vec2.scale (c3 / (Vec2.distance thisVec vec) ^ 2)
 
-        keep { id, label } =
-            case Graph.get id graph of
-                Nothing ->
-                    False
-
-                Just { node, incoming, outgoing } ->
-                    (id /= ctx.node.id)
-                        && (IntDict.member id neighbours |> not)
-                        && ((IntDict.isEmpty incoming |> not) || (IntDict.isEmpty outgoing |> not))
+        keep { node, incoming, outgoing } =
+            (node.id /= ctx.node.id) && (IntDict.member node.id neighbours |> not)
     in
-        if IntDict.isEmpty ctx.incoming && IntDict.isEmpty ctx.outgoing then
-            []
-        else
-            Graph.nodes graph
-                |> List.filter keep
-                |> List.map ((\node -> node.label.pos) >> calculateForce)
+        Util.Graph.connectedNodes ctx.node.id graph
+            |> List.filterMap (\id -> Graph.get id graph)
+            |> List.filter keep
+            |> List.map (.node >> .label >> .pos >> calculateForce)
 
 
 stepLayout : Graph_ e -> Graph_ e
