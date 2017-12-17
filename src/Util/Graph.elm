@@ -104,3 +104,25 @@ connectedNodesRec graph visited queue =
 
         [] ->
             visited
+
+
+{-| Might be used for memoisation in the distant future.
+-}
+disjointGraphs : Graph n e -> List (Set Graph.NodeId)
+disjointGraphs graph =
+    Graph.nodeIds graph
+        |> List.foldl
+            (\id { totalVisited, listVisited } ->
+                if Set.member id totalVisited then
+                    { totalVisited = totalVisited, listVisited = listVisited }
+                else
+                    let
+                        visited =
+                            connectedNodesRec graph Set.empty [ id ]
+                    in
+                        { totalVisited = Set.union visited totalVisited
+                        , listVisited = visited :: listVisited
+                        }
+            )
+            { totalVisited = Set.empty, listVisited = [] }
+        |> .listVisited
