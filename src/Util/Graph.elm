@@ -1,7 +1,8 @@
 module Util.Graph exposing (..)
 
 import Graph exposing (Graph)
-import IntDict
+import IntDict exposing (IntDict)
+import Set exposing (Set)
 
 
 type alias EdgeId =
@@ -77,3 +78,29 @@ updateEdge id update graph =
             { ctx | outgoing = IntDict.update id.to (Maybe.map update) ctx.outgoing }
     in
         Graph.update id.from (Maybe.map updateCtx) graph
+
+
+{-| Returns the IDs of all nodes connected to the given node, treating every edge
+as bidirectional. BFS or close to it, should be linear or O(n log n) in the number
+of nodes. Didn't find a good way to get this with the Graph package so I wrote my own.
+-}
+connectedNodes : Graph.NodeId -> Graph n e -> List Graph.NodeId
+connectedNodes id graph =
+    connectedNodesRec graph Set.empty [ id ]
+        |> Set.toList
+
+
+connectedNodesRec : Graph n e -> Set Graph.NodeId -> List Graph.NodeId -> Set Graph.NodeId
+connectedNodesRec graph visited queue =
+    case queue of
+        id :: rest ->
+            Graph.get id graph
+                |> Maybe.map (\ctx -> IntDict.union ctx.incoming ctx.outgoing)
+                |> Maybe.withDefault IntDict.empty
+                |> IntDict.keys
+                |> List.filter (\id -> Set.member id visited |> not)
+                |> (++) rest
+                |> connectedNodesRec graph (Set.insert id visited)
+
+        [] ->
+            visited
