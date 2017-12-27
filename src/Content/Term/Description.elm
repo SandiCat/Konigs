@@ -4,7 +4,9 @@ import Html
 import Html.Attributes as Att
 import Html.Events as Events
 import Util.Cmd
-import Json.Decode
+import Json.Decode as Decode
+import Json.Decode.Extra exposing ((|:))
+import Json.Encode as Encode
 import MyCss
 import Material
 import Material.Button as Button
@@ -30,6 +32,23 @@ type alias Model =
 init : String -> ( Model, Cmd Msg )
 init text =
     Model Material.model text False False ! []
+
+
+
+-- JSON
+
+
+decode : Decode.Decoder ( Model, Cmd Msg )
+decode =
+    Decode.succeed init
+        |: (Decode.field "text" Decode.string)
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.object
+        [ ( "text", Encode.string model.text )
+        ]
 
 
 

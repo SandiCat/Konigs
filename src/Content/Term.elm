@@ -4,7 +4,6 @@ import Html
 import Html.Attributes as Att
 import Html.Events as Events
 import Util.Cmd
-import Json.Decode as Json
 import MyCss
 import Material
 import Material.Typography as Typo
@@ -13,6 +12,10 @@ import Content.Term.Description as Description
 import Util
 import Util.Css
 import Dom
+import Json.Decode as Decode
+import Json.Decode.Extra exposing ((|:))
+import Json.Encode.Extra
+import Json.Encode as Encode
 import Task
 
 
@@ -42,20 +45,40 @@ convertText text =
         Just text
 
 
+fullInit : Int -> String -> ( Description.Model, Cmd Description.Msg ) -> ( Model, Cmd Msg )
+fullInit id text ( desc, descCmd ) =
+    Model ("term-input-" ++ toString id) (convertText text) False desc Material.model
+        ! [ Cmd.map DescriptionMsg descCmd ]
+
+
 init : Int -> String -> ( Model, Cmd Msg )
 init id text =
-    let
-        ( desc, descCmd ) =
-            Description.init ""
-    in
-        Model ("term-input-" ++ toString id) (convertText text) False desc Material.model
-            ! [ Cmd.map DescriptionMsg descCmd ]
+    fullInit id text (Description.init "")
 
 
 menuOptions : List (Util.Option Msg)
 menuOptions =
     [ Util.Option ToggleDescription "description" "Toggle description"
     ]
+
+
+
+-- JSON
+
+
+decode : Int -> Decode.Decoder ( Model, Cmd Msg )
+decode id =
+    Decode.succeed (fullInit id)
+        |: (Decode.field "text" Decode.string)
+        |: (Decode.field "description" Description.decode)
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.object
+        [ ( "text", Json.Encode.Extra.maybe Encode.string model.text )
+        , ( "description", Description.encode model.description )
+        ]
 
 
 
@@ -113,8 +136,8 @@ update msg model =
 onDivBlur : (String -> msg) -> Html.Attribute msg
 onDivBlur msg =
     -- activates when a contenteditable element has finished editing
-    Json.at [ "target", "textContent" ] Json.string
-        |> Json.map msg
+    Decode.at [ "target", "textContent" ] Decode.string
+        |> Decode.map msg
         |> Events.on "blur"
 
 
@@ -123,14 +146,14 @@ onEnter msg =
     let
         isEnter code =
             if code == 13 then
-                Json.succeed msg
+                Decode.succeed msg
             else
-                Json.fail "not ENTER"
+                Decode.fail "not ENTER"
     in
         Events.onWithOptions
             "keydown"
             { stopPropagation = False, preventDefault = True }
-            (Json.andThen isEnter Events.keyCode)
+            (Decode.andThen isEnter Events.keyCode)
 
 
 viewInside : Model -> Html.Html Msg
