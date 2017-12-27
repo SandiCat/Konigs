@@ -6,8 +6,7 @@ import TypedSvg.Attributes as SvgAtt
 import TypedSvg.Core as SvgCore exposing (Svg)
 import TypedSvg.Types as SvgTypes
 import Color
-import MetaContent
-import Content.Term as Term
+import Term
 import Html.Events as Events
 import Html
 import MyCss

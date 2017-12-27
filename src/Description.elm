@@ -1,4 +1,4 @@
-module Content.Term.Description exposing (..)
+module Description exposing (..)
 
 import Html
 import Html.Attributes as Att

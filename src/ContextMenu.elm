@@ -4,7 +4,6 @@ import Html
 import Html.Events as Events
 import Html.Attributes
 import MyCss
-import MetaContent
 import Util
 import Material.Button as Button
 import Material.Icon as Icon

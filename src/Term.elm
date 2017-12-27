@@ -1,4 +1,4 @@
-module Content.Term exposing (..)
+module Term exposing (..)
 
 import Html
 import Html.Attributes as Att
@@ -8,7 +8,7 @@ import MyCss
 import Material
 import Material.Typography as Typo
 import Material.Options as Options
-import Content.Term.Description as Description
+import Description
 import Util
 import Util.Css
 import Dom
