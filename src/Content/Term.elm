@@ -76,7 +76,7 @@ decode id =
 encode : Model -> Encode.Value
 encode model =
     Encode.object
-        [ ( "text", Json.Encode.Extra.maybe Encode.string model.text )
+        [ ( "text", Encode.string <| Maybe.withDefault "" model.text )
         , ( "description", Description.encode model.description )
         ]
 
