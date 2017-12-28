@@ -24,28 +24,19 @@ import Math.Vector2 as Vec2 exposing (Vec2)
 type alias Model =
     { pos : Vec2
     , radius : Float
-    , content : MetaContent.MultiModel
+    , term : Term.Model
     , mouseOver : Bool
     , contextMenu : ContextMenu.Model
     }
 
 
-init :
-    Vec2
-    -> ( MetaContent.MultiModel, Cmd MetaContent.MultiMsg )
-    -> ( Model, Cmd Msg )
-init pos ( content, contentCmd ) =
-    Model pos 60 content False ContextMenu.init ! [ Cmd.map ContentMsg contentCmd ]
-
-
-termNode : Int -> String -> Vec2 -> ( Model, Cmd Msg )
-termNode id text pos =
+init : Int -> String -> Vec2 -> ( Model, Cmd Msg )
+init id text pos =
     let
-        ( content, cmd ) =
+        ( term, termCmd ) =
             Term.init id text
     in
-        ( content |> MetaContent.MdlTerm, Cmd.map MetaContent.MsgTerm cmd )
-            |> init pos
+        Model pos 60 term False ContextMenu.init ! [ Cmd.map TermMsg termCmd ]
 
 
 
@@ -53,7 +44,7 @@ termNode id text pos =
 
 
 type Msg
-    = ContentMsg MetaContent.MultiMsg
+    = TermMsg Term.Msg
     | ToParent OutMsg
     | ContextMenuMsg ContextMenu.Msg
     | MouseOver
@@ -69,16 +60,12 @@ type OutMsg
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update msg model =
     case msg of
-        ContentMsg contentMsg ->
-            case MetaContent.update contentMsg model.content of
-                Just ( content, cmd ) ->
-                    ( { model | content = content }
-                    , Cmd.map ContentMsg cmd
-                    , Nothing
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none, Nothing )
+        TermMsg termMsg ->
+            let
+                ( term, cmd ) =
+                    Term.update termMsg model.term
+            in
+                ( { model | term = term }, Cmd.map TermMsg cmd, Nothing )
 
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
@@ -112,17 +99,10 @@ updateContextMenu msg model =
         Just ContextMenu.Remove ->
             ( model, Cmd.none, Just Remove )
 
-        Just (ContextMenu.ContentMsg msg) ->
-            let
-                ( content, cmd ) =
-                    MetaContent.update msg model.content
-                        |> Maybe.withDefault ( model.content, Cmd.none )
-            in
-                ( { model | content = content }
-                , Cmd.map ContentMsg cmd
-                , Nothing
-                )
+        Just ContextMenu.ToggleDescription ->
+            ( model, Cmd.none, Nothing )
 
+        -- description is to be moved from Term to Node
         Nothing ->
             ( model, Cmd.none, Nothing )
 
@@ -141,11 +121,10 @@ view model =
     Html.div
         [ MyCss.class [ MyCss.Node ] ]
         [ Html.div []
-            [ MetaContent.viewOutside model.content
-                |> Html.map ContentMsg
+            [ Term.viewOutside model.term
+                |> Html.map TermMsg
             , if model.mouseOver || model.contextMenu.mouseOver then
                 ContextMenu.view
-                    (MetaContent.menuOptions model.content)
                     model.contextMenu
                     |> Html.map ContextMenuMsg
               else
@@ -157,8 +136,8 @@ view model =
             , Events.onMouseDown (ToParent MouseDown)
             , Events.onMouseUp (ToParent MouseUp)
             ]
-            [ MetaContent.viewInside model.content
-                |> Html.map ContentMsg
+            [ Term.viewInside model.term
+                |> Html.map TermMsg
             ]
         ]
         |> List.singleton
@@ -197,4 +176,5 @@ svgView model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.map ContentMsg (MetaContent.subscriptions model.content)
+    Term.subscriptions model.term
+        |> Sub.map TermMsg
