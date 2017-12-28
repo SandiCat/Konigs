@@ -1,4 +1,4 @@
-module Term exposing (..)
+module Heading exposing (..)
 
 import Html
 import Html.Attributes as Att
@@ -28,8 +28,8 @@ type alias Model =
 
     {- Text is Nothing when it's purposefully empty. Placeholder text will be
        displayed in the view with proper styling. However, text can also be `Just ""`.
-       This is used when a previously empty Term is being edited. In this case, TermText
-       should be in focus. If a still-empty TermText blurs, text should become Nothing.
+       This is used when a previously empty Heading is being edited. In this case, HeadingText
+       should be in focus. If a still-empty HeadingText blurs, text should become Nothing.
     -}
     , showDescription : Bool
     , description : Description.Model
@@ -47,7 +47,7 @@ convertText text =
 
 fullInit : Int -> String -> ( Description.Model, Cmd Description.Msg ) -> ( Model, Cmd Msg )
 fullInit id text ( desc, descCmd ) =
-    Model ("term-input-" ++ toString id) (convertText text) False desc Material.model
+    Model ("heading-input-" ++ toString id) (convertText text) False desc Material.model
         ! [ Cmd.map DescriptionMsg descCmd ]
 
 
@@ -177,7 +177,7 @@ viewInside model =
             Just text ->
                 Html.div
                     [ Att.contenteditable True
-                    , MyCss.class [ MyCss.TermText ]
+                    , MyCss.class [ MyCss.HeadingText ]
                     , onDivBlur InputChange
                     , onEnter OnEnter
                     , Att.id model.inputId

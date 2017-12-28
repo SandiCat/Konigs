@@ -24,8 +24,8 @@ type CssClasses
     = Node
     | NodeCont
     | MaxSize
-    | TermText
-    | TermDescription
+    | HeadingText
+    | HeadingDescription
     | ContextMenu
     | MenuIcon
     | GraphMap
@@ -51,12 +51,12 @@ css =
             [ height (pct 100)
             , width (pct 100)
             ]
-        , (.) TermText
+        , (.) HeadingText
             [ textAlign center
             , width (pct 80)
             , focus [ outline none ]
             ]
-        , (.) TermDescription
+        , (.) HeadingDescription
             [ minHeight (px 100)
             , padding (px 10)
             , backgroundColor (rgba 140 168 218 0.8)

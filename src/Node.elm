@@ -6,7 +6,7 @@ import TypedSvg.Attributes as SvgAtt
 import TypedSvg.Core as SvgCore exposing (Svg)
 import TypedSvg.Types as SvgTypes
 import Color
-import Term
+import Heading
 import Html.Events as Events
 import Html
 import MyCss
@@ -24,7 +24,7 @@ import Math.Vector2 as Vec2 exposing (Vec2)
 type alias Model =
     { pos : Vec2
     , radius : Float
-    , term : Term.Model
+    , heading : Heading.Model
     , mouseOver : Bool
     , contextMenu : ContextMenu.Model
     }
@@ -33,10 +33,10 @@ type alias Model =
 init : Int -> String -> Vec2 -> ( Model, Cmd Msg )
 init id text pos =
     let
-        ( term, termCmd ) =
-            Term.init id text
+        ( heading, headingCmd ) =
+            Heading.init id text
     in
-        Model pos 60 term False ContextMenu.init ! [ Cmd.map TermMsg termCmd ]
+        Model pos 60 heading False ContextMenu.init ! [ Cmd.map HeadingMsg headingCmd ]
 
 
 
@@ -44,7 +44,7 @@ init id text pos =
 
 
 type Msg
-    = TermMsg Term.Msg
+    = HeadingMsg Heading.Msg
     | ToParent OutMsg
     | ContextMenuMsg ContextMenu.Msg
     | MouseOver
@@ -60,12 +60,12 @@ type OutMsg
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update msg model =
     case msg of
-        TermMsg termMsg ->
+        HeadingMsg headingMsg ->
             let
-                ( term, cmd ) =
-                    Term.update termMsg model.term
+                ( heading, cmd ) =
+                    Heading.update headingMsg model.heading
             in
-                ( { model | term = term }, Cmd.map TermMsg cmd, Nothing )
+                ( { model | heading = heading }, Cmd.map HeadingMsg cmd, Nothing )
 
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
@@ -102,7 +102,7 @@ updateContextMenu msg model =
         Just ContextMenu.ToggleDescription ->
             ( model, Cmd.none, Nothing )
 
-        -- description is to be moved from Term to Node
+        -- description is to be moved from Heading to Node
         Nothing ->
             ( model, Cmd.none, Nothing )
 
@@ -121,8 +121,8 @@ view model =
     Html.div
         [ MyCss.class [ MyCss.Node ] ]
         [ Html.div []
-            [ Term.viewOutside model.term
-                |> Html.map TermMsg
+            [ Heading.viewOutside model.heading
+                |> Html.map HeadingMsg
             , if model.mouseOver || model.contextMenu.mouseOver then
                 ContextMenu.view
                     model.contextMenu
@@ -136,8 +136,8 @@ view model =
             , Events.onMouseDown (ToParent MouseDown)
             , Events.onMouseUp (ToParent MouseUp)
             ]
-            [ Term.viewInside model.term
-                |> Html.map TermMsg
+            [ Heading.viewInside model.heading
+                |> Html.map HeadingMsg
             ]
         ]
         |> List.singleton
@@ -176,5 +176,5 @@ svgView model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Term.subscriptions model.term
-        |> Sub.map TermMsg
+    Heading.subscriptions model.heading
+        |> Sub.map HeadingMsg
