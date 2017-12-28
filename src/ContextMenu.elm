@@ -4,7 +4,6 @@ import Html
 import Html.Events as Events
 import Html.Attributes
 import MyCss
-import MetaContent
 import Util
 import Material.Button as Button
 import Material.Icon as Icon
@@ -39,7 +38,7 @@ type Msg
 
 type OutMsg
     = Remove
-    | ContentMsg MetaContent.MultiMsg
+    | ToggleDescription
 
 
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
@@ -66,26 +65,23 @@ update msg model =
 -- VIEW
 
 
-baseOptions : List (Util.Option OutMsg)
-baseOptions =
+options : List (Util.Option OutMsg)
+options =
     [ Util.Option Remove "delete" "Delete"
+    , Util.Option ToggleDescription "description" "Toggle description"
     ]
 
 
-view : List (Util.Option MetaContent.MultiMsg) -> Model -> Html.Html Msg
-view options model =
-    let
-        options_ =
-            List.map (Util.optionMap ContentMsg) options ++ baseOptions
-    in
-        List.map2 (optionView model)
-            (List.range 0 <| List.length options_ - 1)
-            options_
-            |> Html.div
-                [ MyCss.class [ MyCss.ContextMenu ]
-                , Events.onMouseEnter MouseOver
-                , Events.onMouseLeave MouseOut
-                ]
+view : Model -> Html.Html Msg
+view model =
+    List.map2 (optionView model)
+        (List.range 0 <| List.length options - 1)
+        options
+        |> Html.div
+            [ MyCss.class [ MyCss.ContextMenu ]
+            , Events.onMouseEnter MouseOver
+            , Events.onMouseLeave MouseOut
+            ]
 
 
 optionView : Model -> Int -> Util.Option OutMsg -> Html.Html Msg

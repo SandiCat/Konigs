@@ -1,4 +1,4 @@
-module Content.Term.Description exposing (..)
+module Description exposing (..)
 
 import Html
 import Html.Attributes as Att
@@ -98,7 +98,7 @@ view model =
           else
             Elevation.e4
         , Elevation.transition 250
-        , MyCss.mdlClass MyCss.TermDescription
+        , MyCss.mdlClass MyCss.Description
         , Options.onMouseOver MouseEnter
         , Options.onMouseOut MouseLeave
         , Options.attribute <| Util.Css.userSelect True

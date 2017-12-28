@@ -6,16 +6,15 @@ import TypedSvg.Attributes as SvgAtt
 import TypedSvg.Core as SvgCore exposing (Svg)
 import TypedSvg.Types as SvgTypes
 import Color
-import MetaContent
-import Content.Term as Term
+import Heading
 import Html.Events as Events
 import Html
 import MyCss
 import Util.Css
 import Css
 import ContextMenu
+import Description
 import Platform.Cmd as Cmd
-import Util.Cmd
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
@@ -25,28 +24,27 @@ import Math.Vector2 as Vec2 exposing (Vec2)
 type alias Model =
     { pos : Vec2
     , radius : Float
-    , content : MetaContent.MultiModel
+    , heading : Heading.Model
     , mouseOver : Bool
     , contextMenu : ContextMenu.Model
+    , showDescription : Bool
+    , description : Description.Model
     }
 
 
-init :
-    Vec2
-    -> ( MetaContent.MultiModel, Cmd MetaContent.MultiMsg )
-    -> ( Model, Cmd Msg )
-init pos ( content, contentCmd ) =
-    Model pos 60 content False ContextMenu.init ! [ Cmd.map ContentMsg contentCmd ]
-
-
-termNode : Int -> String -> Vec2 -> ( Model, Cmd Msg )
-termNode id text pos =
+init : Int -> String -> Vec2 -> ( Model, Cmd Msg )
+init id text pos =
     let
-        ( content, cmd ) =
-            Term.init id text
+        ( heading, headingCmd ) =
+            Heading.init id text
+
+        ( desc, descCmd ) =
+            Description.init ""
     in
-        ( content |> MetaContent.MdlTerm, Cmd.map MetaContent.MsgTerm cmd )
-            |> init pos
+        Model pos 60 heading False ContextMenu.init False desc
+            ! [ Cmd.map HeadingMsg headingCmd
+              , Cmd.map DescriptionMsg descCmd
+              ]
 
 
 
@@ -54,9 +52,10 @@ termNode id text pos =
 
 
 type Msg
-    = ContentMsg MetaContent.MultiMsg
+    = HeadingMsg Heading.Msg
     | ToParent OutMsg
     | ContextMenuMsg ContextMenu.Msg
+    | DescriptionMsg Description.Msg
     | MouseOver
     | MouseOut
 
@@ -70,16 +69,12 @@ type OutMsg
 update : Msg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 update msg model =
     case msg of
-        ContentMsg contentMsg ->
-            case MetaContent.update contentMsg model.content of
-                Just ( content, cmd ) ->
-                    ( { model | content = content }
-                    , Cmd.map ContentMsg cmd
-                    , Nothing
-                    )
-
-                Nothing ->
-                    ( model, Cmd.none, Nothing )
+        HeadingMsg headingMsg ->
+            let
+                ( heading, cmd ) =
+                    Heading.update headingMsg model.heading
+            in
+                ( { model | heading = heading }, Cmd.map HeadingMsg cmd, Nothing )
 
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
@@ -100,6 +95,16 @@ update msg model =
                 , outMsg
                 )
 
+        DescriptionMsg descMsg ->
+            let
+                ( desc, descCmd ) =
+                    Description.update descMsg model.description
+            in
+                ( { model | description = desc }
+                , Cmd.map DescriptionMsg descCmd
+                , Nothing
+                )
+
         MouseOver ->
             ( { model | mouseOver = True }, Cmd.none, Nothing )
 
@@ -113,16 +118,8 @@ updateContextMenu msg model =
         Just ContextMenu.Remove ->
             ( model, Cmd.none, Just Remove )
 
-        Just (ContextMenu.ContentMsg msg) ->
-            let
-                ( content, cmd ) =
-                    MetaContent.update msg model.content
-                        |> Maybe.withDefault ( model.content, Cmd.none )
-            in
-                ( { model | content = content }
-                , Cmd.map ContentMsg cmd
-                , Nothing
-                )
+        Just ContextMenu.ToggleDescription ->
+            ( { model | showDescription = not model.showDescription }, Cmd.none, Nothing )
 
         Nothing ->
             ( model, Cmd.none, Nothing )
@@ -142,13 +139,15 @@ view model =
     Html.div
         [ MyCss.class [ MyCss.Node ] ]
         [ Html.div []
-            [ MetaContent.viewOutside model.content
-                |> Html.map ContentMsg
-            , if model.mouseOver || model.contextMenu.mouseOver then
+            [ if model.mouseOver || model.contextMenu.mouseOver then
                 ContextMenu.view
-                    (MetaContent.menuOptions model.content)
                     model.contextMenu
                     |> Html.map ContextMenuMsg
+              else
+                Html.div [] []
+            , if model.showDescription then
+                Description.view model.description
+                    |> Html.map DescriptionMsg
               else
                 Html.div [] []
             ]
@@ -158,8 +157,8 @@ view model =
             , Events.onMouseDown (ToParent MouseDown)
             , Events.onMouseUp (ToParent MouseUp)
             ]
-            [ MetaContent.viewInside model.content
-                |> Html.map ContentMsg
+            [ Heading.view model.heading
+                |> Html.map HeadingMsg
             ]
         ]
         |> List.singleton
@@ -198,4 +197,5 @@ svgView model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.map ContentMsg (MetaContent.subscriptions model.content)
+    Heading.subscriptions model.heading
+        |> Sub.map HeadingMsg

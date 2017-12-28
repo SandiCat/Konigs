@@ -3,16 +3,16 @@
     width: 100%;
 }
 
-.MyCssTermText {
+.MyCssHeadingText {
     text-align: center;
     width: 80%;
 }
 
-.MyCssTermText:focus {
+.MyCssHeadingText:focus {
     outline: none;
 }
 
-.MyCssTermDescription {
+.MyCssDescription {
     min-height: 100px;
     padding: 10px;
     background-color: rgba(140, 168, 218, 0.8);

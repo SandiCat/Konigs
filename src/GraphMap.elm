@@ -72,7 +72,7 @@ init =
             List.map
                 (\i ->
                     Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
-                        |> Node.termNode i ("Test node " ++ toString i)
+                        |> Node.init i ("Test node " ++ toString i)
                         |> Tuple.mapFirst (Graph.Node i)
                         |> Tuple.mapSecond (NodeMsg i |> Cmd.map)
                 )
@@ -190,7 +190,7 @@ update msg model =
                     Util.Graph.newNodeId model.graph
 
                 ( node, nodeCmd ) =
-                    Node.termNode id "" <| offsetMouse model
+                    Node.init id "" <| offsetMouse model
             in
                 { model | graph = Util.Graph.addUnconnectedNode id node model.graph }
                     ! [ nodeCmd |> Cmd.map (NodeMsg id) ]
