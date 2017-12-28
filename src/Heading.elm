@@ -8,7 +8,6 @@ import MyCss
 import Material
 import Material.Typography as Typo
 import Material.Options as Options
-import Description
 import Util
 import Util.Css
 import Dom
@@ -31,8 +30,6 @@ type alias Model =
        This is used when a previously empty Heading is being edited. In this case, HeadingText
        should be in focus. If a still-empty HeadingText blurs, text should become Nothing.
     -}
-    , showDescription : Bool
-    , description : Description.Model
     , mdl : Material.Model
     }
 
@@ -45,21 +42,9 @@ convertText text =
         Just text
 
 
-fullInit : Int -> String -> ( Description.Model, Cmd Description.Msg ) -> ( Model, Cmd Msg )
-fullInit id text ( desc, descCmd ) =
-    Model ("heading-input-" ++ toString id) (convertText text) False desc Material.model
-        ! [ Cmd.map DescriptionMsg descCmd ]
-
-
 init : Int -> String -> ( Model, Cmd Msg )
 init id text =
-    fullInit id text (Description.init "")
-
-
-menuOptions : List (Util.Option Msg)
-menuOptions =
-    [ Util.Option ToggleDescription "description" "Toggle description"
-    ]
+    Model ("heading-input-" ++ toString id) (convertText text) Material.model ! []
 
 
 
@@ -68,16 +53,14 @@ menuOptions =
 
 decode : Int -> Decode.Decoder ( Model, Cmd Msg )
 decode id =
-    Decode.succeed (fullInit id)
+    Decode.succeed (init id)
         |: (Decode.field "text" Decode.string)
-        |: (Decode.field "description" Description.decode)
 
 
 encode : Model -> Encode.Value
 encode model =
     Encode.object
         [ ( "text", Json.Encode.Extra.maybe Encode.string model.text )
-        , ( "description", Description.encode model.description )
         ]
 
 
@@ -88,8 +71,6 @@ encode model =
 type Msg
     = MdlMsg (Material.Msg Msg)
     | InputChange String
-    | DescriptionMsg Description.Msg
-    | ToggleDescription
     | OnEnter
     | BeginEditing
     | NoOp
@@ -100,15 +81,6 @@ update msg model =
     case msg of
         MdlMsg msg_ ->
             Material.update MdlMsg msg_ model
-
-        DescriptionMsg msg_ ->
-            Util.Cmd.update
-                (\x -> { model | description = x })
-                DescriptionMsg
-                (Description.update msg_ model.description)
-
-        ToggleDescription ->
-            { model | showDescription = not model.showDescription } ! []
 
         InputChange newText ->
             { model | text = convertText newText } ! []
@@ -156,8 +128,8 @@ onEnter msg =
             (Decode.andThen isEnter Events.keyCode)
 
 
-viewInside : Model -> Html.Html Msg
-viewInside model =
+view : Model -> Html.Html Msg
+view model =
     Options.div
         [ case model.text of
             Nothing ->
@@ -183,17 +155,6 @@ viewInside model =
                     , Att.id model.inputId
                     ]
                     [ Html.text text ]
-        ]
-
-
-viewOutside : Model -> Html.Html Msg
-viewOutside model =
-    Options.div [ MyCss.mdlClass MyCss.MaxSize ]
-        [ if model.showDescription then
-            Description.view model.description
-                |> Html.map DescriptionMsg
-          else
-            Html.div [] []
         ]
 
 

@@ -98,7 +98,7 @@ view model =
           else
             Elevation.e4
         , Elevation.transition 250
-        , MyCss.mdlClass MyCss.HeadingDescription
+        , MyCss.mdlClass MyCss.Description
         , Options.onMouseOver MouseEnter
         , Options.onMouseOut MouseLeave
         , Options.attribute <| Util.Css.userSelect True

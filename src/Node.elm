@@ -13,8 +13,8 @@ import MyCss
 import Util.Css
 import Css
 import ContextMenu
+import Description
 import Platform.Cmd as Cmd
-import Util.Cmd
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
@@ -27,6 +27,8 @@ type alias Model =
     , heading : Heading.Model
     , mouseOver : Bool
     , contextMenu : ContextMenu.Model
+    , showDescription : Bool
+    , description : Description.Model
     }
 
 
@@ -35,8 +37,14 @@ init id text pos =
     let
         ( heading, headingCmd ) =
             Heading.init id text
+
+        ( desc, descCmd ) =
+            Description.init ""
     in
-        Model pos 60 heading False ContextMenu.init ! [ Cmd.map HeadingMsg headingCmd ]
+        Model pos 60 heading False ContextMenu.init False desc
+            ! [ Cmd.map HeadingMsg headingCmd
+              , Cmd.map DescriptionMsg descCmd
+              ]
 
 
 
@@ -47,6 +55,7 @@ type Msg
     = HeadingMsg Heading.Msg
     | ToParent OutMsg
     | ContextMenuMsg ContextMenu.Msg
+    | DescriptionMsg Description.Msg
     | MouseOver
     | MouseOut
 
@@ -86,6 +95,16 @@ update msg model =
                 , outMsg
                 )
 
+        DescriptionMsg descMsg ->
+            let
+                ( desc, descCmd ) =
+                    Description.update descMsg model.description
+            in
+                ( { model | description = desc }
+                , Cmd.map DescriptionMsg descCmd
+                , Nothing
+                )
+
         MouseOver ->
             ( { model | mouseOver = True }, Cmd.none, Nothing )
 
@@ -100,9 +119,8 @@ updateContextMenu msg model =
             ( model, Cmd.none, Just Remove )
 
         Just ContextMenu.ToggleDescription ->
-            ( model, Cmd.none, Nothing )
+            ( { model | showDescription = not model.showDescription }, Cmd.none, Nothing )
 
-        -- description is to be moved from Heading to Node
         Nothing ->
             ( model, Cmd.none, Nothing )
 
@@ -121,12 +139,15 @@ view model =
     Html.div
         [ MyCss.class [ MyCss.Node ] ]
         [ Html.div []
-            [ Heading.viewOutside model.heading
-                |> Html.map HeadingMsg
-            , if model.mouseOver || model.contextMenu.mouseOver then
+            [ if model.mouseOver || model.contextMenu.mouseOver then
                 ContextMenu.view
                     model.contextMenu
                     |> Html.map ContextMenuMsg
+              else
+                Html.div [] []
+            , if model.showDescription then
+                Description.view model.description
+                    |> Html.map DescriptionMsg
               else
                 Html.div [] []
             ]
@@ -136,7 +157,7 @@ view model =
             , Events.onMouseDown (ToParent MouseDown)
             , Events.onMouseUp (ToParent MouseUp)
             ]
-            [ Heading.viewInside model.heading
+            [ Heading.view model.heading
                 |> Html.map HeadingMsg
             ]
         ]

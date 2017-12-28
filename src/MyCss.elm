@@ -25,7 +25,7 @@ type CssClasses
     | NodeCont
     | MaxSize
     | HeadingText
-    | HeadingDescription
+    | Description
     | ContextMenu
     | MenuIcon
     | GraphMap
@@ -56,7 +56,7 @@ css =
             , width (pct 80)
             , focus [ outline none ]
             ]
-        , (.) HeadingDescription
+        , (.) Description
             [ minHeight (px 100)
             , padding (px 10)
             , backgroundColor (rgba 140 168 218 0.8)
