@@ -67,7 +67,7 @@ removeEdge { from, to } graph =
 existsEdge : EdgeId -> Graph n e -> Bool
 existsEdge { from, to } graph =
     Graph.get from graph
-        |> Maybe.andThen (.outgoing >> IntDict.member to >> Just)
+        |> Maybe.map (.outgoing >> IntDict.member to)
         |> Maybe.withDefault False
 
 
