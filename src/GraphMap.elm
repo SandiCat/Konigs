@@ -48,20 +48,26 @@ type State
     | MovingCamera Vec2 Vec2
 
 
-type alias UndirectedEdgeId =
-    ( Graph.NodeId, Graph.NodeId )
+type UndirectedEdgeId
+    = UndirectedEdgeId ( Graph.NodeId, Graph.NodeId )
 
 
 toDirectedEdgeId : UndirectedEdgeId -> Util.Graph.EdgeId
-toDirectedEdgeId ( a, b ) =
+toDirectedEdgeId (UndirectedEdgeId ( a, b )) =
     -- Edges have random directions in the data structure. Refer to documentation.
     -- However, this function will always give the same direction.
-    Util.Graph.EdgeId a b
+    if a <= b then
+        Util.Graph.EdgeId a b
+    else
+        Util.Graph.EdgeId b a
 
 
 toUndirectedEdgeId : Graph.NodeId -> Graph.NodeId -> UndirectedEdgeId
 toUndirectedEdgeId from to =
-    ( from, to )
+    if from <= to then
+        UndirectedEdgeId ( from, to )
+    else
+        UndirectedEdgeId ( to, from )
 
 
 fullInit :
@@ -112,7 +118,7 @@ init =
                 (\id ->
                     let
                         { from, to } =
-                            toDirectedEdgeId id
+                            toDirectedEdgeId <| UndirectedEdgeId id
                     in
                         Tuple.mapFirst (Graph.Edge from to) Edge.init
                 )
@@ -298,7 +304,7 @@ updateNodeOutMsg id msg model =
                             Edge.init
 
                         edgeId =
-                            ( id, id_ )
+                            UndirectedEdgeId ( id, id_ )
                     in
                         { model
                             | graph = Util.Graph.addEdge (toDirectedEdgeId edgeId) edge model.graph
