@@ -14,24 +14,12 @@ import Util.Graph
 import Math.Vector2 as Vec2 exposing (Vec2)
 
 
-c1 : Float
-c1 =
-    100
-
-
-c2 : Float
-c2 =
-    200
-
-
-c3 : Float
-c3 =
-    500000
-
-
-c4 : Float
-c4 =
-    1
+const =
+    { c1 = 100
+    , c2 = 200
+    , c3 = 500000
+    , c4 = 1
+    }
 
 
 nil : Vec2
@@ -55,7 +43,7 @@ nodeAttract ctx graph =
 
         calculateForce vec =
             Vec2.direction thisVec vec
-                |> Vec2.scale (-c1 * (logBase 10 ((Vec2.distance thisVec vec) / c2)))
+                |> Vec2.scale (-const.c1 * (logBase 10 ((Vec2.distance thisVec vec) / const.c2)))
     in
         IntDict.union ctx.incoming ctx.outgoing
             |> IntDict.keys
@@ -74,7 +62,7 @@ nodeRepulse ctx graph =
 
         calculateForce vec =
             Vec2.direction thisVec vec
-                |> Vec2.scale (c3 / (Vec2.distance thisVec vec) ^ 2)
+                |> Vec2.scale (const.c3 / (Vec2.distance thisVec vec) ^ 2)
 
         keep { node, incoming, outgoing } =
             (node.id /= ctx.node.id) && (IntDict.member node.id neighbours |> not)
@@ -91,7 +79,7 @@ stepLayout graph =
         stepPos ctx pos =
             (nodeRepulse ctx graph ++ nodeAttract ctx graph)
                 |> List.foldr Vec2.add nil
-                |> Vec2.scale c4
+                |> Vec2.scale const.c4
                 |> Vec2.add pos
 
         pos =
