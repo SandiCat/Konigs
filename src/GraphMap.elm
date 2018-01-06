@@ -9,7 +9,6 @@ import TypedSvg.Core as SvgCore exposing (Svg)
 import Graph exposing (Graph)
 import IntDict
 import Node
-import Json.Decode
 import Color
 import Layout
 import AnimationFrame
@@ -27,6 +26,9 @@ import Edge
 import Util.Graph exposing (EdgeId)
 import Mouse
 import OutMessage
+import Json.Decode as Decode
+import Json.Decode.Extra exposing ((|:))
+import Json.Encode as Encode
 
 
 -- MODEL
@@ -62,42 +64,59 @@ toUndirectedEdgeId from to =
     ( from, to )
 
 
-init : ( Model, Cmd Msg )
-init =
+fullInit :
+    Vec2
+    -> List ( Graph.Node Node.Model, Cmd Node.Msg )
+    -> List ( Graph.Edge Edge.Model, Cmd Edge.Msg )
+    -> ( Model, Cmd Msg )
+fullInit camera nodeStates edgeStates =
     let
-        range =
-            List.range 0 5
-
         ( nodes, nodeCmds ) =
             List.map
-                (\i ->
-                    Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
-                        |> Node.init i ("Test node " ++ toString i)
-                        |> Tuple.mapFirst (Graph.Node i)
-                        |> Tuple.mapSecond (NodeMsg i |> Cmd.map)
+                (\( node, cmd ) ->
+                    ( node, Cmd.map (NodeMsg node.id) cmd )
                 )
-                range
+                nodeStates
                 |> List.unzip
 
         ( edges, edgeCmds ) =
-            [ ( 0, 1 ), ( 0, 2 ), ( 2, 3 ), ( 3, 4 ), ( 2, 5 ), ( 2, 4 ) ]
-                |> List.map
-                    (\id ->
-                        let
-                            { from, to } =
-                                toDirectedEdgeId id
-                        in
-                            Tuple.mapFirst (Graph.Edge from to) Edge.init
-                                |> Tuple.mapSecond (EdgeMsg id |> Cmd.map)
-                    )
+            List.map
+                (\( edge, cmd ) ->
+                    ( edge, toUndirectedEdgeId edge.from edge.to |> EdgeMsg |> (flip Cmd.map) cmd )
+                )
+                edgeStates
                 |> List.unzip
     in
         { graph = Graph.fromNodesAndEdges nodes edges
         , state = None
         , mousePos = Vec2.vec2 0 0
-        , cameraPos = Vec2.vec2 0 0
+        , cameraPos = camera
         }
             ! (edgeCmds ++ nodeCmds)
+
+
+init : ( Model, Cmd Msg )
+init =
+    fullInit
+        (Vec2.vec2 0 0)
+        (List.map
+            (\i ->
+                Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
+                    |> Node.init i ("Test node " ++ toString i)
+                    |> Tuple.mapFirst (Graph.Node i)
+            )
+            (List.range 0 5)
+        )
+        ([ ( 0, 1 ), ( 0, 2 ), ( 2, 3 ), ( 3, 4 ), ( 2, 5 ), ( 2, 4 ) ]
+            |> List.map
+                (\id ->
+                    let
+                        { from, to } =
+                            toDirectedEdgeId id
+                    in
+                        Tuple.mapFirst (Graph.Edge from to) Edge.init
+                )
+        )
 
 
 getNodePos : Graph.NodeId -> Graph Node.Model e -> Vec2
@@ -114,6 +133,53 @@ getNodePos id graph =
 offsetMouse : Model -> Vec2
 offsetMouse model =
     Vec2.sub model.mousePos model.cameraPos
+
+
+
+-- JSON
+
+
+extractCmd : { record | label : ( l, cmd ) } -> ( { record | label : l }, cmd )
+extractCmd record =
+    ( { record | label = Tuple.first record.label }, Tuple.second record.label )
+
+
+decode : Decode.Decoder ( Model, Cmd Msg )
+decode =
+    Decode.succeed fullInit
+        |: Decode.field "camera" Util.decodeVec2
+        |: Decode.field "nodes"
+            (Json.Decode.Extra.indexedList
+                (\i ->
+                    Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
+                        |> Node.decode i
+                        |> Util.Graph.decodeNode
+                        |> Decode.map extractCmd
+                 -- dirty solution until position is stil part of node
+                )
+            )
+        |: Decode.field "edges"
+            (Util.Graph.decodeEdge Edge.decode
+                |> Decode.map extractCmd
+                |> Decode.list
+            )
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.object
+        [ ( "camera", Util.encodeVec2 model.cameraPos )
+        , ( "nodes"
+          , Graph.nodes model.graph
+                |> List.map (Util.Graph.encodeNode Node.encode)
+                |> Encode.list
+          )
+        , ( "edges"
+          , Graph.edges model.graph
+                |> List.map (Util.Graph.encodeEdge Edge.encode)
+                |> Encode.list
+          )
+        ]
 
 
 
@@ -319,7 +385,7 @@ view size model =
 
 onDoubleClick : Msg -> SvgCore.Attribute Msg
 onDoubleClick msg =
-    SvgEvents.on "dblclick" <| Json.Decode.succeed msg
+    SvgEvents.on "dblclick" <| Decode.succeed msg
 
 
 

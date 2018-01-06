@@ -3,6 +3,9 @@ module Util.Graph exposing (..)
 import Graph exposing (Graph)
 import IntDict exposing (IntDict)
 import Set exposing (Set)
+import Json.Decode as Decode
+import Json.Decode.Extra exposing ((|:))
+import Json.Encode as Encode
 
 
 type alias EdgeId =
@@ -78,6 +81,38 @@ updateEdge id update graph =
             { ctx | outgoing = IntDict.update id.to (Maybe.map update) ctx.outgoing }
     in
         Graph.update id.from (Maybe.map updateCtx) graph
+
+
+decodeNode : Decode.Decoder n -> Decode.Decoder (Graph.Node n)
+decodeNode decoder =
+    Decode.succeed Graph.Node
+        |: Decode.field "id" Decode.int
+        |: Decode.field "label" decoder
+
+
+encodeNode : (n -> Encode.Value) -> Graph.Node n -> Encode.Value
+encodeNode encoder node =
+    Encode.object
+        [ ( "id", Encode.int node.id )
+        , ( "label", encoder node.label )
+        ]
+
+
+decodeEdge : Decode.Decoder e -> Decode.Decoder (Graph.Edge e)
+decodeEdge decoder =
+    Decode.succeed Graph.Edge
+        |: Decode.field "to" Decode.int
+        |: Decode.field "from" Decode.int
+        |: Decode.field "label" decoder
+
+
+encodeEdge : (e -> Encode.Value) -> Graph.Edge e -> Encode.Value
+encodeEdge encoder edge =
+    Encode.object
+        [ ( "to", Encode.int edge.to )
+        , ( "from", Encode.int edge.from )
+        , ( "label", encoder edge.label )
+        ]
 
 
 {-| Returns the IDs of all nodes connected to the given node, treating every edge

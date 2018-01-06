@@ -16,6 +16,9 @@ import ContextMenu
 import Description
 import Platform.Cmd as Cmd
 import Math.Vector2 as Vec2 exposing (Vec2)
+import Json.Decode as Decode
+import Json.Decode.Extra exposing ((|:))
+import Json.Encode as Encode
 
 
 -- MODEL
@@ -32,19 +35,43 @@ type alias Model =
     }
 
 
+fullInit :
+    Vec2
+    -> Float
+    -> ( Heading.Model, Cmd Heading.Msg )
+    -> ( Description.Model, Cmd Description.Msg )
+    -> ( Model, Cmd Msg )
+fullInit pos radius ( heading, headingCmd ) ( desc, descCmd ) =
+    Model pos radius heading False ContextMenu.init False desc
+        ! [ Cmd.map HeadingMsg headingCmd
+          , Cmd.map DescriptionMsg descCmd
+          ]
+
+
 init : Int -> String -> Vec2 -> ( Model, Cmd Msg )
 init id text pos =
-    let
-        ( heading, headingCmd ) =
-            Heading.init id text
+    fullInit pos 60 (Heading.init id text) (Description.init "")
 
-        ( desc, descCmd ) =
-            Description.init ""
-    in
-        Model pos 60 heading False ContextMenu.init False desc
-            ! [ Cmd.map HeadingMsg headingCmd
-              , Cmd.map DescriptionMsg descCmd
-              ]
+
+
+-- JSON
+
+
+decode : Int -> Vec2 -> Decode.Decoder ( Model, Cmd Msg )
+decode id pos =
+    Decode.succeed (fullInit pos)
+        |: (Decode.field "radius" Decode.float)
+        |: (Decode.field "heading" <| Heading.decode id)
+        |: (Decode.field "description" Description.decode)
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.object
+        [ ( "radius", Encode.float model.radius )
+        , ( "heading", Heading.encode model.heading )
+        , ( "description", Description.encode model.description )
+        ]
 
 
 

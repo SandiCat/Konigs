@@ -21,6 +21,9 @@ import Material
 import Material.Options as Options
 import Array exposing (Array)
 import Util
+import Json.Decode as Decode
+import Json.Decode.Extra exposing ((|:))
+import Json.Encode as Encode
 
 
 -- MODEL
@@ -41,6 +44,20 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     Model Material.model (Array.repeat 2 False) ! []
+
+
+
+-- JSON
+
+
+decode : Decode.Decoder ( Model, Cmd Msg )
+decode =
+    Decode.succeed init
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.null
 
 
 
