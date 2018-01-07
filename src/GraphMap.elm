@@ -48,28 +48,6 @@ type State
     | MovingCamera Vec2 Vec2
 
 
-type UndirectedEdgeId
-    = UndirectedEdgeId ( Graph.NodeId, Graph.NodeId )
-
-
-toDirectedEdgeId : UndirectedEdgeId -> Util.Graph.EdgeId
-toDirectedEdgeId (UndirectedEdgeId ( a, b )) =
-    -- Edges have random directions in the data structure. Refer to documentation.
-    -- However, this function will always give the same direction.
-    if a <= b then
-        Util.Graph.EdgeId a b
-    else
-        Util.Graph.EdgeId b a
-
-
-toUndirectedEdgeId : Graph.NodeId -> Graph.NodeId -> UndirectedEdgeId
-toUndirectedEdgeId from to =
-    if from <= to then
-        UndirectedEdgeId ( from, to )
-    else
-        UndirectedEdgeId ( to, from )
-
-
 fullInit :
     Vec2
     -> List ( Graph.Node Node.Model, Cmd Node.Msg )
@@ -88,7 +66,7 @@ fullInit camera nodeStates edgeStates =
         ( edges, edgeCmds ) =
             List.map
                 (\( edge, cmd ) ->
-                    ( edge, toUndirectedEdgeId edge.from edge.to |> EdgeMsg |> (flip Cmd.map) cmd )
+                    ( edge, Util.Graph.EdgeId edge.from edge.to |> EdgeMsg |> (flip Cmd.map) cmd )
                 )
                 edgeStates
                 |> List.unzip
@@ -114,14 +92,8 @@ init =
             (List.range 0 5)
         )
         ([ ( 0, 1 ), ( 0, 2 ), ( 2, 3 ), ( 3, 4 ), ( 2, 5 ), ( 2, 4 ) ]
-            |> List.map
-                (\id ->
-                    let
-                        { from, to } =
-                            toDirectedEdgeId <| UndirectedEdgeId id
-                    in
-                        Tuple.mapFirst (Graph.Edge from to) Edge.init
-                )
+            |> List.map (\( a, b ) -> Tuple.mapFirst (Graph.Edge a b) Edge.init)
+         -- direction is arbitrary, see docs
         )
 
 
@@ -196,7 +168,7 @@ type Msg
     = NoOp
     | StepLayout Time.Time
     | NodeMsg Graph.NodeId Node.Msg
-    | EdgeMsg UndirectedEdgeId Edge.Msg
+    | EdgeMsg Util.Graph.EdgeId Edge.Msg
     | Doubleclick
     | Hold
     | Release
@@ -238,21 +210,18 @@ update msg model =
 
         EdgeMsg id edgeMsg ->
             let
-                dirId =
-                    toDirectedEdgeId id
-
                 setEdge newEdge =
                     { model
-                        | graph = Util.Graph.updateEdge dirId (always newEdge) model.graph
+                        | graph = Util.Graph.updateEdge id (always newEdge) model.graph
                     }
 
                 update_ edge =
                     Edge.update edgeMsg edge
                         |> OutMessage.mapComponent setEdge
                         |> OutMessage.mapCmd (EdgeMsg id)
-                        |> OutMessage.evaluateMaybe (updateEdgeOutMsg dirId) Cmd.none
+                        |> OutMessage.evaluateMaybe (updateEdgeOutMsg id) Cmd.none
             in
-                Util.Graph.getEdge dirId model.graph
+                Util.Graph.getEdge id model.graph
                     |> Maybe.map update_
                     |> Maybe.withDefault (model ! [])
 
@@ -304,10 +273,11 @@ updateNodeOutMsg id msg model =
                             Edge.init
 
                         edgeId =
-                            UndirectedEdgeId ( id, id_ )
+                            -- order is arbitrary, see docs
+                            Util.Graph.EdgeId id id_
                     in
                         { model
-                            | graph = Util.Graph.addEdge (toDirectedEdgeId edgeId) edge model.graph
+                            | graph = Util.Graph.addEdge edgeId edge model.graph
                             , state = None
                         }
                             ! [ edgeCmd |> Cmd.map (EdgeMsg edgeId) ]
@@ -335,7 +305,7 @@ view size model =
     let
         singleEdge view { from, to, label } =
             view (getNodePos from model.graph) (getNodePos to model.graph) label
-                |> Html.map (EdgeMsg <| toUndirectedEdgeId from to)
+                |> Html.map (EdgeMsg <| Util.Graph.EdgeId from to)
 
         edges view =
             Graph.edges model.graph
