@@ -1,4 +1,4 @@
-module Layout exposing (stepLayout, drawForces)
+module Layout exposing (stepLayout, drawForces, randomlyArange)
 
 import TypedSvg as Svg
 import TypedSvg.Attributes.InPx as SvgAttPx
@@ -12,6 +12,7 @@ import Node
 import Util
 import Util.Graph
 import Math.Vector2 as Vec2 exposing (Vec2)
+import Random
 
 
 const =
@@ -73,6 +74,11 @@ nodeRepulse ctx graph =
             |> List.map (.node >> .label >> .pos >> calculateForce)
 
 
+posFocus : Focus.Focus { b | pos : a } a
+posFocus =
+    Focus.create .pos (\f rec -> { rec | pos = f rec.pos })
+
+
 stepLayout : Graph_ e -> Graph_ e
 stepLayout graph =
     let
@@ -82,12 +88,9 @@ stepLayout graph =
                 |> Vec2.scale const.c4
                 |> Vec2.add pos
 
-        pos =
-            Focus.create .pos (\f rec -> { rec | pos = f rec.pos })
-
         update ctx =
             Focus.update
-                (Util.nodeFocus => Util.labelFocus => pos)
+                (Util.nodeFocus => Util.labelFocus => posFocus)
                 (stepPos ctx)
                 ctx
     in
@@ -123,3 +126,34 @@ drawForces graph =
             graph
             |> List.concat
             |> Svg.g []
+
+
+randomlyArrange : Graph_ e -> Graph_ e
+randomlyArrange graph =
+    let
+        nodes =
+            Graph.nodes graph
+
+        coordinateGen =
+            -- the range could be tailored to width and height, but it should converge either way
+            Random.float 0 600
+
+        randomPositions =
+            Random.pair coordinateGen coordinateGen
+                |> Random.map Vec2.fromTuple
+                |> Random.list (List.length nodes)
+                -- the seed could be kept in state and updated if variation is needed, but it's not
+                |> (flip Random.step) (Random.initialSeed 1337)
+                |> Tuple.first
+
+        update node pos =
+            Focus.update
+                (Util.labelFocus => posFocus)
+                (always pos)
+                node
+    in
+        -- there's no better way than taking the graph apart and putting it back together
+        -- Graph.map2Nodes is not provided
+        Graph.fromNodesAndEdges
+            (List.map2 update nodes randomPositions)
+            (Graph.edges graph)

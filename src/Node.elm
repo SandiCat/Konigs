@@ -57,9 +57,9 @@ init id text pos =
 -- JSON
 
 
-decode : Int -> Vec2 -> Decode.Decoder ( Model, Cmd Msg )
-decode id pos =
-    Decode.succeed (fullInit pos)
+decode : Int -> Decode.Decoder ( Model, Cmd Msg )
+decode id =
+    Decode.succeed (fullInit <| Vec2.vec2 0 0)
         |: (Decode.field "radius" Decode.float)
         |: (Decode.field "heading" <| Heading.decode id)
         |: (Decode.field "description" Description.decode)

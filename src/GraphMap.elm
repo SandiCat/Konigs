@@ -71,7 +71,9 @@ fullInit camera nodeStates edgeStates =
                 edgeStates
                 |> List.unzip
     in
-        { graph = Graph.fromNodesAndEdges nodes edges
+        { graph =
+            Graph.fromNodesAndEdges nodes edges
+                |> Layout.randomlyArange
         , state = None
         , mousePos = Vec2.vec2 0 0
         , cameraPos = camera
@@ -85,8 +87,7 @@ init =
         (Vec2.vec2 0 0)
         (List.map
             (\i ->
-                Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
-                    |> Node.init i ("Test node " ++ toString i)
+                Node.init i ("Test node " ++ toString i) (Vec2.vec2 0 0)
                     |> Tuple.mapFirst (Graph.Node i)
             )
             (List.range 0 5)
@@ -129,11 +130,9 @@ decode =
         |: Decode.field "nodes"
             (Json.Decode.Extra.indexedList
                 (\i ->
-                    Vec2.vec2 (toFloat <| 500 + 30 * i) (toFloat <| 300 + (-1) ^ i * 30 * i)
-                        |> Node.decode i
+                    Node.decode i
                         |> Util.Graph.decodeNode
                         |> Decode.map extractCmd
-                 -- dirty solution until position is stil part of node
                 )
             )
         |: Decode.field "edges"
