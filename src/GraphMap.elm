@@ -73,7 +73,7 @@ fullInit camera nodeStates edgeStates =
     in
         { graph =
             Graph.fromNodesAndEdges nodes edges
-                |> Layout.randomlyArange
+                |> Layout.randomlyArrange
         , state = None
         , mousePos = Vec2.vec2 0 0
         , cameraPos = camera

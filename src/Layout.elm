@@ -1,4 +1,4 @@
-module Layout exposing (stepLayout, drawForces, randomlyArange)
+module Layout exposing (stepLayout, drawForces, randomlyArrange)
 
 import TypedSvg as Svg
 import TypedSvg.Attributes.InPx as SvgAttPx
