@@ -13,19 +13,19 @@ import Util.Cmd
 
 type alias Model =
     { size : Util.Size
-    , mouseManipulator : GraphMap.Model
+    , graphMap : GraphMap.Model
     }
 
 
 init : ( Model, Cmd Msg )
 init =
     let
-        ( child, childCmd ) =
+        ( graphMap, graphMapCmd ) =
             GraphMap.init
     in
-        Model (Util.Size 0 0) child
+        Model (Util.Size 0 0) graphMap
             ! [ Task.perform Resize Window.size
-              , childCmd |> Cmd.map GraphMapMsg
+              , graphMapCmd |> Cmd.map GraphMapMsg
               ]
 
 
@@ -46,9 +46,9 @@ update msg model =
 
         GraphMapMsg msg_ ->
             Util.Cmd.update
-                (\x -> { model | mouseManipulator = x })
+                (\x -> { model | graphMap = x })
                 GraphMapMsg
-                (GraphMap.update msg_ model.mouseManipulator)
+                (GraphMap.update msg_ model.graphMap)
 
 
 
@@ -57,7 +57,7 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    GraphMap.view model.size model.mouseManipulator
+    GraphMap.view model.size model.graphMap
         |> Html.map GraphMapMsg
 
 
@@ -69,7 +69,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Window.resizes Resize
-        , GraphMap.subscriptions model.mouseManipulator
+        , GraphMap.subscriptions model.graphMap
             |> Sub.map GraphMapMsg
         ]
 
