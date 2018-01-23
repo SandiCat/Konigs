@@ -4,7 +4,7 @@
     "repository": "https://github.com/user/project.git",
     "license": "BSD3",
     "source-directories": [
-        "src"
+        "src/elm"
     ],
     "exposed-modules": [],
     "dependencies": {
@@ -30,8 +30,8 @@
     "elm-version": "0.18.0 <= v < 0.19.0",
     "sublime-build": {
         "output": {
-            "path": "build/elm.js"
+            "path": "/dev/null"
         },
-        "main": "src/Main.elm"
+        "main": "src/elm/Main.elm"
     }
 }

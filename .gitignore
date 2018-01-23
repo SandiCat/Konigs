@@ -4,7 +4,10 @@ Test.elm
 snippets.txt
 debugging/
 .fuse_hidden*
+node_modules/
 
 *.sublime-project
 
 sublime\.sublime-workspace
+
+dist/bundle\.js
