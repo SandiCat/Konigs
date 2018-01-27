@@ -26,6 +26,7 @@ const config = {
         use: [
           'style-loader',
           'css-loader',
+          "postcss-loader",
           'elm-css-webpack-loader'
         ]
       }

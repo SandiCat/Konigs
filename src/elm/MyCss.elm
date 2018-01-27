@@ -82,7 +82,6 @@ css =
             , textAlign center
             ]
         , selector "::selection" [ property "background" "#ee7883" |> important ]
-        , selector "::-moz-selection" [ property "background" "#ee7883" |> important ]
         , (.) GraphMap
             [ position absolute
             ]
