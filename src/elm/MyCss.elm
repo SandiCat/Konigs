@@ -28,7 +28,7 @@ type CssClasses
     | Description
     | ContextMenu
     | MenuIcon
-    | GraphMap
+    | AbsolutePos
     | DescriptionToolbar
     | DescriptionText
     | DescriptionEmpty
@@ -82,7 +82,7 @@ css =
             , textAlign center
             ]
         , selector "::selection" [ property "background" "#ee7883" |> important ]
-        , (.) GraphMap
+        , (.) AbsolutePos
             [ position absolute
             ]
         , (.) NodeCont

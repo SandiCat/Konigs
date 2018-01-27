@@ -326,9 +326,10 @@ view size model =
             Graph.nodes model.graph
                 |> List.map (\{ id, label } -> view label |> Html.map (NodeMsg id))
     in
-        Util.Css.layers 0
+        Html.div
             [ Util.Css.userSelect False
             , Events.onMouseLeave LeaveWindow
+            , MyCss.class [ MyCss.AbsolutePos ]
             ]
             [ Svg.svg
                 [ onDoubleClick Doubleclick
@@ -347,8 +348,10 @@ view size model =
                     ]
                     (edges Edge.svgView ++ connectEdge ++ nodes Node.svgView)
                 ]
+                |> List.singleton
+                |> Html.div [ MyCss.class [ MyCss.AbsolutePos ] ]
             , Html.div
-                [ MyCss.class [ MyCss.GraphMap ]
+                [ MyCss.class [ MyCss.AbsolutePos ]
                 , Util.Css.style
                     [ Vec2.getX model.cameraPos |> Css.px |> Css.left
                     , Vec2.getY model.cameraPos |> Css.px |> Css.top

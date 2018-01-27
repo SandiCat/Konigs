@@ -16,19 +16,6 @@ style =
     Css.asPairs >> Html.Attributes.style
 
 
-layers : Int -> List (Html.Attribute msg) -> List (Html.Html msg) -> Html.Html msg
-layers startIndex attrs list =
-    List.map2
-        (\i elem ->
-            Html.div
-                [ style [ startIndex + i |> zIndex, Css.position Css.absolute ] ]
-                [ elem ]
-        )
-        (List.range 0 (List.length list))
-        list
-        |> Html.div attrs
-
-
 userSelect : Bool -> Html.Attribute msg
 userSelect selectable =
     let
