@@ -4,7 +4,8 @@
     "repository": "https://github.com/user/project.git",
     "license": "BSD3",
     "source-directories": [
-        "src/elm"
+        "src/elm",
+        "node_modules/elm-local-storage-ports/lib/elm"
     ],
     "exposed-modules": [],
     "dependencies": {
