@@ -139,12 +139,14 @@ view model =
                 Typo.title
         , Options.center
         , MyCss.mdlClass MyCss.MaxSize
+        , if model.text == Nothing then
+            Options.onClick BeginEditing
+          else
+            Options.nop
         ]
         [ case model.text of
             Nothing ->
-                Html.i
-                    [ Events.onClick BeginEditing ]
-                    [ Html.text "empty" ]
+                Html.i [] [ Html.text "empty" ]
 
             Just text ->
                 Html.div
