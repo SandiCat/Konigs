@@ -22,8 +22,7 @@ import Task
 
 
 type alias Model =
-    { inputId : String
-    , text : Maybe String
+    { text : Maybe String
 
     {- Text is Nothing when it's purposefully empty. Placeholder text will be
        displayed in the view with proper styling. However, text can also be `Just ""`.
@@ -42,18 +41,18 @@ convertText text =
         Just text
 
 
-init : Int -> String -> ( Model, Cmd Msg )
-init id text =
-    Model ("heading-input-" ++ toString id) (convertText text) Material.model ! []
+init : String -> ( Model, Cmd Msg )
+init text =
+    Model (convertText text) Material.model ! []
 
 
 
 -- JSON
 
 
-decode : Int -> Decode.Decoder ( Model, Cmd Msg )
-decode id =
-    Decode.succeed (init id)
+decode : Decode.Decoder ( Model, Cmd Msg )
+decode =
+    Decode.succeed init
         |: (Decode.field "text" Decode.string)
 
 
@@ -68,11 +67,15 @@ encode model =
 -- UPDATE
 
 
+type Id
+    = Id String
+
+
 type Msg
     = MdlMsg (Material.Msg Msg)
     | InputChange String
-    | OnEnter
-    | BeginEditing
+    | OnEnter Id
+    | BeginEditing Id
     | NoOp
 
 
@@ -85,15 +88,15 @@ update msg model =
         InputChange newText ->
             { model | text = convertText newText } ! []
 
-        OnEnter ->
+        OnEnter (Id id) ->
             model
-                ! [ Dom.blur model.inputId
+                ! [ Dom.blur id
                         |> Task.attempt (\_ -> NoOp)
                   ]
 
-        BeginEditing ->
+        BeginEditing (Id id) ->
             { model | text = Just "" }
-                ! [ Dom.focus model.inputId
+                ! [ Dom.focus id
                         |> Task.attempt (\_ -> NoOp)
                   ]
 
@@ -128,36 +131,40 @@ onEnter msg =
             (Decode.andThen isEnter Events.keyCode)
 
 
-view : Model -> Html.Html Msg
-view model =
-    Options.div
-        [ case model.text of
-            Nothing ->
-                Typo.caption
+view : Int -> Model -> Html.Html Msg
+view id model =
+    let
+        stringId =
+            "heading-" ++ toString id
+    in
+        Options.div
+            [ case model.text of
+                Nothing ->
+                    Typo.caption
 
-            Just _ ->
-                Typo.title
-        , Options.center
-        , MyCss.mdlClass MyCss.MaxSize
-        , if model.text == Nothing then
-            Options.onClick BeginEditing
-          else
-            Options.nop
-        ]
-        [ case model.text of
-            Nothing ->
-                Html.i [] [ Html.text "empty" ]
+                Just _ ->
+                    Typo.title
+            , Options.center
+            , MyCss.mdlClass MyCss.MaxSize
+            , if model.text == Nothing then
+                Options.onClick <| BeginEditing <| Id stringId
+              else
+                Options.nop
+            ]
+            [ case model.text of
+                Nothing ->
+                    Html.i [] [ Html.text "empty" ]
 
-            Just text ->
-                Html.div
-                    [ Att.contenteditable True
-                    , MyCss.class [ MyCss.HeadingText ]
-                    , onDivBlur InputChange
-                    , onEnter OnEnter
-                    , Att.id model.inputId
-                    ]
-                    [ Html.text text ]
-        ]
+                Just text ->
+                    Html.div
+                        [ Att.contenteditable True
+                        , MyCss.class [ MyCss.HeadingText ]
+                        , onDivBlur InputChange
+                        , onEnter <| OnEnter <| Id stringId
+                        , Att.id stringId
+                        ]
+                        [ Html.text text ]
+            ]
 
 
 

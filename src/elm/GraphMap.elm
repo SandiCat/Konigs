@@ -87,7 +87,7 @@ init =
         (Vec2.vec2 0 0)
         (List.map
             (\i ->
-                Node.init i ("Test node " ++ toString i) (Vec2.vec2 0 0)
+                Node.init ("Test node " ++ toString i) (Vec2.vec2 0 0)
                     |> Tuple.mapFirst (Graph.Node i)
             )
             (List.range 0 5)
@@ -128,12 +128,9 @@ decode =
     Decode.succeed fullInit
         |: Decode.field "camera" Util.decodeVec2
         |: Decode.field "nodes"
-            (Json.Decode.Extra.indexedList
-                (\i ->
-                    Node.decode i
-                        |> Util.Graph.decodeNode
-                        |> Decode.map extractCmd
-                )
+            (Util.Graph.decodeNode Node.decode
+                |> Decode.map extractCmd
+                |> Decode.list
             )
         |: Decode.field "edges"
             (Util.Graph.decodeEdge Edge.decode
@@ -230,7 +227,7 @@ update msg model =
                     Util.Graph.newNodeId model.graph
 
                 ( node, nodeCmd ) =
-                    Node.init id "" <| offsetMouse model
+                    Node.init "" <| offsetMouse model
             in
                 { model | graph = Util.Graph.addUnconnectedNode id node model.graph }
                     ! [ nodeCmd |> Cmd.map (NodeMsg id) ]
@@ -357,7 +354,10 @@ view size model =
                     , Vec2.getY model.cameraPos |> Css.px |> Css.top
                     ]
                 ]
-                (edges Edge.view ++ nodes Node.view)
+                (Graph.nodes model.graph
+                    |> List.map (\{ id, label } -> Node.view id label |> Html.map (NodeMsg id))
+                    |> (++) (edges Edge.view)
+                )
             ]
 
 

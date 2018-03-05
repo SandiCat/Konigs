@@ -48,20 +48,20 @@ fullInit pos radius ( heading, headingCmd ) ( desc, descCmd ) =
           ]
 
 
-init : Int -> String -> Vec2 -> ( Model, Cmd Msg )
-init id text pos =
-    fullInit pos 60 (Heading.init id text) (Description.init "")
+init : String -> Vec2 -> ( Model, Cmd Msg )
+init text pos =
+    fullInit pos 60 (Heading.init text) (Description.init "")
 
 
 
 -- JSON
 
 
-decode : Int -> Decode.Decoder ( Model, Cmd Msg )
-decode id =
+decode : Decode.Decoder ( Model, Cmd Msg )
+decode =
     Decode.succeed (fullInit <| Vec2.vec2 0 0)
         |: (Decode.field "radius" Decode.float)
-        |: (Decode.field "heading" <| Heading.decode id)
+        |: (Decode.field "heading" Heading.decode)
         |: (Decode.field "description" Description.decode)
 
 
@@ -161,8 +161,8 @@ width model =
     model.radius * 2 + 7
 
 
-view : Model -> Html.Html Msg
-view model =
+view : Int -> Model -> Html.Html Msg
+view id model =
     Html.div
         [ MyCss.class [ MyCss.Node ] ]
         [ Html.div []
@@ -184,7 +184,7 @@ view model =
             , Events.onMouseDown (ToParent MouseDown)
             , Events.onMouseUp (ToParent MouseUp)
             ]
-            [ Heading.view model.heading
+            [ Heading.view id model.heading
                 |> Html.map HeadingMsg
             ]
         ]
