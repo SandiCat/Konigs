@@ -4,7 +4,7 @@ import Task
 import Html
 import Util
 import Window
-import GraphMap
+import MentalMap
 import Util.Cmd
 
 
@@ -13,19 +13,19 @@ import Util.Cmd
 
 type alias Model =
     { size : Util.Size
-    , graphMap : GraphMap.Model
+    , mentalMap : MentalMap.Model
     }
 
 
 init : ( Model, Cmd Msg )
 init =
     let
-        ( graphMap, graphMapCmd ) =
-            GraphMap.init
+        ( mentalMap, mentalMapCmd ) =
+            MentalMap.init
     in
-        Model (Util.Size 0 0) graphMap
+        Model (Util.Size 0 0) mentalMap
             ! [ Task.perform Resize Window.size
-              , graphMapCmd |> Cmd.map GraphMapMsg
+              , mentalMapCmd |> Cmd.map MentalMapMsg
               ]
 
 
@@ -35,7 +35,7 @@ init =
 
 type Msg
     = Resize Util.Size
-    | GraphMapMsg GraphMap.Msg
+    | MentalMapMsg MentalMap.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -44,11 +44,11 @@ update msg model =
         Resize size ->
             { model | size = size } ! []
 
-        GraphMapMsg msg_ ->
+        MentalMapMsg msg_ ->
             Util.Cmd.update
-                (\x -> { model | graphMap = x })
-                GraphMapMsg
-                (GraphMap.update msg_ model.graphMap)
+                (\x -> { model | mentalMap = x })
+                MentalMapMsg
+                (MentalMap.update msg_ model.mentalMap)
 
 
 
@@ -57,8 +57,8 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    GraphMap.view model.size model.graphMap
-        |> Html.map GraphMapMsg
+    MentalMap.view model.size model.mentalMap
+        |> Html.map MentalMapMsg
 
 
 
@@ -69,8 +69,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Window.resizes Resize
-        , GraphMap.subscriptions model.graphMap
-            |> Sub.map GraphMapMsg
+        , MentalMap.subscriptions model.mentalMap
+            |> Sub.map MentalMapMsg
         ]
 
 

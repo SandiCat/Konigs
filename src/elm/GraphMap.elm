@@ -1,4 +1,4 @@
-module GraphMap exposing (..)
+module MentalMap exposing (..)
 
 import TypedSvg as Svg
 import TypedSvg.Attributes.InPx as SvgAttPx
