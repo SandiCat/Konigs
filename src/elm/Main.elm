@@ -35,7 +35,7 @@ init =
     in
         Model Material.model (Util.Size 0 0) mentalMap
             ! [ Task.perform Resize Window.size
-              , mentalMapCmd |> Cmd.map MentalMapMsg
+              , Cmd.map MentalMapMsg mentalMapCmd
               ]
 
 
