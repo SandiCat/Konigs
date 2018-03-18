@@ -130,6 +130,9 @@ css =
             [ overflow hidden
             , position absolute
             ]
+        , selector ".mdl-layout__drawer-button"
+            [ color (rgba 140 168 218 0.8)
+            ]
         ]
 
 
