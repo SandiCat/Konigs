@@ -14,6 +14,7 @@ import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Elevation as Elevation
 import Material.Icon as Icon
+import Material.Color
 import Material.List
 import Array exposing (Array)
 
@@ -159,13 +160,19 @@ view model =
 viewMenu : Menu r -> Html.Html Msg
 viewMenu menu =
     Material.List.ul []
-        (Array.indexedMap viewFile menu.files |> Array.toList)
+        (Array.indexedMap (viewFile menu) menu.files |> Array.toList)
 
 
-viewFile : FileId -> File -> Html.Html Msg
-viewFile id { filename, data } =
+viewFile : Menu r -> FileId -> File -> Html.Html Msg
+viewFile menu id { filename, data } =
     Material.List.li
-        [ Options.onClick <| ChangeSelection id ]
+        [ Options.onClick <| ChangeSelection id
+        , if menu.selection == id then
+            Material.Color.color Material.Color.Red Material.Color.S200
+                |> Material.Color.background
+          else
+            Options.nop
+        ]
         [ Html.text filename ]
 
 
