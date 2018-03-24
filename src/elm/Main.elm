@@ -65,8 +65,7 @@ setSelected mentalMap menu =
             }
 
         Nothing ->
-            menu
-                |> Debug.log "Trying to set nonexistent selection!"
+            Debug.log "Trying to set nonexistent selection!" menu
 
 
 changeSelection : FileId -> Menu r -> Menu r
