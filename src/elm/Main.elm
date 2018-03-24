@@ -15,16 +15,65 @@ import Material.Textfield as Textfield
 import Material.Elevation as Elevation
 import Material.Icon as Icon
 import Material.List
+import Array exposing (Array)
 
 
 -- MODEL
 
 
 type alias Model =
-    { size : Util.Size
-    , mentalMap : MentalMap.Model
     { mdl : Material.Model
+    , size : Util.Size
+    , files : Array File
+    , selection : FileId
     }
+
+
+type alias FileId =
+    Int
+
+
+type alias File =
+    { filename : String
+    , data : Maybe MentalMap.Model
+    }
+
+
+type alias Menu r =
+    { r
+        | files : Array File
+        , selection : FileId
+    }
+
+
+getSelected : Menu r -> Maybe MentalMap.Model
+getSelected menu =
+    Array.get menu.selection menu.files
+        |> Maybe.andThen .data
+
+
+setSelected : MentalMap.Model -> Menu r -> Menu r
+setSelected mentalMap menu =
+    case Array.get menu.selection menu.files of
+        Just old ->
+            { menu
+                | files =
+                    Array.set menu.selection
+                        { old | data = Just mentalMap }
+                        menu.files
+            }
+
+        Nothing ->
+            menu
+                |> Debug.log "Trying to set nonexistent selection!"
+
+
+changeSelection : FileId -> Menu r -> Menu r
+changeSelection newId menu =
+    if newId >= 0 && newId < Array.length menu.files then
+        { menu | selection = newId }
+    else
+        Debug.crash "Invalid ID!"
 
 
 init : ( Model, Cmd Msg )
@@ -33,9 +82,18 @@ init =
         ( mentalMap, mentalMapCmd ) =
             MentalMap.init
     in
-        Model Material.model (Util.Size 0 0) mentalMap
+        Model Material.model
+            (Util.Size 0 0)
+            -- begin with a test file and mark it as current
+            (Just mentalMap |> File "New File" |> Array.repeat 5)
+            0
             ! [ Task.perform Resize Window.size
-              , Cmd.map MentalMapMsg mentalMapCmd
+              , Cmd.map SelectedMapMsg mentalMapCmd
+
+              {- Send the Cmd _only_ to the selected MentalMap even though each one needs it
+                 This is a temporary solution until the Cmd situation gets sorted out
+                 It doesn't matter anyway since MentalMap doesn't have a need for Cmd as of right now.
+              -}
               ]
 
 
@@ -45,8 +103,9 @@ init =
 
 type Msg
     = Resize Util.Size
-    | MentalMapMsg MentalMap.Msg
+    | SelectedMapMsg MentalMap.Msg
     | MdlMsg (Material.Msg Msg)
+    | ChangeSelection FileId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -55,14 +114,22 @@ update msg model =
         Resize size ->
             { model | size = size } ! []
 
-        MentalMapMsg msg_ ->
-            Util.Cmd.update
-                (\x -> { model | mentalMap = x })
-                MentalMapMsg
-                (MentalMap.update msg_ model.mentalMap)
+        SelectedMapMsg msg_ ->
+            case getSelected model of
+                Just old ->
+                    Util.Cmd.update
+                        ((flip setSelected) model)
+                        SelectedMapMsg
+                        (MentalMap.update msg_ old)
+
+                Nothing ->
+                    model ! [] |> Debug.log "Stray MentalMap message!"
 
         MdlMsg msg_ ->
             Material.update MdlMsg msg_ model
+
+        ChangeSelection id ->
+            changeSelection id model ! []
 
 
 
@@ -75,15 +142,31 @@ view model =
         model.mdl
         []
         { main =
-            [ Html.div []
-                [ MentalMap.view model.size model.mentalMap
-                    |> Html.map MentalMapMsg
-                ]
+            [ case getSelected model of
+                Just mentalMap ->
+                    MentalMap.view model.size mentalMap
+                        |> Html.map SelectedMapMsg
+
+                Nothing ->
+                    Html.text "[PLACEHOLDER - no files loaded!]"
             ]
-        , drawer = [ Html.text "hey" ]
+        , drawer = [ viewMenu model ]
         , header = []
         , tabs = ( [], [] )
         }
+
+
+viewMenu : Menu r -> Html.Html Msg
+viewMenu menu =
+    Material.List.ul []
+        (Array.indexedMap viewFile menu.files |> Array.toList)
+
+
+viewFile : FileId -> File -> Html.Html Msg
+viewFile id { filename, data } =
+    Material.List.li
+        [ Options.onClick <| ChangeSelection id ]
+        [ Html.text filename ]
 
 
 
@@ -94,8 +177,13 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Window.resizes Resize
-        , MentalMap.subscriptions model.mentalMap
-            |> Sub.map MentalMapMsg
+        , case getSelected model of
+            Just mentalMap ->
+                MentalMap.subscriptions mentalMap
+                    |> Sub.map SelectedMapMsg
+
+            Nothing ->
+                Sub.none
         ]
 
 
