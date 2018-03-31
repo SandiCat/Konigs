@@ -116,21 +116,6 @@ onDivBlur msg =
         |> Events.on "blur"
 
 
-onEnter : msg -> Html.Attribute msg
-onEnter msg =
-    let
-        isEnter code =
-            if code == 13 then
-                Decode.succeed msg
-            else
-                Decode.fail "not ENTER"
-    in
-        Events.onWithOptions
-            "keydown"
-            { stopPropagation = False, preventDefault = True }
-            (Decode.andThen isEnter Events.keyCode)
-
-
 view : Int -> Model -> Html.Html Msg
 view id model =
     let
@@ -160,7 +145,7 @@ view id model =
                         [ Att.contenteditable True
                         , MyCss.class [ MyCss.HeadingText ]
                         , onDivBlur InputChange
-                        , onEnter <| OnEnter <| Id stringId
+                        , Util.onEnter <| OnEnter <| Id stringId
                         , Att.id stringId
                         ]
                         [ Html.text text ]

@@ -5,6 +5,8 @@ import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
 import Math.Vector2 as Vec2 exposing (Vec2)
+import Html
+import Html.Events
 
 
 nodeFocus : Focus { record | node : field } field
@@ -46,3 +48,18 @@ encodeVec2 v =
         [ ( "x", Vec2.getX v |> Encode.float )
         , ( "y", Vec2.getY v |> Encode.float )
         ]
+
+
+onEnter : msg -> Html.Attribute msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Decode.succeed msg
+            else
+                Decode.fail "not ENTER"
+    in
+        Html.Events.onWithOptions
+            "keydown"
+            { stopPropagation = False, preventDefault = True }
+            (Decode.andThen isEnter Html.Events.keyCode)

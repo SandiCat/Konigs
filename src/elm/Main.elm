@@ -16,7 +16,10 @@ import Material.Elevation as Elevation
 import Material.Icon as Icon
 import Material.Color
 import Material.List
+import MyCss
 import Array exposing (Array)
+import Util
+import Dom
 
 
 -- MODEL
@@ -36,6 +39,7 @@ type alias FileId =
 
 type alias File =
     { filename : String
+    , renaming : Bool
     , data : Maybe MentalMap.Model
     }
 
@@ -44,6 +48,7 @@ type alias Menu r =
     { r
         | files : Array File
         , selection : FileId
+        , mdl : Material.Model
     }
 
 
@@ -88,7 +93,7 @@ init =
         Model Material.model
             (Util.Size 0 0)
             -- begin with a test file and mark it as current
-            (Just mentalMap |> File "New File" |> Array.repeat 5)
+            (Just mentalMap |> File "New File" False |> Array.repeat 5)
             0
             ! [ Task.perform Resize Window.size
               , Cmd.map SelectedMapMsg mentalMapCmd
@@ -105,15 +110,22 @@ init =
 
 
 type Msg
-    = Resize Util.Size
+    = NoOp
+    | Resize Util.Size
     | SelectedMapMsg MentalMap.Msg
     | MdlMsg (Material.Msg Msg)
     | ChangeSelection FileId
+    | EnterRenaming FileId String
+    | ExitRenaming FileId
+    | ChangeFilename FileId String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            model ! []
+
         Resize size ->
             { model | size = size } ! []
 
@@ -133,6 +145,16 @@ update msg model =
 
         ChangeSelection id ->
             changeSelection id model ! []
+
+        EnterRenaming id cssId ->
+            mapFile id (\file -> { file | renaming = True }) model
+                ! [ Dom.focus cssId |> Task.attempt (\_ -> NoOp) ]
+
+        ExitRenaming id ->
+            mapFile id (\file -> { file | renaming = False }) model ! []
+
+        ChangeFilename id filename ->
+            mapFile id (\file -> { file | filename = filename }) model ! []
 
 
 
@@ -166,16 +188,46 @@ viewMenu menu =
 
 
 viewFile : Menu r -> FileId -> File -> Html.Html Msg
-viewFile menu id { filename, data } =
-    Material.List.li
-        [ Options.onClick <| ChangeSelection id
-        , if menu.selection == id then
-            Material.Color.color Material.Color.Red Material.Color.S200
-                |> Material.Color.background
-          else
-            Options.nop
-        ]
-        [ Html.text filename ]
+viewFile menu id { filename, data, renaming } =
+    let
+        cssId =
+            "file-" ++ toString id
+    in
+        Material.List.li
+            [ if menu.selection == id then
+                Material.Color.color Material.Color.Red Material.Color.S200
+                    |> Material.Color.background
+              else
+                Options.nop
+            ]
+            [ if renaming then
+                Textfield.render MdlMsg
+                    [ 0, 0, 0 ]
+                    menu.mdl
+                    [ Options.onInput (ChangeFilename id)
+                    , Options.onBlur (ExitRenaming id)
+                    , ExitRenaming id |> Util.onEnter |> Options.attribute
+                    , Options.id cssId
+                    , Textfield.value filename
+                    ]
+                    []
+              else
+                Material.List.content []
+                    [ Options.div
+                        [ Options.onClick <| ChangeSelection id ]
+                        [ Options.span
+                            [ Options.onDoubleClick (EnterRenaming id cssId) ]
+                            [ Html.text filename ]
+                        ]
+                    ]
+            , Button.render MdlMsg
+                [ 0, 1, id ]
+                menu.mdl
+                [ Button.icon
+                , Options.onClick (EnterRenaming id cssId)
+                ]
+                [ Icon.i "border_color" ]
+            ]
 
 
 
