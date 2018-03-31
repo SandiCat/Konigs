@@ -47,6 +47,19 @@ type alias Menu r =
     }
 
 
+mapFile : FileId -> (File -> File) -> Menu r -> Menu r
+mapFile id transform menu =
+    case Array.get id menu.files of
+        Just old ->
+            { menu
+                | files =
+                    Array.set id (transform old) menu.files
+            }
+
+        Nothing ->
+            Debug.log "Trying to map nonexistent file!" menu
+
+
 getSelected : Menu r -> Maybe MentalMap.Model
 getSelected menu =
     Array.get menu.selection menu.files
@@ -55,17 +68,7 @@ getSelected menu =
 
 setSelected : MentalMap.Model -> Menu r -> Menu r
 setSelected mentalMap menu =
-    case Array.get menu.selection menu.files of
-        Just old ->
-            { menu
-                | files =
-                    Array.set menu.selection
-                        { old | data = Just mentalMap }
-                        menu.files
-            }
-
-        Nothing ->
-            Debug.log "Trying to set nonexistent selection!" menu
+    mapFile menu.selection (\old -> { old | data = Just mentalMap }) menu
 
 
 changeSelection : FileId -> Menu r -> Menu r
