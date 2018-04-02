@@ -226,6 +226,7 @@ viewFile menu id { filename, data, renaming } =
                     |> Material.Color.background
               else
                 Options.nop
+            , Options.onClick <| ChangeSelection id
             ]
             [ if renaming then
                 Textfield.render MdlMsg
@@ -240,8 +241,7 @@ viewFile menu id { filename, data, renaming } =
                     []
               else
                 Material.List.content []
-                    [ Options.div
-                        [ Options.onClick <| ChangeSelection id ]
+                    [ Options.div []
                         [ Options.span
                             [ Options.onDoubleClick (EnterRenaming id cssId) ]
                             [ Html.text filename ]
