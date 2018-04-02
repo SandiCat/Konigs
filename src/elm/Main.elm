@@ -40,8 +40,14 @@ type alias FileId =
 type alias File =
     { filename : String
     , renaming : Bool
+    , mouseOver : Bool
     , data : Maybe MentalMap.Model
     }
+
+
+initFile : String -> Maybe MentalMap.Model -> File
+initFile filename data =
+    File filename False False data
 
 
 type alias Menu r =
@@ -54,7 +60,7 @@ type alias Menu r =
 
 addFile : String -> Maybe MentalMap.Model -> Menu r -> Menu r
 addFile filename data menu =
-    { menu | files = Array.push (File filename False data) menu.files }
+    { menu | files = Array.push (initFile filename data) menu.files }
 
 
 mapFile : FileId -> (File -> File) -> Menu r -> Menu r
@@ -98,7 +104,7 @@ init =
         Model Material.model
             (Util.Size 0 0)
             -- begin with a test file and mark it as current
-            (Just mentalMap |> File "New File" False |> Array.repeat 5)
+            (Just mentalMap |> initFile "New File" |> Array.repeat 5)
             0
             ! [ Task.perform Resize Window.size
               , Cmd.map SelectedMapMsg mentalMapCmd
@@ -124,6 +130,8 @@ type Msg
     | ExitRenaming FileId
     | ChangeFilename FileId String
     | NewFile
+    | MouseOverFile FileId
+    | MouseOutFile FileId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -170,6 +178,12 @@ update msg model =
                 addFile "New File" (Just mentalMap) model
                     ! [{- ignore mental map init cmd for now -}]
 
+        MouseOverFile id ->
+            mapFile id (\file -> { file | mouseOver = True }) model ! []
+
+        MouseOutFile id ->
+            mapFile id (\file -> { file | mouseOver = False }) model ! []
+
 
 
 -- VIEW
@@ -215,20 +229,21 @@ viewMenu menu =
 
 
 viewFile : Menu r -> FileId -> File -> Html.Html Msg
-viewFile menu id { filename, data, renaming } =
+viewFile menu id file =
     let
         cssId =
             "file-" ++ toString id
     in
         Material.List.li
-            [ if menu.selection == id then
-                Material.Color.color Material.Color.Red Material.Color.S200
-                    |> Material.Color.background
-              else
-                Options.nop
+            [ Material.Color.color Material.Color.Red Material.Color.S200
+                |> Material.Color.background
+                |> Options.when (menu.selection == id)
+            , MyCss.mdlClass MyCss.File
             , Options.onClick <| ChangeSelection id
+            , Options.onMouseOver <| MouseOverFile id
+            , Options.onMouseOut <| MouseOutFile id
             ]
-            [ if renaming then
+            [ if file.renaming then
                 Textfield.render MdlMsg
                     [ 0, 0, 0 ]
                     menu.mdl
@@ -236,7 +251,7 @@ viewFile menu id { filename, data, renaming } =
                     , Options.onBlur (ExitRenaming id)
                     , ExitRenaming id |> Util.onEnter |> Options.attribute
                     , Options.id cssId
-                    , Textfield.value filename
+                    , Textfield.value file.filename
                     ]
                     []
               else
@@ -244,16 +259,24 @@ viewFile menu id { filename, data, renaming } =
                     [ Options.div []
                         [ Options.span
                             [ Options.onDoubleClick (EnterRenaming id cssId) ]
-                            [ Html.text filename ]
+                            [ Html.text file.filename ]
                         ]
                     ]
-            , Button.render MdlMsg
-                [ 0, 1, id ]
-                menu.mdl
-                [ Button.icon
-                , Options.onClick (EnterRenaming id cssId)
-                ]
-                [ Icon.i "border_color" ]
+            , if file.mouseOver then
+                List.map
+                    (\( msg, iconName ) ->
+                        Button.render MdlMsg
+                            [ 0, 1, id ]
+                            menu.mdl
+                            [ Button.icon
+                            , Options.onClick msg
+                            ]
+                            [ Icon.i iconName ]
+                    )
+                    [ ( EnterRenaming id cssId, "border_color" ) ]
+                    |> Options.div []
+              else
+                Options.div [] []
             ]
 
 

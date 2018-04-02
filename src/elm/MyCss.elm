@@ -36,6 +36,7 @@ type CssClasses
     | EdgeCont
     | Menu
     | MenuButtons
+    | File
 
 
 type CssIds
@@ -136,6 +137,8 @@ css =
             , bottom (px 20)
             , right (px 20)
             ]
+        , (.) File
+            [ height (px 50) ]
         , html
             [ overflow hidden
             , position absolute
