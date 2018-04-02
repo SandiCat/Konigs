@@ -52,6 +52,11 @@ type alias Menu r =
     }
 
 
+addFile : String -> Maybe MentalMap.Model -> Menu r -> Menu r
+addFile filename data menu =
+    { menu | files = Array.push (File filename False data) menu.files }
+
+
 mapFile : FileId -> (File -> File) -> Menu r -> Menu r
 mapFile id transform menu =
     case Array.get id menu.files of
@@ -88,7 +93,7 @@ init : ( Model, Cmd Msg )
 init =
     let
         ( mentalMap, mentalMapCmd ) =
-            MentalMap.init
+            MentalMap.exampleInit
     in
         Model Material.model
             (Util.Size 0 0)
@@ -118,6 +123,7 @@ type Msg
     | EnterRenaming FileId String
     | ExitRenaming FileId
     | ChangeFilename FileId String
+    | NewFile
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -156,6 +162,14 @@ update msg model =
         ChangeFilename id filename ->
             mapFile id (\file -> { file | filename = filename }) model ! []
 
+        NewFile ->
+            let
+                ( mentalMap, cmd ) =
+                    MentalMap.emptyInit
+            in
+                addFile "New File" (Just mentalMap) model
+                    ! [{- ignore mental map init cmd for now -}]
+
 
 
 -- VIEW
@@ -183,8 +197,21 @@ view model =
 
 viewMenu : Menu r -> Html.Html Msg
 viewMenu menu =
-    Material.List.ul []
-        (Array.indexedMap (viewFile menu) menu.files |> Array.toList)
+    Options.div [ MyCss.mdlClass MyCss.Menu ]
+        [ Material.List.ul []
+            (Array.indexedMap (viewFile menu) menu.files |> Array.toList)
+        , Options.div [ MyCss.mdlClass MyCss.MenuButtons ]
+            [ Button.render MdlMsg
+                [ 1 ]
+                menu.mdl
+                [ Button.fab
+                , Button.colored
+                , Button.ripple
+                , Options.onClick NewFile
+                ]
+                [ Icon.i "add" ]
+            ]
+        ]
 
 
 viewFile : Menu r -> FileId -> File -> Html.Html Msg

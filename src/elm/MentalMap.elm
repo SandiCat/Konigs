@@ -81,9 +81,9 @@ fullInit camera nodeStates edgeStates =
             ! (edgeCmds ++ nodeCmds)
 
 
-init : ( Model, Cmd Msg )
-init =
-    fullInit
+exampleInit : ( Model, Cmd Msg )
+exampleInit =
+    fullInit True
         (Vec2.vec2 0 0)
         (List.map
             (\i ->
@@ -96,6 +96,14 @@ init =
             |> List.map (\( a, b ) -> Tuple.mapFirst (Graph.Edge a b) Edge.init)
          -- direction is arbitrary, see docs
         )
+
+
+emptyInit : ( Model, Cmd Msg )
+emptyInit =
+    fullInit False
+        (Vec2.vec2 0 0)
+        []
+        []
 
 
 getNodePos : Graph.NodeId -> Graph Node.Model e -> Vec2

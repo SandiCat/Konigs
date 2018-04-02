@@ -34,6 +34,8 @@ type CssClasses
     | DescriptionEmpty
     | Edge
     | EdgeCont
+    | Menu
+    | MenuButtons
 
 
 type CssIds
@@ -125,6 +127,14 @@ css =
         , (.) Edge
             [ translate2 (pct -50) (pct -50) |> transform
             , pointerEvents Auto
+            ]
+        , (.) Menu
+            [ height (pct 100)
+            ]
+        , (.) MenuButtons
+            [ position absolute
+            , bottom (px 20)
+            , right (px 20)
             ]
         , html
             [ overflow hidden
