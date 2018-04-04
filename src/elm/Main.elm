@@ -20,6 +20,9 @@ import MyCss
 import Array exposing (Array)
 import Util
 import Dom
+import Json.Decode as Decode
+import Json.Decode.Extra exposing ((|:))
+import Json.Encode as Encode
 
 
 -- MODEL
@@ -43,6 +46,21 @@ type alias File =
     , mouseOver : Bool
     , data : MentalMap.Model
     }
+
+
+decodeFile : Decode.Decoder File
+decodeFile =
+    Decode.succeed initFile
+        |: (Decode.field "filename" Decode.string)
+        |: (Decode.field "data" <| Decode.map Tuple.first MentalMap.decode)
+
+
+encodeFile : File -> Encode.Value
+encodeFile file =
+    Encode.object
+        [ ( "filename", Encode.string file.filename )
+        , ( "data", MentalMap.encode file.data )
+        ]
 
 
 initFile : String -> MentalMap.Model -> File
