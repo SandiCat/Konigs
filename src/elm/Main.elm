@@ -41,11 +41,11 @@ type alias File =
     { filename : String
     , renaming : Bool
     , mouseOver : Bool
-    , data : Maybe MentalMap.Model
+    , data : MentalMap.Model
     }
 
 
-initFile : String -> Maybe MentalMap.Model -> File
+initFile : String -> MentalMap.Model -> File
 initFile filename data =
     File filename False False data
 
@@ -58,7 +58,7 @@ type alias Menu r =
     }
 
 
-addFile : String -> Maybe MentalMap.Model -> Menu r -> Menu r
+addFile : String -> MentalMap.Model -> Menu r -> Menu r
 addFile filename data menu =
     { menu | files = Array.push (initFile filename data) menu.files }
 
@@ -79,12 +79,12 @@ mapFile id transform menu =
 getSelected : Menu r -> Maybe MentalMap.Model
 getSelected menu =
     Array.get menu.selection menu.files
-        |> Maybe.andThen .data
+        |> Maybe.map .data
 
 
 setSelected : MentalMap.Model -> Menu r -> Menu r
 setSelected mentalMap menu =
-    mapFile menu.selection (\old -> { old | data = Just mentalMap }) menu
+    mapFile menu.selection (\old -> { old | data = mentalMap }) menu
 
 
 changeSelection : FileId -> Menu r -> Menu r
@@ -104,7 +104,7 @@ init =
         Model Material.model
             (Util.Size 0 0)
             -- begin with a test file and mark it as current
-            (Just mentalMap |> initFile "New File" |> Array.repeat 5)
+            (initFile "New File" mentalMap |> Array.repeat 5)
             0
             ! [ Task.perform Resize Window.size
               , Cmd.map SelectedMapMsg mentalMapCmd
@@ -175,7 +175,7 @@ update msg model =
                 ( mentalMap, cmd ) =
                     MentalMap.emptyInit
             in
-                addFile "New File" (Just mentalMap) model
+                addFile "New File" mentalMap model
                     ! [{- ignore mental map init cmd for now -}]
 
         MouseOverFile id ->
