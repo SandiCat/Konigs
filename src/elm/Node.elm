@@ -38,17 +38,14 @@ type alias Model =
 fullInit :
     Vec2
     -> Float
-    -> ( Heading.Model, Cmd Heading.Msg )
-    -> ( Description.Model, Cmd Description.Msg )
-    -> ( Model, Cmd Msg )
-fullInit pos radius ( heading, headingCmd ) ( desc, descCmd ) =
+    -> Heading.Model
+    -> Description.Model
+    -> Model
+fullInit pos radius heading desc =
     Model pos radius heading False ContextMenu.init False desc
-        ! [ Cmd.map HeadingMsg headingCmd
-          , Cmd.map DescriptionMsg descCmd
-          ]
 
 
-init : String -> Vec2 -> ( Model, Cmd Msg )
+init : String -> Vec2 -> Model
 init text pos =
     fullInit pos 60 (Heading.init text) (Description.init "")
 
@@ -57,7 +54,7 @@ init text pos =
 -- JSON
 
 
-decode : Decode.Decoder ( Model, Cmd Msg )
+decode : Decode.Decoder Model
 decode =
     Decode.succeed (fullInit <| Vec2.vec2 0 0)
         |: (Decode.field "radius" Decode.float)

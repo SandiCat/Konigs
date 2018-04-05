@@ -50,60 +50,39 @@ type State
 
 fullInit :
     Vec2
-    -> List ( Graph.Node Node.Model, Cmd Node.Msg )
-    -> List ( Graph.Edge Edge.Model, Cmd Edge.Msg )
-    -> ( Model, Cmd Msg )
-fullInit camera nodeStates edgeStates =
-    let
-        ( nodes, nodeCmds ) =
-            List.map
-                (\( node, cmd ) ->
-                    ( node, Cmd.map (NodeMsg node.id) cmd )
-                )
-                nodeStates
-                |> List.unzip
-
-        ( edges, edgeCmds ) =
-            List.map
-                (\( edge, cmd ) ->
-                    ( edge, Util.Graph.EdgeId edge.from edge.to |> EdgeMsg |> (flip Cmd.map) cmd )
-                )
-                edgeStates
-                |> List.unzip
-    in
-        { graph =
-            Graph.fromNodesAndEdges nodes edges
-                |> Layout.randomlyArrange
-        , state = None
-        , mousePos = Vec2.vec2 0 0
-        , cameraPos = camera
-        }
-            ! (edgeCmds ++ nodeCmds)
+    -> List (Graph.Node Node.Model)
+    -> List (Graph.Edge Edge.Model)
+    -> Model
+fullInit camera nodes edges =
+    { graph =
+        Graph.fromNodesAndEdges nodes edges
+            |> Layout.randomlyArrange
+    , state = None
+    , mousePos = Vec2.vec2 0 0
+    , cameraPos = camera
+    }
 
 
-exampleInit : ( Model, Cmd Msg )
+exampleInit : Model
 exampleInit =
-    fullInit True
+    fullInit
         (Vec2.vec2 0 0)
         (List.map
             (\i ->
                 Node.init ("Test node " ++ toString i) (Vec2.vec2 0 0)
-                    |> Tuple.mapFirst (Graph.Node i)
+                    |> Graph.Node i
             )
             (List.range 0 5)
         )
         ([ ( 0, 1 ), ( 0, 2 ), ( 2, 3 ), ( 3, 4 ), ( 2, 5 ), ( 2, 4 ) ]
-            |> List.map (\( a, b ) -> Tuple.mapFirst (Graph.Edge a b) Edge.init)
+            |> List.map (\( a, b ) -> Graph.Edge a b Edge.init)
          -- direction is arbitrary, see docs
         )
 
 
-emptyInit : ( Model, Cmd Msg )
+emptyInit : Model
 emptyInit =
-    fullInit False
-        (Vec2.vec2 0 0)
-        []
-        []
+    fullInit (Vec2.vec2 0 0) [] []
 
 
 getNodePos : Graph.NodeId -> Graph Node.Model e -> Vec2
@@ -126,25 +105,12 @@ offsetMouse model =
 -- JSON
 
 
-extractCmd : { record | label : ( l, cmd ) } -> ( { record | label : l }, cmd )
-extractCmd record =
-    ( { record | label = Tuple.first record.label }, Tuple.second record.label )
-
-
-decode : Decode.Decoder ( Model, Cmd Msg )
+decode : Decode.Decoder Model
 decode =
     Decode.succeed fullInit
         |: Decode.field "camera" Util.decodeVec2
-        |: Decode.field "nodes"
-            (Util.Graph.decodeNode Node.decode
-                |> Decode.map extractCmd
-                |> Decode.list
-            )
-        |: Decode.field "edges"
-            (Util.Graph.decodeEdge Edge.decode
-                |> Decode.map extractCmd
-                |> Decode.list
-            )
+        |: Decode.field "nodes" (Util.Graph.decodeNode Node.decode |> Decode.list)
+        |: Decode.field "edges" (Util.Graph.decodeEdge Edge.decode |> Decode.list)
 
 
 encode : Model -> Encode.Value
@@ -230,15 +196,14 @@ update msg model =
                     |> Maybe.withDefault (model ! [])
 
         Doubleclick ->
-            let
-                id =
-                    Util.Graph.newNodeId model.graph
-
-                ( node, nodeCmd ) =
-                    Node.init "" <| offsetMouse model
-            in
-                { model | graph = Util.Graph.addUnconnectedNode id node model.graph }
-                    ! [ nodeCmd |> Cmd.map (NodeMsg id) ]
+            { model
+                | graph =
+                    Util.Graph.addUnconnectedNode
+                        (Util.Graph.newNodeId model.graph)
+                        (Node.init "" <| offsetMouse model)
+                        model.graph
+            }
+                ! []
 
         Hold ->
             case model.state of
@@ -272,19 +237,16 @@ updateNodeOutMsg id msg model =
         Node.MouseUp ->
             case model.state of
                 Connecting id_ ->
-                    let
-                        ( edge, edgeCmd ) =
-                            Edge.init
-
-                        edgeId =
-                            -- order is arbitrary, see docs
-                            Util.Graph.EdgeId id id_
-                    in
-                        { model
-                            | graph = Util.Graph.addEdge edgeId edge model.graph
-                            , state = None
-                        }
-                            ! [ edgeCmd |> Cmd.map (EdgeMsg edgeId) ]
+                    { model
+                        | graph =
+                            Util.Graph.addEdge
+                                (Util.Graph.EdgeId id id_)
+                                -- order is arbitrary, see docs
+                                Edge.init
+                                model.graph
+                        , state = None
+                    }
+                        ! []
 
                 _ ->
                     model ! []
@@ -318,8 +280,7 @@ view size model =
         connectEdge =
             case model.state of
                 Connecting id ->
-                    [ Tuple.first Edge.init
-                        |> Edge.svgView (offsetMouse model) (getNodePos id model.graph)
+                    [ Edge.svgView (offsetMouse model) (getNodePos id model.graph) Edge.init
                         -- the connecting edge doesn't need to handle messages
                         |> Html.map (always NoOp)
                     ]

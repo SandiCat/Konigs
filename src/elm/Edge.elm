@@ -41,16 +41,16 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    Model Material.model (Array.repeat 2 False) ! []
+    Model Material.model (Array.repeat 2 False)
 
 
 
 -- JSON
 
 
-decode : Decode.Decoder ( Model, Cmd Msg )
+decode : Decode.Decoder Model
 decode =
     Decode.succeed init
 

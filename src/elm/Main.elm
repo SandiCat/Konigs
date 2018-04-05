@@ -52,7 +52,7 @@ decodeFile : Decode.Decoder File
 decodeFile =
     Decode.succeed initFile
         |: (Decode.field "filename" Decode.string)
-        |: (Decode.field "data" <| Decode.map Tuple.first MentalMap.decode)
+        |: (Decode.field "data" MentalMap.decode)
 
 
 encodeFile : File -> Encode.Value
@@ -113,25 +113,18 @@ changeSelection newId menu =
         Debug.crash "Invalid ID!"
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    let
-        ( mentalMap, mentalMapCmd ) =
-            MentalMap.exampleInit
-    in
-        Model Material.model
-            (Util.Size 0 0)
-            -- begin with a test file and mark it as current
-            (initFile "New File" mentalMap |> Array.repeat 5)
-            0
-            ! [ Task.perform Resize Window.size
-              , Cmd.map SelectedMapMsg mentalMapCmd
+    Model Material.model
+        (Util.Size 0 0)
+        -- begin with a test file and mark it as current
+        (initFile "New File" MentalMap.exampleInit |> Array.repeat 5)
+        0
 
-              {- Send the Cmd _only_ to the selected MentalMap even though each one needs it
-                 This is a temporary solution until the Cmd situation gets sorted out
-                 It doesn't matter anyway since MentalMap doesn't have a need for Cmd as of right now.
-              -}
-              ]
+
+initCmd : Cmd Msg
+initCmd =
+    Task.perform Resize Window.size
 
 
 
@@ -189,12 +182,7 @@ update msg model =
             mapFile id (\file -> { file | filename = filename }) model ! []
 
         NewFile ->
-            let
-                ( mentalMap, cmd ) =
-                    MentalMap.emptyInit
-            in
-                addFile "New File" mentalMap model
-                    ! [{- ignore mental map init cmd for now -}]
+            addFile "New File" MentalMap.emptyInit model ! []
 
         MouseOverFile id ->
             mapFile id (\file -> { file | mouseOver = True }) model ! []
@@ -322,7 +310,7 @@ subscriptions model =
 
 main =
     Html.program
-        { init = init
+        { init = ( init, initCmd )
         , update = update
         , subscriptions = subscriptions
         , view = view

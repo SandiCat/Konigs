@@ -41,16 +41,16 @@ convertText text =
         Just text
 
 
-init : String -> ( Model, Cmd Msg )
+init : String -> Model
 init text =
-    Model (convertText text) Material.model ! []
+    Model (convertText text) Material.model
 
 
 
 -- JSON
 
 
-decode : Decode.Decoder ( Model, Cmd Msg )
+decode : Decode.Decoder Model
 decode =
     Decode.succeed init
         |: (Decode.field "text" Decode.string)

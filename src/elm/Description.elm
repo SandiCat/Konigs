@@ -29,16 +29,16 @@ type alias Model =
     }
 
 
-init : String -> ( Model, Cmd Msg )
+init : String -> Model
 init text =
-    Model Material.model text False False ! []
+    Model Material.model text False False
 
 
 
 -- JSON
 
 
-decode : Decode.Decoder ( Model, Cmd Msg )
+decode : Decode.Decoder Model
 decode =
     Decode.succeed init
         |: (Decode.field "text" Decode.string)
