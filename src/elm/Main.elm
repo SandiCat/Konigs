@@ -269,10 +269,10 @@ viewFile menu id file =
                         ]
                     ]
             , if file.mouseOver then
-                List.map
-                    (\( msg, iconName ) ->
+                List.indexedMap
+                    (\i ( msg, iconName ) ->
                         Button.render MdlMsg
-                            [ 0, 1, id ]
+                            [ 0, 1, i ]
                             menu.mdl
                             [ Button.icon
                             , Options.onClick msg
