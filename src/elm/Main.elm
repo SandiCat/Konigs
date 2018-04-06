@@ -36,6 +36,20 @@ type alias Model =
     }
 
 
+init : Model
+init =
+    Model Material.model
+        (Util.Size 0 0)
+        -- begin with a test file and mark it as current
+        (initFile "New File" MentalMap.exampleInit |> Array.repeat 5)
+        0
+
+
+initCmd : Cmd Msg
+initCmd =
+    Task.perform Resize Window.size
+
+
 type alias FileId =
     Int
 
@@ -111,20 +125,6 @@ changeSelection newId menu =
         { menu | selection = newId }
     else
         Debug.crash "Invalid ID!"
-
-
-init : Model
-init =
-    Model Material.model
-        (Util.Size 0 0)
-        -- begin with a test file and mark it as current
-        (initFile "New File" MentalMap.exampleInit |> Array.repeat 5)
-        0
-
-
-initCmd : Cmd Msg
-initCmd =
-    Task.perform Resize Window.size
 
 
 
