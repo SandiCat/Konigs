@@ -168,6 +168,9 @@ changeSelection newId menu =
    On start, show a spinner and attempt retriving files from localStorage.
    If there's no previous saved state or if it's empty, make a new blank file
    and display it.
+
+   For now, all of the state is both saved and loaded at once. This is simple,
+   but doesn't allow for multiple sessions nor loading/saving individual files.
 -}
 
 
