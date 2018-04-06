@@ -18,6 +18,7 @@ import Material.Icon as Icon
 import Material.Color
 import Material.List
 import Material.Spinner
+import Material.Progress
 import MyCss
 import Array exposing (Array)
 import Util
@@ -36,6 +37,7 @@ type alias Model =
     , size : Util.Size
 
     -- Menu:
+    , loading : Bool
     , files : Array File
     , selection : FileId
 
@@ -51,6 +53,7 @@ init : ( Model, Cmd Msg )
 init =
     Model Material.model
         (Util.Size 0 0)
+        True
         Array.empty
         0
         ! [ Task.perform Resize Window.size
@@ -107,13 +110,14 @@ type alias Menu r =
     { r
         | files : Array File
         , selection : FileId
+        , loading : Bool
         , mdl : Material.Model
     }
 
 
 toStartingMenu : Menu r -> Menu r
 toStartingMenu menu =
-    { menu | files = Array.repeat 1 emptyFile, selection = 0 }
+    { menu | files = Array.repeat 1 emptyFile, selection = 0, loading = False }
 
 
 isMenuEmpty : Menu r -> Bool
@@ -192,7 +196,13 @@ load value menu =
     case
         Decode.decodeValue
             (Decode.succeed
-                (\files selection -> { menu | files = files, selection = selection })
+                (\files selection ->
+                    { menu
+                        | files = files
+                        , selection = selection
+                        , loading = False
+                    }
+                )
                 |: (Decode.field "files" <| Decode.array decodeFile)
                 |: (Decode.field "selection" Decode.int)
             )
@@ -321,7 +331,11 @@ view model =
 viewMenu : Menu r -> Html.Html Msg
 viewMenu menu =
     Options.div [ MyCss.mdlClass MyCss.Menu ]
-        [ Material.List.ul []
+        [ if menu.loading then
+            Material.Progress.indeterminate
+          else
+            Options.div [] []
+        , Material.List.ul []
             (Array.indexedMap (viewFile menu) menu.files |> Array.toList)
         , List.indexedMap
             (\i ( msg, iconName, description ) ->
@@ -332,6 +346,7 @@ viewMenu menu =
 
                     -- I would prefer a round minifab as shown in the demo, but it doesn't work
                     , Button.ripple
+                    , Options.when menu.loading Button.disabled
                     , Options.onClick msg
                     , Options.attribute <| Html.Attributes.title description
                     ]
