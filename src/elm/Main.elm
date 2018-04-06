@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Task
 import Html
+import Html.Attributes
 import Util
 import Window
 import MentalMap
@@ -16,10 +17,12 @@ import Material.Elevation as Elevation
 import Material.Icon as Icon
 import Material.Color
 import Material.List
+import Material.Spinner
 import MyCss
 import Array exposing (Array)
 import Util
 import Dom
+import Ports.LocalStorage as LocalStorage
 import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
@@ -33,21 +36,24 @@ type alias Model =
     , size : Util.Size
     , files : Array File
     , selection : FileId
+
+    {- Perhaps it should have been `Maybe {files, selection}`, to make
+       impossible states impossible. But this makes for easier updates.
+       The state of not having any files (before loading them) is represented
+       by `files` being empty.
+    -}
     }
 
 
-init : Model
+init : ( Model, Cmd Msg )
 init =
     Model Material.model
         (Util.Size 0 0)
-        -- begin with a test file and mark it as current
-        (initFile "New File" MentalMap.exampleInit |> Array.repeat 5)
+        Array.empty
         0
-
-
-initCmd : Cmd Msg
-initCmd =
-    Task.perform Resize Window.size
+        ! [ Task.perform Resize Window.size
+          , loadCmd
+          ]
 
 
 type alias FileId =
@@ -82,12 +88,27 @@ initFile filename data =
     File filename False False data
 
 
+emptyFile : File
+emptyFile =
+    initFile "New File" MentalMap.emptyInit
+
+
 type alias Menu r =
     { r
         | files : Array File
         , selection : FileId
         , mdl : Material.Model
     }
+
+
+toStartingMenu : Menu r -> Menu r
+toStartingMenu menu =
+    { menu | files = Array.repeat 1 emptyFile, selection = 0 }
+
+
+isMenuEmpty : Menu r -> Bool
+isMenuEmpty =
+    .files >> Array.length >> (==) 0
 
 
 addFile : String -> MentalMap.Model -> Menu r -> Menu r
@@ -128,6 +149,61 @@ changeSelection newId menu =
 
 
 
+{- PERSISTENCE
+
+   On start, show a spinner and attempt retriving files from localStorage.
+   If there's no previous saved state or if it's empty, make a new blank file
+   and display it.
+-}
+
+
+localStorageKey : LocalStorage.Key
+localStorageKey =
+    "data"
+
+
+save : Menu r -> Cmd Msg
+save menu =
+    Encode.object
+        [ ( "files", Array.map encodeFile menu.files |> Encode.array )
+        , ( "selection", Encode.int menu.selection )
+        ]
+        |> (,) localStorageKey
+        |> LocalStorage.storageSetItem
+
+
+loadCmd : Cmd Msg
+loadCmd =
+    LocalStorage.storageGetItem localStorageKey
+
+
+load : LocalStorage.Value -> Menu r -> Menu r
+load value menu =
+    case
+        Decode.decodeValue
+            (Decode.succeed
+                (\files selection -> { menu | files = files, selection = selection })
+                |: (Decode.field "files" <| Decode.array decodeFile)
+                |: (Decode.field "selection" Decode.int)
+            )
+            value
+    of
+        Ok newMenu ->
+            if isMenuEmpty newMenu then
+                toStartingMenu menu
+            else
+                newMenu
+
+        Err error ->
+            {- This could either mean that the decoder is invalid or that there
+               were no files saved beforehand. Either way, begin with an empty file.
+               It would be nice to only log on decoder errors, but there's no way
+               to differentiate the two scenarios.
+            -}
+            toStartingMenu menu |> Debug.log error
+
+
+
 -- UPDATE
 
 
@@ -143,6 +219,8 @@ type Msg
     | NewFile
     | MouseOverFile FileId
     | MouseOutFile FileId
+    | Save
+    | Loaded ( LocalStorage.Key, LocalStorage.Value )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -190,6 +268,15 @@ update msg model =
         MouseOutFile id ->
             mapFile id (\file -> { file | mouseOver = False }) model ! []
 
+        Save ->
+            model ! [ save model ]
+
+        Loaded ( key, value ) ->
+            if key == localStorageKey then
+                load value model ! []
+            else
+                Debug.log "Recieved item from an unknown key" model ! []
+
 
 
 -- VIEW
@@ -207,7 +294,13 @@ view model =
                         |> Html.map SelectedMapMsg
 
                 Nothing ->
-                    Html.text "[PLACEHOLDER - no files loaded!]"
+                    Options.div
+                        [ Options.center
+                        , MyCss.mdlClass MyCss.MaxSize
+                        ]
+                        [ Material.Spinner.spinner
+                            [ Material.Spinner.active True ]
+                        ]
             ]
         , drawer = [ viewMenu model ]
         , header = []
@@ -220,17 +313,24 @@ viewMenu menu =
     Options.div [ MyCss.mdlClass MyCss.Menu ]
         [ Material.List.ul []
             (Array.indexedMap (viewFile menu) menu.files |> Array.toList)
-        , Options.div [ MyCss.mdlClass MyCss.MenuButtons ]
-            [ Button.render MdlMsg
-                [ 1 ]
-                menu.mdl
-                [ Button.fab
-                , Button.colored
-                , Button.ripple
-                , Options.onClick NewFile
-                ]
-                [ Icon.i "add" ]
+        , List.indexedMap
+            (\i ( msg, iconName, description ) ->
+                Button.render MdlMsg
+                    [ 1, 0, i ]
+                    menu.mdl
+                    [ Button.minifab
+
+                    -- I would prefer a round minifab as shown in the demo, but it doesn't work
+                    , Button.ripple
+                    , Options.onClick msg
+                    , Options.attribute <| Html.Attributes.title description
+                    ]
+                    [ Icon.i iconName ]
+            )
+            [ ( NewFile, "add", "New file" )
+            , ( Save, "sync", "Save" )
             ]
+            |> Options.div [ MyCss.mdlClass MyCss.MenuButtons ]
         ]
 
 
@@ -294,6 +394,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Window.resizes Resize
+        , LocalStorage.storageGetItemResponse Loaded
         , case getSelected model of
             Just mentalMap ->
                 MentalMap.subscriptions mentalMap
@@ -310,7 +411,7 @@ subscriptions model =
 
 main =
     Html.program
-        { init = ( init, initCmd )
+        { init = init
         , update = update
         , subscriptions = subscriptions
         , view = view
