@@ -34,6 +34,8 @@ import Json.Encode as Encode
 type alias Model =
     { mdl : Material.Model
     , size : Util.Size
+
+    -- Menu:
     , files : Array File
     , selection : FileId
 
@@ -54,6 +56,10 @@ init =
         ! [ Task.perform Resize Window.size
           , loadCmd
           ]
+
+
+
+-- FILES
 
 
 type alias FileId =
@@ -91,6 +97,10 @@ initFile filename data =
 emptyFile : File
 emptyFile =
     initFile "New File" MentalMap.emptyInit
+
+
+
+-- MENU
 
 
 type alias Menu r =
