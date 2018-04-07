@@ -27,6 +27,7 @@ import Ports.LocalStorage as LocalStorage
 import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
+import Array.Extra
 
 
 -- MODEL
@@ -128,6 +129,21 @@ isMenuEmpty =
 addFile : String -> MentalMap.Model -> Menu r -> Menu r
 addFile filename data menu =
     { menu | files = Array.push (initFile filename data) menu.files }
+
+
+deleteFile : FileId -> Menu r -> Menu r
+deleteFile id menu =
+    if isMenuEmpty menu then
+        toStartingMenu menu
+    else
+        { menu
+            | selection =
+                if menu.selection == id then
+                    0
+                else
+                    menu.selection
+            , files = Array.Extra.removeAt id menu.files
+        }
 
 
 mapFile : FileId -> (File -> File) -> Menu r -> Menu r
@@ -240,6 +256,7 @@ type Msg
     | ExitRenaming FileId
     | ChangeFilename FileId String
     | NewFile
+    | DeleteFile FileId
     | MouseOverFile FileId
     | MouseOutFile FileId
     | Save
@@ -284,6 +301,9 @@ update msg model =
 
         NewFile ->
             addFile "New File" MentalMap.emptyInit model ! []
+
+        DeleteFile id ->
+            deleteFile id model ! []
 
         MouseOverFile id ->
             mapFile id (\file -> { file | mouseOver = True }) model ! []
@@ -398,16 +418,19 @@ viewFile menu id file =
                     ]
             , if file.mouseOver then
                 List.indexedMap
-                    (\i ( msg, iconName ) ->
+                    (\i ( msg, iconName, description ) ->
                         Button.render MdlMsg
                             [ 0, 1, i ]
                             menu.mdl
                             [ Button.icon
                             , Options.onClick msg
+                            , Options.attribute <| Html.Attributes.title description
                             ]
                             [ Icon.i iconName ]
                     )
-                    [ ( EnterRenaming id cssId, "border_color" ) ]
+                    [ ( EnterRenaming id cssId, "border_color", "Rename" )
+                    , ( DeleteFile id, "delete", "Delete" )
+                    ]
                     |> Options.div []
               else
                 Options.div [] []
