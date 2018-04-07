@@ -399,7 +399,7 @@ viewFile menu id file =
             ]
             [ if file.renaming then
                 Textfield.render MdlMsg
-                    [ 0, 0, 0 ]
+                    [ 0, 0, id ]
                     menu.mdl
                     [ Options.onInput (ChangeFilename id)
                     , Options.onBlur (ExitRenaming id)
