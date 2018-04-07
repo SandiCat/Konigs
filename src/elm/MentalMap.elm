@@ -29,6 +29,8 @@ import OutMessage
 import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
+import Material.Options as Options
+import Material.Typography
 
 
 -- MODEL
@@ -295,7 +297,7 @@ view size model =
         Html.div
             [ Util.Css.userSelect False
             , Events.onMouseLeave LeaveWindow
-            , MyCss.class [ MyCss.AbsolutePos ]
+            , MyCss.class [ MyCss.AbsolutePos, MyCss.MaxSize ]
             ]
             [ Svg.svg
                 [ onDoubleClick Doubleclick
@@ -316,17 +318,27 @@ view size model =
                 ]
                 |> List.singleton
                 |> Html.div [ MyCss.class [ MyCss.AbsolutePos ] ]
-            , Html.div
-                [ MyCss.class [ MyCss.AbsolutePos ]
-                , Util.Css.style
-                    [ Vec2.getX model.cameraPos |> Css.px |> Css.left
-                    , Vec2.getY model.cameraPos |> Css.px |> Css.top
+            , if Graph.isEmpty model.graph then
+                Options.div
+                    [ Options.center
+                    , MyCss.mdlClass MyCss.MaxSize
                     ]
-                ]
-                (Graph.nodes model.graph
-                    |> List.map (\{ id, label } -> Node.view id label |> Html.map (NodeMsg id))
-                    |> (++) (edges Edge.view)
-                )
+                    [ Options.styled Html.p
+                        [ Material.Typography.display1 ]
+                        [ Html.text "Double click to make a node" ]
+                    ]
+              else
+                Html.div
+                    [ MyCss.class [ MyCss.AbsolutePos ]
+                    , Util.Css.style
+                        [ Vec2.getX model.cameraPos |> Css.px |> Css.left
+                        , Vec2.getY model.cameraPos |> Css.px |> Css.top
+                        ]
+                    ]
+                    (Graph.nodes model.graph
+                        |> List.map (\{ id, label } -> Node.view id label |> Html.map (NodeMsg id))
+                        |> (++) (edges Edge.view)
+                    )
             ]
 
 
