@@ -145,6 +145,7 @@ css =
             ]
         , selector ".mdl-layout__drawer-button"
             [ color (rgba 140 168 218 0.8)
+            , property "user-select" "none"
             ]
         ]
 
