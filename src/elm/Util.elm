@@ -9,6 +9,15 @@ import Html
 import Html.Events
 
 
+{-| Use instead of `Debug.log` during development to make unexpected erros more obvious.
+It has the same API as `Debug.log` but it crashes. Can be easily replaced with `Debug.log`
+for production.
+-}
+crashLog : String -> a -> b
+crashLog message value =
+    Debug.crash message
+
+
 nodeFocus : Focus { record | node : field } field
 nodeFocus =
     Focus.create .node (\update record -> { record | node = update record.node })

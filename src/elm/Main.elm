@@ -156,7 +156,7 @@ mapFile id transform menu =
             }
 
         Nothing ->
-            Debug.log "Trying to map nonexistent file!" menu
+            Util.crashLog "Trying to map nonexistent file!" menu
 
 
 getSelected : Menu r -> Maybe MentalMap.Model
@@ -175,7 +175,7 @@ changeSelection newId menu =
     if newId >= 0 && newId < Array.length menu.files then
         { menu | selection = newId }
     else
-        Debug.crash "Invalid ID!"
+        Util.crashLog "Invalid ID!" menu
 
 
 
@@ -281,7 +281,7 @@ update msg model =
                         (MentalMap.update msg_ old)
 
                 Nothing ->
-                    model ! [] |> Debug.log "Stray MentalMap message!"
+                    model ! [] |> Util.crashLog "Stray MentalMap message!"
 
         MdlMsg msg_ ->
             Material.update MdlMsg msg_ model
@@ -318,7 +318,7 @@ update msg model =
             if key == localStorageKey then
                 load value model ! []
             else
-                Debug.log "Recieved item from an unknown key" model ! []
+                Util.crashLog "Recieved item from an unknown key" model ! []
 
 
 

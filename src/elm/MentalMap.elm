@@ -95,7 +95,7 @@ getNodePos id graph =
 
         Nothing ->
             Vec2.vec2 0 0
-                |> Debug.crash "getNodePos got nonexisting id!"
+                |> Util.crashLog "getNodePos got nonexisting id!"
 
 
 offsetMouse : Model -> Vec2
