@@ -393,7 +393,6 @@ viewFile menu id file =
                 |> Material.Color.background
                 |> Options.when (menu.selection == id)
             , MyCss.mdlClass MyCss.File
-            , Options.onClick <| ChangeSelection id
             , Options.onMouseOver <| MouseOverFile id
             , Options.onMouseOut <| MouseOutFile id
             ]
@@ -409,13 +408,11 @@ viewFile menu id file =
                     ]
                     []
               else
-                Material.List.content []
-                    [ Options.div []
-                        [ Options.span
-                            [ Options.onDoubleClick (EnterRenaming id cssId) ]
-                            [ Html.text file.filename ]
-                        ]
+                Material.List.content
+                    [ Options.onDoubleClick (EnterRenaming id cssId)
+                    , Options.onClick <| ChangeSelection id
                     ]
+                    [ Html.text file.filename ]
             , if file.mouseOver then
                 List.indexedMap
                     (\i ( msg, iconName, description ) ->
