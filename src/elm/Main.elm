@@ -413,7 +413,7 @@ viewFile menu id file =
                     , Options.onClick <| ChangeSelection id
                     ]
                     [ Html.text file.filename ]
-            , if file.mouseOver then
+            , if file.mouseOver && not file.renaming then
                 List.indexedMap
                     (\i ( msg, iconName, description ) ->
                         Button.render MdlMsg
