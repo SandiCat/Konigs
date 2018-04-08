@@ -27,10 +27,10 @@ import Json.Encode as Encode
 type alias Model =
     { pos : Vec2
     , radius : Float
-    , heading : Heading.Model
-    , mouseOver : Bool
-    , contextMenu : ContextMenu.Model
     , showDescription : Bool
+    , mouseOver : Bool
+    , heading : Heading.Model
+    , contextMenu : ContextMenu.Model
     , description : Description.Model
     }
 
@@ -42,7 +42,7 @@ fullInit :
     -> Description.Model
     -> Model
 fullInit pos radius heading desc =
-    Model pos radius heading False ContextMenu.init False desc
+    Model pos radius False False heading ContextMenu.init desc
 
 
 init : String -> Vec2 -> Model
