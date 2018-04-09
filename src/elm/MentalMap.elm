@@ -65,23 +65,6 @@ fullInit camera nodes edges =
     }
 
 
-exampleInit : Model
-exampleInit =
-    fullInit
-        (Vec2.vec2 0 0)
-        (List.map
-            (\i ->
-                Node.init ("Test node " ++ toString i) (Vec2.vec2 0 0)
-                    |> Graph.Node i
-            )
-            (List.range 0 5)
-        )
-        ([ ( 0, 1 ), ( 0, 2 ), ( 2, 3 ), ( 3, 4 ), ( 2, 5 ), ( 2, 4 ) ]
-            |> List.map (\( a, b ) -> Graph.Edge a b Edge.init)
-         -- direction is arbitrary, see docs
-        )
-
-
 emptyInit : Model
 emptyInit =
     fullInit (Vec2.vec2 0 0) [] []
