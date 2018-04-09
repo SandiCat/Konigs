@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const WebpackNotifierPlugin = require('webpack-notifier');
 
 const config = {
   entry: './src/index.js',
@@ -30,21 +29,12 @@ const config = {
           "postcss-loader",
           'elm-css-webpack-loader'
         ]
-      },
-      {
-        test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          "postcss-loader"
-        ]
       }
     ]
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
-    new WebpackNotifierPlugin(),
+    new webpack.HotModuleReplacementPlugin()
   ]
 };
 
