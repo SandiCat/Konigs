@@ -19,6 +19,8 @@ import Math.Vector2 as Vec2 exposing (Vec2)
 import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
+import Delay
+import Time
 
 
 -- MODEL
@@ -29,25 +31,37 @@ type alias Model =
     , radius : Float
     , showDescription : Bool
     , mouseOver : Bool
+    , animationState : AnimationState
     , heading : Heading.Model
     , contextMenu : ContextMenu.Model
     , description : Description.Model
     }
 
 
+type AnimationState
+    = Begin
+    | ShowUI
+    | End
+
+
 fullInit :
     Vec2
+    -> AnimationState
     -> Float
     -> Heading.Model
     -> Description.Model
     -> Model
-fullInit pos radius heading desc =
-    Model pos radius False False heading ContextMenu.init desc
+fullInit pos animationState radius heading desc =
+    Model pos radius False False animationState heading ContextMenu.init desc
 
 
-init : String -> Vec2 -> Model
+init : String -> Vec2 -> ( Model, Cmd Msg )
 init text pos =
-    fullInit pos 60 (Heading.init text) (Description.init "")
+    fullInit pos Begin 60 (Heading.init text) (Description.init "")
+        ! [ -- bounceIn animation is 0.75s
+            Delay.after 0.2 Time.second <| ChangeAnimationState ShowUI
+          , Delay.after 0.75 Time.second <| ChangeAnimationState End
+          ]
 
 
 
@@ -56,7 +70,7 @@ init text pos =
 
 decode : Decode.Decoder Model
 decode =
-    Decode.succeed (fullInit <| Vec2.vec2 0 0)
+    Decode.succeed (fullInit (Vec2.vec2 0 0) End)
         |: (Decode.field "radius" Decode.float)
         |: (Decode.field "heading" Heading.decode)
         |: (Decode.field "description" Description.decode)
@@ -82,6 +96,7 @@ type Msg
     | DescriptionMsg Description.Msg
     | MouseOver
     | MouseOut
+    | ChangeAnimationState AnimationState
 
 
 type OutMsg
@@ -135,6 +150,9 @@ update msg model =
         MouseOut ->
             ( { model | mouseOver = False }, Cmd.none, Nothing )
 
+        ChangeAnimationState state ->
+            ( { model | animationState = state }, Cmd.none, Nothing )
+
 
 updateContextMenu : Maybe ContextMenu.OutMsg -> Model -> ( Model, Cmd Msg, Maybe OutMsg )
 updateContextMenu msg model =
@@ -160,59 +178,70 @@ width model =
 
 view : Int -> Model -> Html.Html Msg
 view id model =
-    Html.div
-        [ MyCss.class [ MyCss.Node ] ]
-        [ Html.div []
-            [ if model.mouseOver || model.contextMenu.mouseOver then
-                ContextMenu.view
-                    model.contextMenu
-                    |> Html.map ContextMenuMsg
-              else
-                Html.div [] []
-            , if model.showDescription then
-                Description.view model.description
-                    |> Html.map DescriptionMsg
-              else
-                Html.div [] []
-            ]
-        , Html.div
-            [ Events.onMouseEnter MouseOver
-            , Events.onMouseLeave MouseOut
-            , Events.onMouseDown (ToParent MouseDown)
-            , Events.onMouseUp (ToParent MouseUp)
-            ]
-            [ Heading.view id model.heading
-                |> Html.map HeadingMsg
-            ]
-        ]
-        |> List.singleton
-        |> Html.div
-            [ Util.Css.style
-                [ Vec2.getX model.pos |> Css.px |> Css.left
-                , Vec2.getY model.pos |> Css.px |> Css.top
-                , width model |> Css.px |> Css.width
-                , width model |> Css.px |> Css.height
+    if model.animationState == Begin then
+        Html.div [] []
+    else
+        Html.div
+            [ MyCss.class [ MyCss.Node ] ]
+            [ Html.div []
+                [ if model.mouseOver || model.contextMenu.mouseOver then
+                    ContextMenu.view
+                        model.contextMenu
+                        |> Html.map ContextMenuMsg
+                  else
+                    Html.div [] []
+                , if model.showDescription then
+                    Description.view model.description
+                        |> Html.map DescriptionMsg
+                  else
+                    Html.div [] []
                 ]
-            , MyCss.class [ MyCss.NodeCont ]
-
-            {- Node and NodeCont cannot be merged. Node has to have a parent with
-               it's width and height so that it can be centered using `top: 50%` and
-               `left: 50%`, without `transform`.
-            -}
+            , Html.div
+                [ Events.onMouseEnter MouseOver
+                , Events.onMouseLeave MouseOut
+                , Events.onMouseDown (ToParent MouseDown)
+                , Events.onMouseUp (ToParent MouseUp)
+                ]
+                [ Heading.view id model.heading
+                    |> Html.map HeadingMsg
+                ]
             ]
+            |> List.singleton
+            |> Html.div
+                [ Util.Css.style
+                    [ Vec2.getX model.pos |> Css.px |> Css.left
+                    , Vec2.getY model.pos |> Css.px |> Css.top
+                    , width model |> Css.px |> Css.width
+                    , width model |> Css.px |> Css.height
+                    ]
+                , MyCss.class [ MyCss.NodeCont ]
+
+                {- Node and NodeCont cannot be merged. Node has to have a parent with
+                   it's width and height so that it can be centered using `top: 50%` and
+                   `left: 50%`, without `transform`.
+                -}
+                ]
 
 
 svgView : Model -> Svg Msg
 svgView model =
-    Svg.circle
-        [ SvgAttPx.cx <| Vec2.getX model.pos
-        , SvgAttPx.cy <| Vec2.getY model.pos
-        , SvgAttPx.r model.radius
-        , SvgAtt.fill (SvgTypes.Fill Color.white)
-        , SvgAtt.stroke <| Color.rgb 94 129 193
-        , SvgAttPx.strokeWidth 7
+    Svg.g
+        [ SvgAtt.class <|
+            if model.animationState /= End then
+                [ "animated", "bounceIn" ]
+            else
+                []
         ]
-        []
+        [ Svg.circle
+            [ SvgAttPx.cx <| Vec2.getX model.pos
+            , SvgAttPx.cy <| Vec2.getY model.pos
+            , SvgAttPx.r model.radius
+            , SvgAtt.fill (SvgTypes.Fill Color.white)
+            , SvgAtt.stroke <| Color.rgb 94 129 193
+            , SvgAttPx.strokeWidth 7
+            ]
+            []
+        ]
 
 
 
