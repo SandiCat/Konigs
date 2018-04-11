@@ -56,9 +56,7 @@ fullInit :
     -> List (Graph.Edge Edge.Model)
     -> Model
 fullInit camera nodes edges =
-    { graph =
-        Graph.fromNodesAndEdges nodes edges
-            |> Layout.randomlyArrange
+    { graph = Graph.fromNodesAndEdges nodes edges
     , state = None
     , mousePos = Vec2.vec2 0 0
     , cameraPos = camera

@@ -21,6 +21,7 @@ import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
 import Delay
 import Time
+import Util
 
 
 -- MODEL
@@ -45,19 +46,19 @@ type AnimationState
 
 
 fullInit :
-    Vec2
-    -> AnimationState
+    AnimationState
+    -> Vec2
     -> Float
     -> Heading.Model
     -> Description.Model
     -> Model
-fullInit pos animationState radius heading desc =
+fullInit animationState pos radius heading desc =
     Model pos radius False False animationState heading ContextMenu.init desc
 
 
 init : String -> Vec2 -> ( Model, Cmd Msg )
 init text pos =
-    fullInit pos Begin 60 (Heading.init text) (Description.init "")
+    fullInit Begin pos 60 (Heading.init text) (Description.init "")
         ! [ -- bounceIn animation is 0.75s
             Delay.after 0.2 Time.second <| ChangeAnimationState ShowUI
           , Delay.after 0.75 Time.second <| ChangeAnimationState End
@@ -70,7 +71,8 @@ init text pos =
 
 decode : Decode.Decoder Model
 decode =
-    Decode.succeed (fullInit (Vec2.vec2 0 0) End)
+    Decode.succeed (fullInit End)
+        |: (Decode.field "pos" Util.decodeVec2)
         |: (Decode.field "radius" Decode.float)
         |: (Decode.field "heading" Heading.decode)
         |: (Decode.field "description" Description.decode)
@@ -79,7 +81,8 @@ decode =
 encode : Model -> Encode.Value
 encode model =
     Encode.object
-        [ ( "radius", Encode.float model.radius )
+        [ ( "pos", Util.encodeVec2 model.pos )
+        , ( "radius", Encode.float model.radius )
         , ( "heading", Heading.encode model.heading )
         , ( "description", Description.encode model.description )
         ]
