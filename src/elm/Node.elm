@@ -19,6 +19,7 @@ import Math.Vector2 as Vec2 exposing (Vec2)
 import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
+import Util
 
 
 -- MODEL
@@ -56,7 +57,7 @@ init text pos =
 
 decode : Decode.Decoder Model
 decode =
-    Decode.succeed (fullInit End)
+    Decode.succeed fullInit
         |: (Decode.field "pos" Util.decodeVec2)
         |: (Decode.field "radius" Decode.float)
         |: (Decode.field "heading" Heading.decode)
