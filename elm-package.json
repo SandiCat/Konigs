@@ -9,7 +9,6 @@
     ],
     "exposed-modules": [],
     "dependencies": {
-        "andrewMacmurray/elm-delay": "2.0.3 <= v < 3.0.0",
         "debois/elm-mdl": "8.1.0 <= v < 9.0.0",
         "elm-community/array-extra": "1.0.2 <= v < 2.0.0",
         "elm-community/graph": "2.0.0 <= v < 3.0.0",

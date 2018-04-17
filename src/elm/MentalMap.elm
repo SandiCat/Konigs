@@ -179,15 +179,14 @@ update msg model =
                     |> Maybe.withDefault (model ! [])
 
         Doubleclick ->
-            let
-                id =
-                    Util.Graph.newNodeId model.graph
-
-                ( node, cmd ) =
-                    Node.init "" <| offsetMouse model
-            in
-                { model | graph = Util.Graph.addUnconnectedNode id node model.graph }
-                    ! [ Cmd.map (NodeMsg id) cmd ]
+            { model
+                | graph =
+                    Util.Graph.addUnconnectedNode
+                        (Util.Graph.newNodeId model.graph)
+                        (Node.init "" <| offsetMouse model)
+                        model.graph
+            }
+                ! []
 
         Hold ->
             case model.state of
