@@ -223,9 +223,9 @@ updateNodeOutMsg id msg model =
                     { model
                         | graph =
                             Util.Graph.addEdge
-                                (Util.Graph.EdgeId id id_)
+                                (Util.Graph.EdgeId id_ id)
                                 -- order is arbitrary, see docs
-                                Edge.init
+                                (Edge.init Edge.Undirected)
                                 model.graph
                         , state = None
                     }
@@ -263,7 +263,7 @@ view size model =
         connectEdge =
             case model.state of
                 Connecting id ->
-                    [ Edge.svgView (offsetMouse model) (getNodePos id model.graph) Edge.init
+                    [ Edge.svgView (getNodePos id model.graph) (offsetMouse model) (Edge.init Edge.Undirected)
                         -- the connecting edge doesn't need to handle messages
                         |> Html.map (always NoOp)
                     ]
@@ -288,7 +288,8 @@ view size model =
                 , SvgEvents.onMouseUp Release
                 , SvgEvents.onMouseDown Hold
                 ]
-                [ Svg.g
+                [ Edge.svgDefs
+                , Svg.g
                     [ SvgAtt.transform
                         [ SvgTypes.Translate
                             (Vec2.getX model.cameraPos)
