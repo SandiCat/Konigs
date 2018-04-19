@@ -28,6 +28,7 @@ import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
 import Array.Extra
+import Keyboard.Extra
 
 
 -- MODEL
@@ -402,7 +403,9 @@ viewFile menu id file =
                     menu.mdl
                     [ Options.onInput (ChangeFilename id)
                     , Options.onBlur (ExitRenaming id)
-                    , ExitRenaming id |> Util.onEnter |> Options.attribute
+                    , ExitRenaming id
+                        |> Util.onSpecificKeyPress Keyboard.Extra.Enter
+                        |> Options.attribute
                     , Options.id cssId
                     , Textfield.value file.filename
                     ]

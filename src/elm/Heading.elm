@@ -16,6 +16,7 @@ import Json.Decode.Extra exposing ((|:))
 import Json.Encode.Extra
 import Json.Encode as Encode
 import Task
+import Keyboard.Extra
 
 
 -- MODEL
@@ -145,7 +146,7 @@ view id model =
                         [ Att.contenteditable True
                         , MyCss.class [ MyCss.HeadingText ]
                         , onDivBlur InputChange
-                        , Util.onEnter <| OnEnter <| Id stringId
+                        , Util.onSpecificKeyPress Keyboard.Extra.Enter <| OnEnter <| Id stringId
                         , Att.id stringId
                         ]
                         [ Html.text text ]

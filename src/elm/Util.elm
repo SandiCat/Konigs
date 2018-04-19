@@ -7,6 +7,7 @@ import Json.Encode as Encode
 import Math.Vector2 as Vec2 exposing (Vec2)
 import Html
 import Html.Events
+import Keyboard.Extra exposing (Key)
 
 
 {-| Use instead of `Debug.log` during development to make unexpected erros more obvious.
@@ -59,16 +60,21 @@ encodeVec2 v =
         ]
 
 
-onEnter : msg -> Html.Attribute msg
-onEnter msg =
+{-| Sends out a message only if a certian key is pressed
+-}
+onSpecificKeyPress : Key -> msg -> Html.Attribute msg
+onSpecificKeyPress specificKey msg =
     let
-        isEnter code =
-            if code == 13 then
+        isEnter key =
+            if key == specificKey then
                 Decode.succeed msg
             else
                 Decode.fail "not ENTER"
     in
         Html.Events.onWithOptions
-            "keydown"
+            "keypress"
             { stopPropagation = False, preventDefault = True }
-            (Decode.andThen isEnter Html.Events.keyCode)
+            (Html.Events.keyCode
+                |> Decode.map Keyboard.Extra.fromCode
+                |> Decode.andThen isEnter
+            )
