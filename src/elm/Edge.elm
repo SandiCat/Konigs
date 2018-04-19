@@ -166,7 +166,7 @@ view from to model =
                     [ MyCss.class [ MyCss.EdgeCont ]
                     , Util.Css.style
                         [ x |> Css.px |> Css.left
-                        , y + 20 |> Css.px |> Css.top
+                        , y |> Css.px |> Css.top
                         ]
                     ]
     else
