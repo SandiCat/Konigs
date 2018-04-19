@@ -31,6 +31,7 @@ import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
 import Material.Options as Options
 import Material.Typography
+import Keyboard.Extra exposing (Key)
 
 
 -- MODEL
@@ -41,6 +42,7 @@ type alias Model =
     , state : State
     , mousePos : Vec2
     , cameraPos : Vec2
+    , keyState : List Key
     }
 
 
@@ -60,6 +62,7 @@ fullInit camera nodes edges =
     , state = None
     , mousePos = Vec2.vec2 0 0
     , cameraPos = camera
+    , keyState = []
     }
 
 
@@ -82,6 +85,14 @@ getNodePos id graph =
 offsetMouse : Model -> Vec2
 offsetMouse model =
     Vec2.sub model.mousePos model.cameraPos
+
+
+chooseEdgeDirection : { r | keyState : List Key } -> Edge.Direction
+chooseEdgeDirection { keyState } =
+    if List.member Keyboard.Extra.Shift keyState then
+        Edge.FromTo
+    else
+        Edge.Undirected
 
 
 
@@ -127,6 +138,7 @@ type Msg
     | Release
     | Move Vec2
     | LeaveWindow
+    | KeyboardMsg Keyboard.Extra.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -210,6 +222,9 @@ update msg model =
         LeaveWindow ->
             { model | state = None } ! []
 
+        KeyboardMsg keyMsg ->
+            { model | keyState = Keyboard.Extra.update keyMsg model.keyState } ! []
+
 
 updateNodeOutMsg : Graph.NodeId -> Node.OutMsg -> Model -> ( Model, Cmd Msg )
 updateNodeOutMsg id msg model =
@@ -225,7 +240,7 @@ updateNodeOutMsg id msg model =
                             Util.Graph.addEdge
                                 (Util.Graph.EdgeId id_ id)
                                 -- order is arbitrary, see docs
-                                (Edge.init Edge.Undirected)
+                                (Edge.init <| chooseEdgeDirection model)
                                 model.graph
                         , state = None
                     }
@@ -263,7 +278,10 @@ view size model =
         connectEdge =
             case model.state of
                 Connecting id ->
-                    [ Edge.svgView (getNodePos id model.graph) (offsetMouse model) (Edge.init Edge.Undirected)
+                    [ Edge.svgView
+                        (getNodePos id model.graph)
+                        (offsetMouse model)
+                        (Edge.init <| chooseEdgeDirection model)
                         -- the connecting edge doesn't need to handle messages
                         |> Html.map (always NoOp)
                     ]
@@ -342,7 +360,9 @@ subscriptions model =
                but it's extremly questionable. What if this Msg comes before
                Node.MouseUp? It doesn't ever happen, but it's hacky.
             -}
+            :: Sub.map KeyboardMsg Keyboard.Extra.subscriptions
             :: AnimationFrame.diffs StepLayout
+            --:: Keyboard.Key.onKeyPress KeyPress
             :: List.map
                 (\{ id, label } -> Sub.map (NodeMsg id) (Node.subscriptions label))
                 (Graph.nodes model.graph)
