@@ -263,5 +263,5 @@ directedLine from to =
                             []
                    )
             )
-            (List.range 0 <| round <| Vec2.length vec / spacing / 2)
+            (List.range 0 <| truncate <| Vec2.length vec / spacing / 2)
             |> Svg.g []
