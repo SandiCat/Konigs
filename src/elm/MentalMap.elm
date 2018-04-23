@@ -95,6 +95,31 @@ chooseEdgeDirection { keyState } =
         Edge.Undirected
 
 
+addEdge : Graph.NodeId -> Graph.NodeId -> Edge.Direction -> Model -> Model
+addEdge a b direction model =
+    let
+        id1 =
+            Util.Graph.EdgeId a b
+
+        id2 =
+            Util.Graph.EdgeId b a
+    in
+        if
+            Util.Graph.existsEdge id1 model.graph
+                || Util.Graph.existsEdge id2 model.graph
+        then
+            model
+        else
+            { model
+                | graph =
+                    Util.Graph.addEdge
+                        id1
+                        -- order is arbitrary, see docs
+                        (Edge.init direction)
+                        model.graph
+            }
+
+
 
 -- JSON
 
@@ -235,15 +260,9 @@ updateNodeOutMsg id msg model =
         Node.MouseUp ->
             case model.state of
                 Connecting id_ ->
-                    { model
-                        | graph =
-                            Util.Graph.addEdge
-                                (Util.Graph.EdgeId id_ id)
-                                -- order is arbitrary, see docs
-                                (Edge.init <| chooseEdgeDirection model)
-                                model.graph
-                        , state = None
-                    }
+                    ({ model | state = None }
+                        |> addEdge id id_ (chooseEdgeDirection model)
+                    )
                         ! []
 
                 _ ->
