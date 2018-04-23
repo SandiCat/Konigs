@@ -337,7 +337,7 @@ view size model =
                     ]
                     (Graph.nodes model.graph
                         |> List.map (\{ id, label } -> Node.view id label |> Html.map (NodeMsg id))
-                        |> (++) (edges Edge.view)
+                        |> (flip (++)) (edges Edge.view)
                     )
             ]
 
