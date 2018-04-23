@@ -206,20 +206,26 @@ edgeColor =
     Color.rgb 36 79 159
 
 
+edgeWidth =
+    5
+
+
 svgDefs =
     Svg.defs []
         [ Svg.marker
-            [ Html.Attributes.attribute "markerWidth" "4"
-            , Html.Attributes.attribute "markerHeight" "4"
-            , SvgAtt.refX "2"
-            , SvgAtt.refY "2"
+            [ Html.Attributes.attribute "markerWidth" "2"
+            , Html.Attributes.attribute "markerHeight" "1"
+            , Html.Attributes.attribute "preserveAspectRatio" "none"
+            , SvgAtt.viewBox 0 0 2 2
+            , SvgAtt.refX "0"
+            , SvgAtt.refY "1"
             , Html.Attributes.id "arrow"
             , SvgAtt.orient "auto"
             , SvgAtt.markerUnits (SvgTypes.MarkerCoordinateSystemStrokeWidth)
             ]
             [ Svg.path
-                [ SvgAtt.d "M0,0 L4,2 0,4"
-                , SvgAtt.fill <| SvgTypes.Fill edgeColor
+                [ SvgAtt.d "M 0 0 L 1 0 L 2 1 L 1 2 L 0 2 L 1 1 Z"
+                , SvgAtt.fill <| SvgTypes.Fill <| Color.rgb 94 129 193
                 ]
                 []
             ]
@@ -236,7 +242,7 @@ svgView from to model =
                     , SvgAttPx.y1 <| Vec2.getY from
                     , SvgAttPx.x2 <| Vec2.getX to
                     , SvgAttPx.y2 <| Vec2.getY to
-                    , SvgAttPx.strokeWidth 5
+                    , SvgAttPx.strokeWidth edgeWidth
                     , SvgAtt.stroke edgeColor
                     ]
                     []
@@ -265,7 +271,7 @@ directedLine : Vec2 -> Vec2 -> Svg Msg
 directedLine from to =
     let
         spacing =
-            20.0
+            5
 
         vec =
             Vec2.sub to from
@@ -277,20 +283,31 @@ directedLine from to =
         ( x0, y0 ) =
             Vec2.toTuple from
     in
-        List.map
-            (toFloat
-                >> (\i ->
-                        Svg.line
-                            [ SvgAttPx.x1 <| x0 + 2 * i * dx
-                            , SvgAttPx.y1 <| y0 + 2 * i * dy
-                            , SvgAttPx.x2 <| x0 + (2 * i + 1) * dx
-                            , SvgAttPx.y2 <| y0 + (2 * i + 1) * dy
-                            , SvgAtt.strokeOpacity (SvgTypes.Opacity 0)
-                            , SvgAttPx.strokeWidth 5
-                            , SvgAtt.markerEnd "url(#arrow)"
-                            ]
-                            []
-                   )
-            )
-            (List.range 0 <| truncate <| Vec2.length vec / spacing / 2)
-            |> Svg.g []
+        Svg.g []
+            [ Svg.line
+                [ SvgAttPx.x1 <| Vec2.getX from
+                , SvgAttPx.y1 <| Vec2.getY from
+                , SvgAttPx.x2 <| Vec2.getX to
+                , SvgAttPx.y2 <| Vec2.getY to
+                , SvgAttPx.strokeWidth edgeWidth
+                , SvgAtt.stroke edgeColor
+                ]
+                []
+            , List.map
+                (toFloat
+                    >> (\i ->
+                            Svg.line
+                                [ SvgAttPx.x1 <| x0 + 2 * i * dx
+                                , SvgAttPx.y1 <| y0 + 2 * i * dy
+                                , SvgAttPx.x2 <| x0 + (2 * i + 1) * dx
+                                , SvgAttPx.y2 <| y0 + (2 * i + 1) * dy
+                                , SvgAtt.strokeOpacity (SvgTypes.Opacity 0)
+                                , SvgAttPx.strokeWidth edgeWidth
+                                , SvgAtt.markerEnd "url(#arrow)"
+                                ]
+                                []
+                       )
+                )
+                (List.range 0 <| truncate <| Vec2.length vec / spacing / 2)
+                |> Svg.g []
+            ]
