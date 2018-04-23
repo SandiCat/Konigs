@@ -99,6 +99,7 @@ type Msg
     | NoOp
     | MouseOver Int Bool -- id (index) of which state to change and what to change it to
     | ToParent OutMsg
+    | ChangeDirection Direction
 
 
 type OutMsg
@@ -127,6 +128,9 @@ update msg model =
         ToParent outMsg ->
             ( model, Cmd.none, Just outMsg )
 
+        ChangeDirection direction ->
+            ( { model | direction = direction }, Cmd.none, Nothing )
+
 
 
 -- VIEW
@@ -141,34 +145,59 @@ view : Vec2 -> Vec2 -> Model -> Html.Html Msg
 view from to model =
     if Array.foldl (||) False model.mouseOver then
         let
-            ( x, y ) =
-                -- the middle of the edge
-                Vec2.add from to
-                    |> Vec2.scale 0.5
-                    |> Vec2.toTuple
+            ( vx, vy ) =
+                Vec2.sub to from |> Vec2.toTuple
+
+            angle =
+                -- negative y because of different coordinate systems
+                -- negate because css rotates clockwise
+                atan2 (-vy) vx |> negate
+
+            midPoint =
+                Vec2.add from to |> Vec2.scale 0.5
+
+            -- Distance from edge to the origin of the buttons
+            distance =
+                30
+
+            -- A point just above/below the middle of the edge
+            { x, y } =
+                Vec2.direction to from
+                    |> Util.rotateVec2 (pi / 2)
+                    |> Vec2.scale distance
+                    |> Vec2.add midPoint
+                    |> Vec2.toRecord
         in
             Html.div
                 [ MyCss.class [ MyCss.Edge ]
                 , SvgEvents.onMouseOver (MouseOver 1 True)
                 , SvgEvents.onMouseOut (MouseOver 1 False)
-                ]
-                [ Button.render
-                    MdlMsg
-                    [ 0 ]
-                    model.mdl
-                    [ Button.icon
-                    , Options.onClick (ToParent Remove)
-                    ]
-                    [ Icon.i "clear" ]
-                ]
-                |> List.singleton
-                |> Html.div
-                    [ MyCss.class [ MyCss.EdgeCont ]
-                    , Util.Css.style
-                        [ x |> Css.px |> Css.left
-                        , y |> Css.px |> Css.top
+                , Util.Css.style
+                    [ Css.transforms
+                        [ Css.translate2 (Css.pct -50) (Css.pct -50)
+                        , Css.rotateZ <| Css.rad angle
                         ]
+                    , Css.px x |> Css.left
+                    , Css.px y |> Css.top
                     ]
+                ]
+                (List.indexedMap
+                    (\i ( msg, iconName, description ) ->
+                        Button.render MdlMsg
+                            [ 0, 0, i ]
+                            model.mdl
+                            [ Button.icon
+                            , Options.onClick msg
+                            , Options.attribute <| Html.Attributes.title description
+                            ]
+                            [ Icon.i iconName ]
+                    )
+                    [ ( ChangeDirection ToFrom, "arrow_back", "Change direction" )
+                    , ( ChangeDirection Undirected, "swap_horiz", "Remove direction" )
+                    , ( ToParent Remove, "clear", "Delete" )
+                    , ( ChangeDirection FromTo, "arrow_forward", "Change direction" )
+                    ]
+                )
     else
         Html.div [] []
 

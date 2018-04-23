@@ -60,6 +60,19 @@ encodeVec2 v =
         ]
 
 
+{-| Rotate counterclockwise by angle given in radians
+-}
+rotateVec2 : Float -> Vec2 -> Vec2
+rotateVec2 angle vec =
+    let
+        { x, y } =
+            Vec2.toRecord vec
+    in
+        Vec2.vec2
+            (x * cos angle - y * sin angle)
+            (x * sin angle + y * cos angle)
+
+
 {-| Sends out a message only if a certian key is pressed
 -}
 onSpecificKeyPress : Key -> msg -> Html.Attribute msg

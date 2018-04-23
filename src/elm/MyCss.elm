@@ -33,7 +33,6 @@ type CssClasses
     | DescriptionText
     | DescriptionEmpty
     | Edge
-    | EdgeCont
     | Menu
     | MenuButtons
     | File
@@ -121,13 +120,10 @@ css =
             , top (pct 50)
             , padding (px 20)
             ]
-        , (.) EdgeCont
-            [ position absolute
-            , pointerEvents None
-            ]
         , (.) Edge
-            [ translate2 (pct -50) (pct -50) |> transform
-            , pointerEvents Auto
+            [ position absolute
+            , displayFlex
+            , flexDirection row
             ]
         , (.) Menu
             [ height (pct 100)
