@@ -96,25 +96,24 @@ chooseEdgeDirection { keyState } =
 
 
 addEdge : Graph.NodeId -> Graph.NodeId -> Edge.Direction -> Model -> Model
-addEdge a b direction model =
+addEdge from to direction model =
     let
-        id1 =
-            Util.Graph.EdgeId a b
+        id =
+            Util.Graph.EdgeId from to
 
-        id2 =
-            Util.Graph.EdgeId b a
+        reverseId =
+            Util.Graph.EdgeId to from
     in
         if
-            Util.Graph.existsEdge id1 model.graph
-                || Util.Graph.existsEdge id2 model.graph
+            Util.Graph.existsEdge id model.graph
+                || Util.Graph.existsEdge reverseId model.graph
         then
             model
         else
             { model
                 | graph =
                     Util.Graph.addEdge
-                        id1
-                        -- order is arbitrary, see docs
+                        id
                         (Edge.init direction)
                         model.graph
             }
@@ -261,7 +260,7 @@ updateNodeOutMsg id msg model =
             case model.state of
                 Connecting id_ ->
                     ({ model | state = None }
-                        |> addEdge id id_ (chooseEdgeDirection model)
+                        |> addEdge id_ id (chooseEdgeDirection model)
                     )
                         ! []
 
