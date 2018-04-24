@@ -29,6 +29,7 @@ import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
 import Array.Extra
 import Keyboard.Extra
+import Time
 
 
 -- MODEL
@@ -377,7 +378,7 @@ viewMenu menu =
                     [ Icon.i iconName ]
             )
             [ ( NewFile, "add", "New file" )
-            , ( Save, "sync", "Save" )
+            , ( Save, "save", "Save" )
             ]
             |> Options.div [ MyCss.mdlClass MyCss.MenuButtons ]
         ]
@@ -453,6 +454,7 @@ subscriptions model =
 
             Nothing ->
                 Sub.none
+        , Time.every (5 * Time.second) (always Save)
         ]
 
 
