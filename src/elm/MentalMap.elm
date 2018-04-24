@@ -314,7 +314,7 @@ view size model =
         Html.div
             [ Util.Css.userSelect False
             , Events.onMouseLeave LeaveWindow
-            , MyCss.class [ MyCss.AbsolutePos, MyCss.MaxSize ]
+            , MyCss.class [ MyCss.AbsolutePos, MyCss.MaxSize, MyCss.MentalMap ]
             ]
             [ Svg.svg
                 [ onDoubleClick Doubleclick

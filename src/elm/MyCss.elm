@@ -36,6 +36,7 @@ type CssClasses
     | Menu
     | MenuButtons
     | File
+    | MentalMap
 
 
 type CssIds
@@ -135,9 +136,10 @@ css =
             ]
         , (.) File
             [ height (px 50) ]
+        , (.) MentalMap
+            [ overflow hidden ]
         , html
-            [ overflow hidden
-            , position absolute
+            [ position absolute
             ]
         , selector ".mdl-layout__drawer-button"
             [ color (rgba 140 168 218 0.8)
