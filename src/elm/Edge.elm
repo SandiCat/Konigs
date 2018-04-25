@@ -158,7 +158,7 @@ view from to model =
 
             -- Distance from edge to the origin of the buttons
             distance =
-                30
+                35
 
             -- A point just above/below the middle of the edge
             { x, y } =

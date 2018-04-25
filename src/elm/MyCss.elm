@@ -125,6 +125,7 @@ css =
             [ position absolute
             , displayFlex
             , flexDirection row
+            , paddingBottom (px 20)
             ]
         , (.) Menu
             [ height (pct 100)
