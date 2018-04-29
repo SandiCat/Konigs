@@ -215,7 +215,7 @@ svgDefs =
         [ Svg.marker
             [ Html.Attributes.attribute "markerWidth" "4"
             , Html.Attributes.attribute "markerHeight" "4"
-            , Html.Attributes.attribute "preserveAspectRatio" "none"
+            , SvgAtt.preserveAspectRatio SvgTypes.AlignNone SvgTypes.Meet
             , SvgAtt.viewBox 0 0 2 2
             , SvgAtt.refX "1"
             , SvgAtt.refY "1"
