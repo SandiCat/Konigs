@@ -10,7 +10,6 @@ import Heading
 import Html.Events as Events
 import Html
 import MyCss
-import Util.Css
 import Css
 import ContextMenu
 import Description
@@ -190,7 +189,7 @@ view id model =
         ]
         |> List.singleton
         |> Html.div
-            [ Util.Css.style
+            [ MyCss.style
                 [ Vec2.getX model.pos |> Css.px |> Css.left
                 , Vec2.getY model.pos |> Css.px |> Css.top
                 , width model |> Css.px |> Css.width

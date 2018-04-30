@@ -11,10 +11,8 @@ import Html.Events as Events
 import Html.Attributes
 import Html
 import MyCss
-import Util.Css
 import Css
 import Platform.Cmd as Cmd
-import Util.Cmd
 import Math.Vector2 as Vec2 exposing (Vec2)
 import Material.Button as Button
 import Material.Icon as Icon
@@ -172,7 +170,7 @@ view from to model =
                 [ MyCss.class [ MyCss.Edge ]
                 , SvgEvents.onMouseOver (MouseOver 1 True)
                 , SvgEvents.onMouseOut (MouseOver 1 False)
-                , Util.Css.style
+                , MyCss.style
                     [ Css.transforms
                         [ Css.translate2 (Css.pct -50) (Css.pct -50)
                         , Css.rotateZ <| Css.rad angle

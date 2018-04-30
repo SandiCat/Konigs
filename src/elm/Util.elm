@@ -19,6 +19,15 @@ crashLog message value =
     Debug.crash message
 
 
+updateCmd :
+    (inModel -> outModel)
+    -> (inMsg -> outMsg)
+    -> ( inModel, Cmd inMsg )
+    -> ( outModel, Cmd outMsg )
+updateCmd updateOutModel tagMsg ( inModel, inCmd ) =
+    ( updateOutModel inModel, Cmd.map tagMsg inCmd )
+
+
 nodeFocus : Focus { record | node : field } field
 nodeFocus =
     Focus.create .node (\update record -> { record | node = update record.node })

@@ -4,6 +4,8 @@ import Css exposing (..)
 import Css.Elements exposing (body, li, html)
 import Css.Namespace exposing (namespace)
 import Html.CssHelpers
+import Html
+import Html.Attributes
 import Material.Options
 
 
@@ -13,6 +15,11 @@ namespaceName =
 
 { id, class, classList } =
     Html.CssHelpers.withNamespace namespaceName
+
+
+style : List Css.Mixin -> Html.Attribute msg
+style =
+    Css.asPairs >> Html.Attributes.style
 
 
 mdlClass : CssClasses -> Material.Options.Property c m
@@ -147,6 +154,22 @@ css =
             , property "user-select" "none"
             ]
         ]
+
+
+userSelect : Bool -> Html.Attribute msg
+userSelect selectable =
+    let
+        value =
+            if selectable then
+                "text"
+            else
+                "none"
+    in
+        Html.Attributes.style
+            [ ( "-moz-user-select", value )
+            , ( "-webkit-user-select", value )
+            , ( "-ms-user-select", value )
+            ]
 
 
 pointerEvents : PointerEventsSetting -> Css.Mixin

@@ -3,13 +3,11 @@ module Heading exposing (..)
 import Html
 import Html.Attributes as Att
 import Html.Events as Events
-import Util.Cmd
 import MyCss
 import Material
 import Material.Typography as Typo
 import Material.Options as Options
 import Util
-import Util.Css
 import Dom
 import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))

@@ -3,7 +3,6 @@ module Description exposing (..)
 import Html
 import Html.Attributes as Att
 import Html.Events as Events
-import Util.Cmd
 import Json.Decode as Decode
 import Json.Decode.Extra exposing ((|:))
 import Json.Encode as Encode
@@ -15,7 +14,6 @@ import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Elevation as Elevation
 import Material.Icon as Icon
-import Util.Css
 
 
 -- MODEL
@@ -101,7 +99,7 @@ view model =
         , MyCss.mdlClass MyCss.Description
         , Options.onMouseOver MouseEnter
         , Options.onMouseOut MouseLeave
-        , Options.attribute <| Util.Css.userSelect True
+        , Options.attribute <| MyCss.userSelect True
         ]
         [ Options.div [ MyCss.mdlClass MyCss.DescriptionText ]
             [ if model.editing then

@@ -6,7 +6,6 @@ import Html.Attributes
 import Util
 import Window
 import MentalMap
-import Util.Cmd
 import Material
 import Material.Layout
 import Material.Button as Button
@@ -277,7 +276,7 @@ update msg model =
         SelectedMapMsg msg_ ->
             case getSelected model of
                 Just old ->
-                    Util.Cmd.update
+                    Util.updateCmd
                         ((flip setSelected) model)
                         SelectedMapMsg
                         (MentalMap.update msg_ old)

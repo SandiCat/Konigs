@@ -14,10 +14,8 @@ import Layout
 import AnimationFrame
 import Time
 import Focus exposing ((=>))
-import Util.Cmd
 import Html
 import Html.Events as Events
-import Util.Css
 import MyCss
 import Css
 import Util
@@ -312,13 +310,13 @@ view size model =
                 |> List.map (\{ id, label } -> view label |> Html.map (NodeMsg id))
     in
         Html.div
-            [ Util.Css.userSelect False
+            [ MyCss.userSelect False
             , Events.onMouseLeave LeaveWindow
             , MyCss.class [ MyCss.AbsolutePos, MyCss.MaxSize, MyCss.MentalMap ]
             ]
             [ Svg.svg
                 [ onDoubleClick Doubleclick
-                , Util.Css.userSelect True
+                , MyCss.userSelect True
                 , SvgAttPx.width <| toFloat size.width
                 , SvgAttPx.height <| toFloat size.height
                 , SvgEvents.onMouseUp Release
@@ -348,7 +346,7 @@ view size model =
               else
                 Html.div
                     [ MyCss.class [ MyCss.AbsolutePos ]
-                    , Util.Css.style
+                    , MyCss.style
                         [ Vec2.getX model.cameraPos |> Css.px |> Css.left
                         , Vec2.getY model.cameraPos |> Css.px |> Css.top
                         ]
