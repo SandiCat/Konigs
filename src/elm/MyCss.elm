@@ -7,6 +7,8 @@ import Html.CssHelpers
 import Html
 import Html.Attributes
 import Material.Options
+import TypedSvg.Core
+import TypedSvg.Attributes
 
 
 namespaceName =
@@ -25,6 +27,11 @@ style =
 mdlClass : CssClasses -> Material.Options.Property c m
 mdlClass =
     toString >> (++) namespaceName >> Material.Options.cs
+
+
+svgClass : List CssClasses -> TypedSvg.Core.Attribute msg
+svgClass =
+    List.map (toString >> (++) namespaceName) >> TypedSvg.Attributes.class
 
 
 type CssClasses

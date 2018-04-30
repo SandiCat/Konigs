@@ -315,7 +315,7 @@ view size model =
             ]
             [ Svg.svg
                 [ onDoubleClick Doubleclick
-                , MyCss.class [ MyCss.MentalMapSvg ]
+                , MyCss.svgClass [ MyCss.MentalMapSvg ]
                 , SvgAttPx.width <| toFloat size.width
                 , SvgAttPx.height <| toFloat size.height
                 , SvgEvents.onMouseUp Release
