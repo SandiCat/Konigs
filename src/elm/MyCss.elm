@@ -44,6 +44,7 @@ type CssClasses
     | MenuButtons
     | File
     | MentalMap
+    | MentalMapSvg
 
 
 type CssIds
@@ -78,6 +79,7 @@ css =
             , zIndex (int 100)
             , displayFlex
             , flexDirection row
+            , userSelect True
             ]
         , (.) DescriptionToolbar
             [ paddingLeft (px 20)
@@ -145,31 +147,30 @@ css =
         , (.) File
             [ height (px 50) ]
         , (.) MentalMap
-            [ overflow hidden ]
+            [ overflow hidden
+            , userSelect False
+            ]
+        , (.) MentalMapSvg
+            [ userSelect False
+            ]
         , html
             [ position absolute
             ]
         , selector ".mdl-layout__drawer-button"
             [ color (rgba 140 168 218 0.8)
-            , property "user-select" "none"
+            , userSelect False
             ]
         ]
 
 
-userSelect : Bool -> Html.Attribute msg
+userSelect : Bool -> Css.Mixin
 userSelect selectable =
-    let
-        value =
-            if selectable then
-                "text"
-            else
-                "none"
-    in
-        Html.Attributes.style
-            [ ( "-moz-user-select", value )
-            , ( "-webkit-user-select", value )
-            , ( "-ms-user-select", value )
-            ]
+    property "user-select"
+        (if selectable then
+            "text"
+         else
+            "none"
+        )
 
 
 pointerEvents : PointerEventsSetting -> Css.Mixin

@@ -99,7 +99,6 @@ view model =
         , MyCss.mdlClass MyCss.Description
         , Options.onMouseOver MouseEnter
         , Options.onMouseOut MouseLeave
-        , Options.attribute <| MyCss.userSelect True
         ]
         [ Options.div [ MyCss.mdlClass MyCss.DescriptionText ]
             [ if model.editing then

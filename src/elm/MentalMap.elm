@@ -310,13 +310,12 @@ view size model =
                 |> List.map (\{ id, label } -> view label |> Html.map (NodeMsg id))
     in
         Html.div
-            [ MyCss.userSelect False
-            , Events.onMouseLeave LeaveWindow
+            [ Events.onMouseLeave LeaveWindow
             , MyCss.class [ MyCss.AbsolutePos, MyCss.MaxSize, MyCss.MentalMap ]
             ]
             [ Svg.svg
                 [ onDoubleClick Doubleclick
-                , MyCss.userSelect True
+                , MyCss.class [ MyCss.MentalMapSvg ]
                 , SvgAttPx.width <| toFloat size.width
                 , SvgAttPx.height <| toFloat size.height
                 , SvgEvents.onMouseUp Release
