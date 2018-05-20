@@ -24,12 +24,13 @@ type alias Model =
     , text : String
     , mouseIn : Bool
     , editing : Bool
+    , maximized : Bool
     }
 
 
 init : String -> Model
 init text =
-    Model Material.model text False False
+    Model Material.model text False False False
 
 
 
@@ -59,6 +60,7 @@ type Msg
     | MouseLeave
     | Edit
     | TextChange String
+    | ToggleMaximize
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -79,6 +81,9 @@ update msg model =
         TextChange text ->
             { model | text = text } ! []
 
+        ToggleMaximize ->
+            { model | maximized = not model.maximized } ! []
+
 
 
 -- VIEW
@@ -97,20 +102,21 @@ view model =
             Elevation.e4
         , Elevation.transition 250
         , MyCss.mdlClass MyCss.Description
+        , MyCss.mdlClass <|
+            if model.maximized then
+                MyCss.DescriptionMaximized
+            else
+                MyCss.DescriptionSmall
         , Options.onMouseOver MouseEnter
         , Options.onMouseOut MouseLeave
         ]
-        [ Options.div [ MyCss.mdlClass MyCss.DescriptionText ]
+        [ Options.div [ MyCss.mdlClass MyCss.DescriptionContent ]
             [ if model.editing then
-                Textfield.render MdlMsg
-                    [ 1 ]
-                    model.mdl
-                    [ Typo.body1
-                    , Textfield.label emptyText
-                    , Textfield.textarea
-                    , Textfield.value model.text
-                    , Options.onInput TextChange
-                    , Textfield.rows 10
+                Options.styled_ Html.textarea
+                    [ Typo.body1 ]
+                    [ MyCss.class [ MyCss.DescriptionEdit ]
+                    , Att.value model.text
+                    , Events.onInput TextChange
                     ]
                     []
               else if model.text == "" then
@@ -120,13 +126,17 @@ view model =
                     ]
                     [ Html.i [] [ Html.text emptyText ] ]
               else
-                Options.div [ Typo.body1 ] [ Html.text model.text ]
+                Options.div
+                    [ MyCss.mdlClass MyCss.DescriptionText
+                    , Typo.body1
+                    ]
+                    [ Html.text model.text ]
             ]
-        , if model.mouseIn || model.editing then
+        , if model.mouseIn || model.editing || model.maximized then
             Options.div
                 [ MyCss.mdlClass MyCss.DescriptionToolbar ]
                 [ Button.render MdlMsg
-                    [ 0 ]
+                    [ 0, 0 ]
                     model.mdl
                     [ Button.fab
                     , Button.colored
@@ -136,6 +146,17 @@ view model =
                         Icon.i "done"
                       else
                         Icon.i "edit"
+                    ]
+                , Button.render MdlMsg
+                    [ 0, 1 ]
+                    model.mdl
+                    [ Button.minifab
+                    , Options.onClick ToggleMaximize
+                    ]
+                    [ if model.maximized then
+                        Icon.i "fullscreen_exit"
+                      else
+                        Icon.i "fullscreen"
                     ]
                 ]
           else

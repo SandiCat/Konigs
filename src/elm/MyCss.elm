@@ -39,12 +39,16 @@ type CssClasses
     | NodeCont
     | MaxSize
     | HeadingText
-    | Description
     | ContextMenu
     | MenuIcon
     | AbsolutePos
+    | Description
+    | DescriptionMaximized
+    | DescriptionSmall
+    | DescriptionContent
     | DescriptionToolbar
     | DescriptionText
+    | DescriptionEdit
     | DescriptionEmpty
     | Edge
     | MenuButtons
@@ -75,30 +79,59 @@ css =
             , focus [ outline none ]
             ]
         , (.) Description
-            [ minHeight (px 100)
+            [ backgroundColor (rgba 140 168 218 0.8)
             , padding (px 10)
-            , backgroundColor (rgba 140 168 218 0.8)
             , position absolute
-            , top (pct 50)
-            , left (pct 100)
-            , marginLeft (px 20)
-            , transform (translateY (pct -50))
             , zIndex (int 100)
             , displayFlex
             , flexDirection row
             , userSelect True
             ]
+        , (.) DescriptionSmall
+            [ height (px 200)
+            , top (pct 50)
+            , left (pct 100)
+            , marginLeft (px 20)
+            , transform (translateY (pct -50))
+            , children
+                [ (.) DescriptionContent
+                    [ width (px 300) ]
+                ]
+            ]
+        , (.) DescriptionMaximized
+            [ position fixed
+            , width (vw 60)
+            , height (vh 80)
+            , top (vh 10)
+            , left (vw 20)
+            , children
+                [ (.) DescriptionContent
+                    [ flexGrow (int 1)
+                    , paddingLeft (px 20)
+                    ]
+                ]
+            ]
+        , (.) DescriptionEdit
+            [ resize none
+            , backgroundColor <| rgba 0 0 0 0.1
+            , width (pct 100)
+            , height (pct 100)
+            ]
         , (.) DescriptionToolbar
             [ paddingLeft (px 20)
-            , float right
+            , displayFlex
+            , flexDirection column
             ]
         , (.) DescriptionText
-            [ width (px 200) ]
-        , (.) DescriptionEmpty
-            [ width (px 200)
+            [ overflowY auto
             , height (pct 100)
-            , verticalAlign middle
-            , textAlign center
+            ]
+        , (.) DescriptionEmpty
+            [ width (pct 100)
+            , height (pct 100)
+            , displayFlex
+            , justifyContent center
+            , alignItems center
             ]
         , selector "::selection" [ property "background" "#ee7883" |> important ]
         , (.) AbsolutePos
