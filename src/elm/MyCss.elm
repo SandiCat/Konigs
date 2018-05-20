@@ -124,6 +124,7 @@ css =
             ]
         , (.) DescriptionText
             [ overflowY auto
+            , overflowX hidden
             , height (pct 100)
             ]
         , (.) DescriptionEmpty

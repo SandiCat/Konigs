@@ -14,6 +14,7 @@ import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Elevation as Elevation
 import Material.Icon as Icon
+import Markdown
 
 
 -- MODEL
@@ -25,12 +26,28 @@ type alias Model =
     , mouseIn : Bool
     , editing : Bool
     , maximized : Bool
+    , markdown : Html.Html Msg
     }
 
 
 init : String -> Model
 init text =
-    Model Material.model text False False False
+    { mdl = Material.model
+    , text = text
+    , mouseIn = False
+    , editing = False
+    , maximized = False
+    , markdown = Markdown.toHtml [] text
+    }
+
+
+changeText : String -> Model -> Model
+changeText text model =
+    { model
+        | text = text
+
+        --, markdown = Markdown.toHtml [] text
+    }
 
 
 
@@ -79,7 +96,7 @@ update msg model =
             { model | editing = not model.editing } ! []
 
         TextChange text ->
-            { model | text = text } ! []
+            changeText text model ! []
 
         ToggleMaximize ->
             { model | maximized = not model.maximized } ! []
@@ -130,7 +147,7 @@ view model =
                     [ MyCss.mdlClass MyCss.DescriptionText
                     , Typo.body1
                     ]
-                    [ Html.text model.text ]
+                    [ model.markdown ]
             ]
         , if model.mouseIn || model.editing || model.maximized then
             Options.div
