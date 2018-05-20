@@ -47,11 +47,11 @@ type CssClasses
     | DescriptionText
     | DescriptionEmpty
     | Edge
-    | Menu
     | MenuButtons
     | File
     | MentalMap
     | MentalMapSvg
+    | Help
 
 
 type CssIds
@@ -143,9 +143,6 @@ css =
             , flexDirection row
             , paddingBottom (px 20)
             ]
-        , (.) Menu
-            [ height (pct 100)
-            ]
         , (.) MenuButtons
             [ position absolute
             , bottom (px 20)
@@ -160,12 +157,22 @@ css =
         , (.) MentalMapSvg
             [ userSelect False
             ]
+        , (.) Help
+            [ paddingLeft (pct 8)
+            , paddingRight (pct 8)
+            , margin auto
+            , overflow auto
+            , height (pct 100)
+            ]
         , html
             [ position absolute
             ]
         , selector ".mdl-layout__drawer-button"
             [ color (rgba 140 168 218 0.8)
             , userSelect False
+            ]
+        , selector ".mdl-layout__drawer.is-visible"
+            [ overflow hidden
             ]
         ]
 

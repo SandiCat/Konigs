@@ -14,6 +14,7 @@ import Material.Options as Options
 import Material.Textfield as Textfield
 import Material.Elevation as Elevation
 import Material.Icon as Icon
+import Material.Tabs as Tabs
 import Material.Color
 import Material.List
 import Material.Spinner
@@ -29,6 +30,8 @@ import Json.Encode as Encode
 import Array.Extra
 import Keyboard.Extra
 import Time
+import Css
+import Markdown
 
 
 -- MODEL
@@ -48,6 +51,7 @@ type alias Model =
        The state of not having any files (before loading them) is represented
        by `files` being empty.
     -}
+    , selectedTab : Int
     }
 
 
@@ -57,6 +61,7 @@ init =
         (Util.Size 0 0)
         True
         Array.empty
+        0
         0
         ! [ Task.perform Resize Window.size
           , loadCmd
@@ -262,6 +267,7 @@ type Msg
     | MouseOutFile FileId
     | Save
     | Loaded ( LocalStorage.Key, LocalStorage.Value )
+    | SelectTab Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -321,6 +327,9 @@ update msg model =
             else
                 Util.crashLog "Recieved item from an unknown key" model ! []
 
+        SelectTab i ->
+            { model | selectedTab = i } ! []
+
 
 
 -- VIEW
@@ -346,15 +355,72 @@ view model =
                             [ Material.Spinner.active True ]
                         ]
             ]
-        , drawer = [ viewMenu model ]
+        , drawer = [ viewDrawer model ]
         , header = []
         , tabs = ( [], [] )
         }
 
 
+viewDrawer : Model -> Html.Html Msg
+viewDrawer model =
+    Options.div []
+        [ Tabs.render MdlMsg
+            [ 0 ]
+            model.mdl
+            [ Tabs.ripple
+            , Tabs.onSelectTab SelectTab
+            , Tabs.activeTab model.selectedTab
+            ]
+            [ Tabs.label
+                [ Options.center ]
+                [ Icon.i "info_outline"
+                , spacer 4
+                , Html.text "Help"
+                ]
+            , Tabs.label
+                [ Options.center ]
+                [ Icon.i "folder_open"
+                , spacer 4
+                , Html.text "Files"
+                ]
+            ]
+            [ case model.selectedTab of
+                0 ->
+                    helpTab
+
+                1 ->
+                    viewMenu model
+
+                _ ->
+                    Util.crashLog "unknown model.selectedTab value" helpTab
+            ]
+        ]
+
+
+spacer : Float -> Html.Html a
+spacer width =
+    Html.span [ MyCss.style [ Css.width <| Css.px width ] ] []
+
+
+helpTab : Html.Html a
+helpTab =
+    (Options.styled Markdown.toHtml) [ MyCss.mdlClass MyCss.Help, Typo.body1 ] """
+##### Instructions:
+* Double click to make a new node
+* Click a on node's text to edit it
+* Drag from one node to another to connect them
+* Hold `shift` while connecting for a directed edge
+* Drag the background to pan the view
+
+##### Welcome to Konigs!
+
+Use it to map your thoughts. A node is a *thing*: a person, event, image, diagram, formula, object, idea... whatever. By connecting related things, you begin to understand the big picture. Konigs will automatically organize your nodes.
+"""
+
+
 viewMenu : Menu r -> Html.Html Msg
 viewMenu menu =
-    Options.div [ MyCss.mdlClass MyCss.Menu ]
+    Options.div []
         [ if menu.loading then
             Material.Progress.indeterminate
           else
@@ -364,7 +430,7 @@ viewMenu menu =
         , List.indexedMap
             (\i ( msg, iconName, description ) ->
                 Button.render MdlMsg
-                    [ 1, 0, i ]
+                    [ 1, 1, 0, i ]
                     menu.mdl
                     [ Button.minifab
 
@@ -399,7 +465,7 @@ viewFile menu id file =
             ]
             [ if file.renaming then
                 Textfield.render MdlMsg
-                    [ 0, 0, id ]
+                    [ 1, 0, 0, id ]
                     menu.mdl
                     [ Options.onInput (ChangeFilename id)
                     , Options.onBlur (ExitRenaming id)
@@ -420,7 +486,7 @@ viewFile menu id file =
                 List.indexedMap
                     (\i ( msg, iconName, description ) ->
                         Button.render MdlMsg
-                            [ 0, 1, i ]
+                            [ 1, 0, 1, i ]
                             menu.mdl
                             [ Button.icon
                             , Options.onClick msg
