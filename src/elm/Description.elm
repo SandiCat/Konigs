@@ -45,8 +45,7 @@ changeText : String -> Model -> Model
 changeText text model =
     { model
         | text = text
-
-        --, markdown = Markdown.toHtml [] text
+        , markdown = Markdown.toHtml [] text
     }
 
 
