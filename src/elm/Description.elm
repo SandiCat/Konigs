@@ -132,7 +132,9 @@ view model =
                 Options.styled_ Html.textarea
                     [ Typo.body1 ]
                     [ MyCss.class [ MyCss.DescriptionEdit ]
-                    , Att.value model.text
+                    , Att.defaultValue model.text
+
+                    -- defaultValue instead of value because https://github.com/elm-lang/html/issues/105
                     , Events.onInput TextChange
                     ]
                     []
