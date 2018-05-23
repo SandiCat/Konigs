@@ -116,6 +116,7 @@ css =
             , backgroundColor <| rgba 0 0 0 0.1
             , width (pct 100)
             , height (pct 100)
+            , borderStyle none
             ]
         , (.) DescriptionToolbar
             [ paddingLeft (px 20)
