@@ -139,17 +139,21 @@ addFile filename data menu =
 
 deleteFile : FileId -> Menu r -> Menu r
 deleteFile id menu =
-    if isMenuEmpty menu then
-        toStartingMenu menu
-    else
-        { menu
-            | selection =
-                if menu.selection == id then
-                    0
-                else
-                    menu.selection
-            , files = Array.Extra.removeAt id menu.files
-        }
+    let
+        newMenu =
+            { menu
+                | selection =
+                    if menu.selection == id then
+                        0
+                    else
+                        menu.selection
+                , files = Array.Extra.removeAt id menu.files
+            }
+    in
+        if isMenuEmpty newMenu then
+            toStartingMenu newMenu
+        else
+            newMenu
 
 
 mapFile : FileId -> (File -> File) -> Menu r -> Menu r
