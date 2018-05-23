@@ -314,7 +314,7 @@ view size model =
             , MyCss.class [ MyCss.AbsolutePos, MyCss.MaxSize, MyCss.MentalMap ]
             ]
             [ Svg.svg
-                [ onDoubleClick Doubleclick
+                [ Events.onDoubleClick Doubleclick
                 , MyCss.svgClass [ MyCss.MentalMapSvg ]
                 , SvgAttPx.width <| toFloat size.width
                 , SvgAttPx.height <| toFloat size.height
@@ -355,11 +355,6 @@ view size model =
                         |> (flip (++)) (edges Edge.view)
                     )
             ]
-
-
-onDoubleClick : Msg -> SvgCore.Attribute Msg
-onDoubleClick msg =
-    SvgEvents.on "dblclick" <| Decode.succeed msg
 
 
 
