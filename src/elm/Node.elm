@@ -123,11 +123,14 @@ update msg model =
 
         DescriptionMsg descMsg ->
             let
-                ( desc, descCmd ) =
+                newDescription =
                     Description.update descMsg model.description
             in
-                ( { model | description = desc }
-                , Cmd.map DescriptionMsg descCmd
+                ( { model
+                    | description = newDescription.model
+                    , showDescription = not newDescription.closed
+                  }
+                , Cmd.map DescriptionMsg newDescription.cmd
                 , Nothing
                 )
 

@@ -77,28 +77,45 @@ type Msg
     | Edit
     | TextChange String
     | ToggleMaximize
+    | Close
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> { model : Model, cmd : Cmd Msg, closed : Bool }
 update msg model =
-    case msg of
-        MouseEnter ->
-            { model | mouseIn = True } ! []
+    let
+        ( newModel, cmd ) =
+            case msg of
+                MouseEnter ->
+                    { model | mouseIn = True } ! []
 
-        MouseLeave ->
-            { model | mouseIn = False } ! []
+                MouseLeave ->
+                    { model | mouseIn = False } ! []
 
-        MdlMsg msg_ ->
-            Material.update MdlMsg msg_ model
+                MdlMsg msg_ ->
+                    Material.update MdlMsg msg_ model
 
-        Edit ->
-            { model | editing = not model.editing } ! []
+                Edit ->
+                    { model | editing = not model.editing } ! []
 
-        TextChange text ->
-            changeText text model ! []
+                TextChange text ->
+                    changeText text model ! []
 
-        ToggleMaximize ->
-            { model | maximized = not model.maximized } ! []
+                ToggleMaximize ->
+                    { model | maximized = not model.maximized } ! []
+
+                Close ->
+                    { model | maximized = False } ! []
+    in
+        { model = newModel
+        , cmd = cmd
+        , closed =
+            case msg of
+                Close ->
+                    True
+
+                _ ->
+                    False
+        }
 
 
 
@@ -175,6 +192,14 @@ view model =
                         Icon.i "fullscreen_exit"
                       else
                         Icon.i "fullscreen"
+                    ]
+                , Button.render MdlMsg
+                    [ 0, 2 ]
+                    model.mdl
+                    [ Button.minifab
+                    , Options.onClick Close
+                    ]
+                    [ Icon.i "close"
                     ]
                 ]
           else
